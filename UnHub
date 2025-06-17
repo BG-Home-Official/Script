@@ -1,0 +1,477 @@
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Rayfield%20Library'))()
+local player = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local startTime = time()
+local frameCount, timeElapsed, lastUpdate = 0, 0, 0
+
+local api = {}
+pcall(function()
+    api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
+end)
+
+local Window = Rayfield:CreateWindow({
+   Name = "UnHub | by LE_GO89",
+   Icon = 0,
+   LoadingTitle = "UnHub",
+   LoadingSubtitle = "by LE_GO89",
+   Theme = "Default",
+   ToggleUIKeybind = "H",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = ""
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "",
+      RememberJoins = true
+   },
+   KeySystem = false
+})
+
+-- Main Tab
+local Main = Window:CreateTab("Main", 125058207637011)
+local fps = Main:CreateSection("FPS: 0")
+Main:CreateSection("Username : " .. player.Name)
+Main:CreateSection("Display Name: " .. player.DisplayName)
+Main:CreateSection("UserId : " .. player.UserId)
+Main:CreateSection("Account Age: " .. player.AccountAge)
+Main:CreateSection("GameID : " .. game.PlaceId)
+local PlayerInGame = Main:CreateSection("Players : 0")
+pcall(function()
+	Main:CreateSection("Game : " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name)
+end)
+Main:CreateSection("ServerID : " .. game.JobId)
+Main:CreateSection("IP: " .. (api.ip or "Unknown"))
+Main:CreateSection("Country : " .. (api.country or "Unknown") .. " " .. (api.country_code or ""))
+local position = Main:CreateSection("")
+local health = Main:CreateSection("")
+local GameTime = Main:CreateSection("")
+local RR = Main:CreateSection("")
+
+pcall(function()
+	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if hum and hum.RigType == Enum.HumanoidRigType.R15 then
+		RR:Set("Type: R15")
+	else
+		RR:Set("Type: R6")
+	end
+end)
+
+local Movement = Window:CreateTab("Movement", 9657060536)
+
+local function createStatSection(tab, statName, defaultValue, propertyName, target)
+    tab:CreateSection(statName)
+    tab:CreateButton({
+        Name = "Reset",
+        Callback = function()
+            target[propertyName] = defaultValue
+        end
+    })
+    tab:CreateInput({
+        Name = statName,
+        CurrentValue = "",
+        PlaceholderText = "",
+        RemoveTextAfterFocusLost = true,
+        Callback = function(Value)
+            local number = tonumber(Value)
+            if number then
+                target[propertyName] = number
+            end
+        end
+    })
+end
+
+local hum = player.Character and player.Character:WaitForChild("Humanoid")
+if hum then
+    createStatSection(Movement, "Walk Speed", 16, "WalkSpeed", hum)
+    createStatSection(Movement, "Jump Power", 50, "JumpPower", hum)
+end
+createStatSection(Movement, "Gravity", 192.6, "Gravity", workspace)
+
+local Tool = Window:CreateTab("Tool", 6767454852)
+Tool:CreateSection("Tools")
+
+local T = {
+    {N = "TP Tool", U = "https://pastebin.com/raw/R9fcTqCb"},
+    {N = "Block Tool", U = "https://pastebin.com/raw/G7GxjjEU"},
+    {N = "Print Pos Tool", U = "https://pastebin.com/raw/0gsvwvQK"},
+    {N = "Super Tool", U = "https://pastebin.com/raw/aBcvhQEb"},
+    {N = "Fly Tool", U = "https://pastebin.com/raw/pbP1kDjr"},
+    {N = "NoClip Tool", U = "https://pastebin.com/raw/QzP1mSva"},
+    {N = "Swim Tool", U = "https://pastebin.com/raw/262LDFAY"},
+    {N = "Freeze Tool", U = "https://pastebin.com/raw/LKBe81cq"},
+    {N = "FreeCam Tool", U = "https://pastebin.com/raw/bqMTahuy"},
+    {N = "Spin Tool", U = "https://pastebin.com/raw/AS9nQJiY"},
+    {N = "Jerk Tool", U = "https://pastebin.com/raw/Zu9zZdGC"},
+    {N = "Lag Tool", U = "https://pastebin.com/raw/dgnj12Yd"},
+    {N = "Punch Tool R6", U = "https://pastebin.com/raw/wADytSMq"},
+    {N = "Telekinesis Tool", U = "https://pastebin.com/raw/jzUqtJmf"},
+}
+for i, t in pairs(T) do
+    Tool:CreateButton({Name = t.N, Callback = function()
+        loadstring(game:HttpGet(t.U))()
+    end})
+end
+
+local Esp = Window:CreateTab("Esp", 6523858394)
+Esp:CreateSection("Esp")
+
+local E = {
+    {N = "Esp Name", U1 = "https://pastebin.com/raw/tByVj9yS", U2 = "https://pastebin.com/raw/9LmxJ7v9"},
+    {N = "Esp UserID", U1 = "https://pastebin.com/raw/xSWhyND9", U2 = "https://pastebin.com/raw/UkxdiMvK"},
+    {N = "Esp Health", U1 = "https://pastebin.com/raw/P2UYkhs1", U2 = "https://pastebin.com/raw/m4M1SwK3"},
+    {N = "Esp Account Age", U1 = "https://pastebin.com/raw/6VGh3STE", U2 = "https://pastebin.com/raw/pCD17Nwm"},
+    {N = "Esp Display Name", U1 = "https://pastebin.com/raw/CzbT5gQE", U2 = "https://pastebin.com/raw/ycpaM6uq"},
+    {N = "Esp Highlights", U1 = "https://pastebin.com/raw/qkrmZ5tr", U2 = "https://pastebin.com/raw/peDyUsFy"},
+    {N = "Esp Position", U1 = "https://pastebin.com/raw/1PgQeJRx", U2 = "https://pastebin.com/raw/SzfAJLgp"},
+    {N = "Esp Distance", U1 = "https://pastebin.com/raw/2Rvic5rv", U2 = "https://pastebin.com/raw/v5q0Jqeg"},
+    {N = "X-ray", U1 = "https://pastebin.com/raw/v5WPHqsd", U2 = "https://pastebin.com/raw/EiMiSBis"},
+}
+
+local EspBox = loadstring(game:HttpGet("https://pastebin.com/raw/agFnyvEr"))()
+Esp:CreateToggle({Name = "Esp Box", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        EspBox:on()
+    else
+        EspBox:off()
+    end
+end})
+
+for i, e in pairs(E) do
+    Esp:CreateToggle({Name = e.N, CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+        if Value then
+            loadstring(game:HttpGet(e.U1))()
+        else
+            loadstring(game:HttpGet(e.U2))()
+        end
+    end})
+end
+
+local UnHub = Window:CreateTab("UnHub Script", 86591853167234)
+UnHub:CreateSection("UnHub Script")
+
+local U = {
+    {N = "UnHub: Fe", U = "https://pastefy.app/jgBN1P1P/raw"},
+    {N = "UnHub: Audio", U = "https://pastebin.com/raw/2dA8A07r"},
+    {N = "UnHub: Custom animation", U = "https://pastebin.com/raw/bsjbiqf1"},
+    {N = "UnHub: Emote", U = "https://pastebin.com/raw/y6mk6rjN"},
+    {N = "Position", U = "https://pastebin.com/raw/8A5Y6EGp"},
+    {N = "Calculator", U = "https://pastebin.com/raw/6X4FhAgV"},
+    {N = "Fly: Hero", U = "https://pastebin.com/raw/s3gHVQ3H"},
+    {N = "Fly: Normal", U = "https://pastebin.com/raw/dmPAAcMq"},
+    {N = "FreeCam", U = "https://pastebin.com/raw/siSuEhpE"},
+    {N = "Spin", U = "https://pastebin.com/raw/Xep7v92f"},
+    {N = "NoClip", U = "https://pastebin.com/raw/ck5WYjY5"},
+    {N = "Swim", U = "https://pastebin.com/raw/k8Eirqf0"},
+    {N = "Invisible", U = "https://pastebin.com/raw/TX7EYrCE"},
+    {N = "Part Name", U = "https://pastebin.com/raw/u9KJ1Pdx"},
+    {N = "Bang", U = "https://pastebin.com/raw/TY8UabmX"},
+    {N = "Get Banged", U = "https://pastebin.com/raw/pMdGejeW"},
+    {N = "Shift Lock", U = "https://pastebin.com/raw/KaH3Bb2r"},
+    {N = "Gui Edior", U = "https://pastebin.com/raw/qnYj7JYm"},
+    {N = "Script Edior", U = "https://pastebin.com/raw/ce05FKFH"},
+}
+
+for i, u in pairs(U) do
+    UnHub:CreateButton({Name = u.N, Callback = function()
+        loadstring(game:HttpGet(u.U))()
+    end})
+end
+
+local Dev = Window:CreateTab("Dev Script", 86591853167234)
+Dev:CreateSection("Dev Script")
+
+local D = {
+    {N = "SimpleSpy", U = "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"},
+    {N = "Keyboard", U = "https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/keyboard"},
+    {N = "Dex V2", U = "https://cdn.wearedevs.net/scripts/Dex%20Explorer.txt"},
+    {N = "Dex V3", U = "https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua"},
+    {N = "Dex V4", U = "https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"},
+}
+
+for i, d in pairs(D) do
+    Dev:CreateButton({Name = d.N, Callback = function()
+            loadstring(game:HttpGet(d.U))()
+    end})
+end
+
+local Other = Window:CreateTab("Other", 11713339600)
+Other:CreateSection("Other")
+
+Other:CreateInput({Name = "Tp To Player", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(Text)
+    local txt = tostring(Text):lower()
+    local localPlayer = game.Players.LocalPlayer
+    local localChar = localPlayer.Character
+    local localHRP = localChar and localChar:FindFirstChild("HumanoidRootPart")
+
+    if not localHRP then return end
+
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= localPlayer then
+            if string.find(player.Name:lower(), txt) then
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    localHRP.CFrame = targetHRP.CFrame
+                    break
+                end
+            end
+        end
+    end
+end})
+
+Other:CreateInput({Name = "Tp To Position", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    local delimiter = string.find(txt, ",") and "," or " "
+    local coords = string.split(txt, delimiter)
+    if #coords ~= 3 then
+        return
+    end
+    local x = tonumber(coords[1])
+    local y = tonumber(coords[2])
+    local z = tonumber(coords[3])
+    if not x or not y or not z then
+        return
+    end
+    y = y + 1
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
+end})
+
+Other:CreateInput({Name = "Tp To Game", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    game:GetService("TeleportService"):Teleport(Value)
+end})
+
+Other:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            local found = string.find(player.Name:lower(), txt)
+            if found then
+                local cam = workspace.CurrentCamera
+                if player.Character and player.Character:FindFirstChild("Humanoid") then
+                    cam.CameraSubject = player.Character.Humanoid
+                    break
+                end
+            end
+        end
+    end
+end})
+
+Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if game:GetService('TextChatService').ChatVersion == Enum.ChatVersion.LegacyChatService then
+        game:GetService('ReplicatedStorage'):WaitForChild('DefaultChatSystemChatEvents'):WaitForChild('SayMessageRequest'):FireServer(txt, 'All')
+    else
+        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(txt)
+    end
+end})
+
+Other:CreateButton({Name = "Reset", Callback = function()
+    game.Players.LocalPlayer.Character.Humanoid.Health = 0
+end})
+
+Other:CreateButton({Name = "Reset Spectator", Callback = function()
+    game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
+end})
+
+Other:CreateButton({Name = "Rejoin", Callback = function()
+    game:GetService("TeleportService"):Teleport(game.PlaceId)
+end})
+
+local InfiniteJumpEnabled = false
+local InfiniteJumpConnection
+
+Other:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    InfiniteJumpEnabled = Value
+    if Value and not InfiniteJumpConnection then
+        InfiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+            if InfiniteJumpEnabled then
+                local humanoid = game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end
+        end)
+    elseif not Value and InfiniteJumpConnection then
+        InfiniteJumpConnection:Disconnect()
+        InfiniteJumpConnection = nil
+    end
+end})
+
+Other:CreateButton({Name = "Auto Rejoin", Callback = function()
+    task.spawn(function()
+        while wait() do
+            if game.CoreGui.RobloxPromptGui.promptOverlay:WaitForChild("ErrorPrompt"):WaitForChild("MessageArea"):WaitForChild("ErrorFrame"):WaitForChild("ButtonArea"):FindFirstChild("LeaveButton") then
+                game:GetService("TeleportService"):Teleport(game.PlaceId)
+            end
+        end
+    end)
+end})
+
+Other:CreateButton({Name = "Console", Callback = function()
+    game.StarterGui:SetCore("DevConsoleVisible", true)
+end})
+
+Other:CreateToggle({Name = "Sit", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    game.Players.LocalPlayer.Character.Humanoid.Sit = Value
+end})
+
+Other:CreateToggle({Name = "Day & Night", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local lighting = game.Lighting
+    if Value then
+        lighting.TimeOfDay = 0
+    else
+        lighting.TimeOfDay = 12
+    end
+end})
+
+local Run
+local speed = 1
+
+Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    speed = tonumber(Value)
+end})
+
+Other:CreateToggle({Name = "Animation Speed", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        local plr = game.Players.LocalPlayer
+        local chr = plr.Character
+        local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+        Run = game:GetService("RunService").Heartbeat:Connect(function()
+        for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+            track:AdjustSpeed(speed)
+        end
+    end)
+    else
+        if Run then
+            Run:Disconnect()
+            Run = nil
+        end
+    end
+end})
+
+Other:CreateToggle({Name = "Freeze Animation", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local animate = game.Players.LocalPlayer.Character.Animate
+    local hum = game.Players.LocalPlayer.Character.Humanoid
+    if Value then
+        animate.Enabled = false
+        for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+            track:AdjustSpeed(0)
+        end
+    else
+        animate.Enabled = true
+        for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+            track:AdjustSpeed(1)
+        end
+    end
+end})
+
+local playlist = {}
+for _, player in pairs(game.Players:GetPlayers()) do
+    table.insert(playlist, player.Name)
+end
+
+Other:CreateButton({Name = "Refresh", Callback = function()
+    playlist = {}
+    for _, player in pairs(game.Players:GetPlayers()) do
+        table.insert(playlist, player.Name)
+    end
+    CPN:Refresh(playlist)
+    TP:Refresh(playlist)
+    SP:Refresh(playlist)
+end})
+
+Other:CreateToggle({Name = "Equip All Toots", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        for _, tools in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if tools:IsA("Tool") then
+                tools.Parent = game.Players.LocalPlayer.Character
+            end
+        end
+    else
+        for _, tools in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+            if tools:IsA("Tool") then
+                tools.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+    end
+end})
+
+local s = Instance.new("Sound", game.Workspace)
+local a = Instance.new("Animation")
+local AT
+
+Other:CreateInput({Name = "Load Animation", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if string.find(txt, "http://www.roblox.com") then
+        a.AnimationId = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
+    elseif string.find(txt, "rbxassetid://") then
+    	a.AnimationId = txt
+    else
+        a.AnimationId = "rbxassetid://" ..txt
+    end
+end})
+
+Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        AT = hum:LoadAnimation(a)
+        AT:Play()
+    else
+        if AT then
+            AT:Stop()
+        end
+    end
+end})
+
+Other:CreateInput({Name = "Load Sound", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if string.find(txt, "http://www.roblox.com") then
+        s.SoundId = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
+    elseif string.find(txt, "rbxassetid://") then
+    	s.SoundId = txt
+    else
+        s.SoundId = "rbxassetid://" ..txt
+    end
+end})
+
+Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        s:Play()
+    else
+        if s.Playing then
+            s:Stop()
+        end
+    end
+end})
+
+local RunScript = RunService.RenderStepped:Connect(function(deltaTime)
+	frameCount += 1
+	timeElapsed += deltaTime
+	if timeElapsed >= 0.5 then
+		local fpsValue = math.floor(frameCount / timeElapsed + 0.5)
+		fps:Set("FPS: " .. fpsValue)
+		frameCount = 0
+		timeElapsed = 0
+	end
+end)
+
+task.spawn(function()
+	while task.wait(0.5) do
+		PlayerInGame:Set("Players: " .. #game.Players:GetPlayers())
+
+		local char = player.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			local pos = char.HumanoidRootPart.Position
+			position:Set(string.format("X: %d  Y: %d  Z: %d", pos.X, pos.Y, pos.Z))
+		end
+		local h = char and char:FindFirstChildOfClass("Humanoid")
+		if h then
+			health:Set("Health: " .. math.floor(h.Health))
+		end
+
+		local currentTime = time()
+		if currentTime - lastUpdate >= 1 then
+			lastUpdate = currentTime
+			local elapsed = math.floor(currentTime - startTime)
+			local sec = elapsed % 60
+			local min = math.floor(elapsed / 60) % 60
+			local hour = math.floor(elapsed / 3600)
+			GameTime:Set(string.format("Time: %02d:%02d:%02d", hour, min, sec))
+		end
+	end
+end)
