@@ -205,7 +205,7 @@ end
 local Other = Window:CreateTab("Other", 11713339600)
 Other:CreateSection("Other")
 
-Other:CreateInput({Name = "Tp To Player", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(Text)
+Other:CreateInput({Name = "Tp To Player", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
     local txt = tostring(Text):lower()
     local localPlayer = game.Players.LocalPlayer
     local localChar = localPlayer.Character
@@ -226,7 +226,7 @@ Other:CreateInput({Name = "Tp To Player", CurrentValue = "", PlaceholderText = "
     end
 end})
 
-Other:CreateInput({Name = "Tp To Position", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+Other:CreateInput({Name = "Tp To Position", CurrentValue = "", PlaceholderText = "Position", RemoveTextAfterFocusLost = true, Callback = function(txt)
     local delimiter = string.find(txt, ",") and "," or " "
     local coords = string.split(txt, delimiter)
     if #coords ~= 3 then
@@ -242,11 +242,11 @@ Other:CreateInput({Name = "Tp To Position", CurrentValue = "", PlaceholderText =
     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
 end})
 
-Other:CreateInput({Name = "Tp To Game", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(Value)
+Other:CreateInput({Name = "Tp To Game", CurrentValue = "", PlaceholderText = "Game Id", RemoveTextAfterFocusLost = true, Callback = function(Value)
     game:GetService("TeleportService"):Teleport(Value)
 end})
 
-Other:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+Other:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(txt)
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= game.Players.LocalPlayer then
             local found = string.find(player.Name:lower(), txt)
@@ -261,7 +261,7 @@ Other:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "", 
     end
 end})
 
-Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "Text Chat", RemoveTextAfterFocusLost = true, Callback = function(txt)
     if game:GetService('TextChatService').ChatVersion == Enum.ChatVersion.LegacyChatService then
         game:GetService('ReplicatedStorage'):WaitForChild('DefaultChatSystemChatEvents'):WaitForChild('SayMessageRequest'):FireServer(txt, 'All')
     else
@@ -331,7 +331,7 @@ end})
 local Run
 local speed = 1
 
-Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(Value)
+Other:CreateInput({Name = "Change Animation Speed", CurrentValue = "Animation Speed", PlaceholderText = "Text Chat", RemoveTextAfterFocusLost = true, Callback = function(Value)
     speed = tonumber(Value)
 end})
 
@@ -404,7 +404,7 @@ local s = Instance.new("Sound", game.Workspace)
 local a = Instance.new("Animation")
 local AT
 
-Other:CreateInput({Name = "Load Animation", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+Other:CreateInput({Name = "Load Animation", CurrentValue = "", PlaceholderText = "Animation Id", RemoveTextAfterFocusLost = true, Callback = function(txt)
     if string.find(txt, "http://www.roblox.com") then
         a.AnimationId = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
     elseif string.find(txt, "rbxassetid://") then
@@ -425,7 +425,7 @@ Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callb
     end
 end})
 
-Other:CreateInput({Name = "Load Sound", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+Other:CreateInput({Name = "Load Sound", CurrentValue = "", PlaceholderText = "Sound Id", RemoveTextAfterFocusLost = true, Callback = function(txt)
     if string.find(txt, "http://www.roblox.com") then
         s.SoundId = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
     elseif string.find(txt, "rbxassetid://") then
