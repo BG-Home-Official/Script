@@ -106,8 +106,10 @@ local T = {
     {N = "Spin Tool", U = "https://pastebin.com/raw/AS9nQJiY"},
     {N = "Jerk Tool", U = "https://pastebin.com/raw/Zu9zZdGC"},
     {N = "Lag Tool", U = "https://pastebin.com/raw/dgnj12Yd"},
-    {N = "Punch Tool R6", U = "https://pastebin.com/raw/wADytSMq"},
+    {N = "Punch Tool [R6]", U = "https://pastebin.com/raw/wADytSMq"},
     {N = "Telekinesis Tool", U = "https://pastebin.com/raw/jzUqtJmf"},
+    {N = "AK-47 Tool", U = "https://pastebin.com/raw/jzUqtJmf"},
+    
 }
 for i, t in pairs(T) do
     Tool:CreateButton({Name = t.N, Callback = function()
@@ -173,6 +175,7 @@ local U = {
     {N = "Gui Edior", U = "https://pastebin.com/raw/qnYj7JYm"},
     {N = "Executor", U = "https://pastebin.com/raw/ce05FKFH"},
     {N = "Raw Link", U = "https://pastebin.com/raw/XYFgYj1n"},
+    {N = "Get Animation", U = "https://pastebin.com/raw/Ryr373ti"},
 }
 
 for i, u in pairs(U) do
