@@ -176,6 +176,7 @@ local U = {
     {N = "Executor", U = "https://pastebin.com/raw/ce05FKFH"},
     {N = "Raw Link", U = "https://pastebin.com/raw/XYFgYj1n"},
     {N = "Get Animation", U = "https://pastebin.com/raw/Ryr373ti"},
+    {N = "Get Sound", U = "https://pastebin.com/raw/uPcNafSJ"},
 }
 
 for i, u in pairs(U) do
