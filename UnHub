@@ -1,9 +1,16 @@
 local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Rayfield%20Library'))()
 loadstring(game:HttpGet("https://pastebin.com/raw/DxSRTuJz"))()
 local player = game.Players.LocalPlayer
+local OldWalkSpeed = player.Character.Humanoid.WalkSpeed
+local OldJumpPower = player.Character.Humanoid.JumpPower
+local OldGravity = workspace.Gravity
 local RunService = game:GetService("RunService")
+local RunScript
 local startTime = time()
+local AutoRejoin = false
+local Players = game:GetService("Players")
 local frameCount, timeElapsed, lastUpdate = 0, 0, 0
+local WalkSpeedSlider, JumpPowerSlider, Gravity1Slider, Gravity2Slider
 
 local api = {}
 pcall(function()
@@ -30,7 +37,6 @@ local Window = Rayfield:CreateWindow({
    KeySystem = false
 })
 
--- Main Tab
 local Main = Window:CreateTab("Main", 125058207637011)
 local fps = Main:CreateSection("FPS: 0")
 Main:CreateSection("Username : " .. player.Name)
@@ -60,35 +66,71 @@ pcall(function()
 end)
 
 local Movement = Window:CreateTab("Movement", 9657060536)
+Movement:CreateSection("Walk")
 
-local function createStatSection(tab, statName, defaultValue, propertyName, target)
-    tab:CreateSection(statName)
-    tab:CreateButton({
-        Name = "Reset",
-        Callback = function()
-            target[propertyName] = defaultValue
-        end
-    })
-    tab:CreateInput({
-        Name = statName,
-        CurrentValue = "",
-        PlaceholderText = "",
-        RemoveTextAfterFocusLost = true,
-        Callback = function(Value)
-            local number = tonumber(Value)
-            if number then
-                target[propertyName] = number
-            end
-        end
-    })
-end
+Movement:CreateButton({Name = "Reset", Callback = function()
+    player.Character.Humanoid.WalkSpeed = OldWalkSpeed
+    WalkSpeedSlider:Set(OldWalkSpeed)
+end})
 
-local hum = player.Character and player.Character:WaitForChild("Humanoid")
-if hum then
-    createStatSection(Movement, "Walk Speed", 16, "WalkSpeed", hum)
-    createStatSection(Movement, "Jump Power", 50, "JumpPower", hum)
-end
-createStatSection(Movement, "Gravity", 192.6, "Gravity", workspace)
+Movement:CreateInput({Name = "Walk Speed", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    local number = tonumber(Value)
+    if number then
+        player.Character.Humanoid.WalkSpeed = number
+        WalkSpeedSlider:Set(number)
+    end
+end})
+
+WalkSpeedSlider = Movement:CreateSlider({Name = "Walk Speed", Range = {0, 1000}, Increment = 1, Suffix = "Speed", CurrentValue = OldWalkSpeed, Flag = "Slider1", Callback = function(Value)
+    local number = tonumber(Value)
+    if number then
+        player.Character.Humanoid.WalkSpeed = number
+    end
+end})
+
+Movement:CreateSection("Jump")
+
+Movement:CreateButton({Name = "Reset", Callback = function()
+    player.Character.Humanoid.JumpPower = OldJumpPower
+    JumpPowerSlider:Set(OldJumpPower)
+end})
+
+Movement:CreateInput({Name = "Jump Power", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    local number = tonumber(Value)
+    if number then
+        player.Character.Humanoid.JumpPower = number
+        JumpPowerSlider:Set(number)
+    end
+end})
+
+JumpPowerSlider = Movement:CreateSlider({Name = "Jump Power", Range = {0, 1000}, Increment = 1, Suffix = "Power", CurrentValue = OldJumpPower, Flag = "Slider1", Callback = function(Value)
+    local number = tonumber(Value)
+    if number then
+        player.Character.Humanoid.JumpPower = number
+    end
+end})
+
+Movement:CreateSection("Gravity")
+
+Movement:CreateButton({Name = "Reset", Callback = function()
+    workspace.Gravity = OldGravity
+    Gravity1Slider:Set(OldGravity)
+end})
+
+Movement:CreateInput({Name = "Gravity", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    local number = tonumber(Value)
+    if number then
+        workspace.Gravity = number
+        Gravity1Slider:Set(number)
+    end
+end})
+
+Gravity1Slider = Movement:CreateSlider({Name = "Gravity", Range = {-1000, 1000}, Increment = 1, Suffix = "Power", CurrentValue = OldGravity, Flag = "Slider1", Callback = function(Value)
+    local number = tonumber(Value)
+    if number then
+        workspace.Gravity = math.floor(number)
+    end
+end})
 
 local Tool = Window:CreateTab("Tool", 6767454852)
 Tool:CreateSection("Tools")
@@ -108,8 +150,8 @@ local T = {
     {N = "Lag Tool", U = "https://pastebin.com/raw/dgnj12Yd"},
     {N = "Punch Tool [R6]", U = "https://pastebin.com/raw/wADytSMq"},
     {N = "Telekinesis Tool", U = "https://pastebin.com/raw/jzUqtJmf"},
-    {N = "AK-47 Tool", U = "https://pastebin.com/raw/jzUqtJmf"},
-    
+    {N = "AK-47 Tool", U = "https://rawscripts.net/raw/Universal-Script-Visual-AK-47-gun-29467"},
+    {N = "Delete Tool", U = "https://pastebin.com/raw/Et2zxNyk"},
 }
 for i, t in pairs(T) do
     Tool:CreateButton({Name = t.N, Callback = function()
@@ -168,7 +210,7 @@ local U = {
     {N = "NoClip", U = "https://pastebin.com/raw/ck5WYjY5"},
     {N = "Swim", U = "https://pastebin.com/raw/k8Eirqf0"},
     {N = "Invisible", U = "https://pastebin.com/raw/TX7EYrCE"},
-    {N = "Part Name", U = "https://pastebin.com/raw/u9KJ1Pdx"},
+    {N = "Part Path", U = "https://pastebin.com/raw/u9KJ1Pdx"},
     {N = "Bang", U = "https://pastebin.com/raw/TY8UabmX"},
     {N = "Get Banged", U = "https://pastebin.com/raw/pMdGejeW"},
     {N = "Shift Lock", U = "https://pastebin.com/raw/KaH3Bb2r"},
@@ -198,7 +240,7 @@ local D = {
 
 for i, d in pairs(D) do
     Dev:CreateButton({Name = d.N, Callback = function()
-            loadstring(game:HttpGet(d.U))()
+        loadstring(game:HttpGet(d.U))()
     end})
 end
 
@@ -261,7 +303,7 @@ Other:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "Pla
     end
 end})
 
-Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "Text Chat", RemoveTextAfterFocusLost = true, Callback = function(txt)
+Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "Text", RemoveTextAfterFocusLost = true, Callback = function(txt)
     if game:GetService('TextChatService').ChatVersion == Enum.ChatVersion.LegacyChatService then
         game:GetService('ReplicatedStorage'):WaitForChild('DefaultChatSystemChatEvents'):WaitForChild('SayMessageRequest'):FireServer(txt, 'All')
     else
@@ -301,14 +343,8 @@ Other:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Flag = "Toggle
     end
 end})
 
-Other:CreateButton({Name = "Auto Rejoin", Callback = function()
-    task.spawn(function()
-        while wait() do
-            if game.CoreGui.RobloxPromptGui.promptOverlay:WaitForChild("ErrorPrompt"):WaitForChild("MessageArea"):WaitForChild("ErrorFrame"):WaitForChild("ButtonArea"):FindFirstChild("LeaveButton") then
-                game:GetService("TeleportService"):Teleport(game.PlaceId)
-            end
-        end
-    end)
+Other:CreateToggle({Name = "Auto Rejoin", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local AutoRejoin = Value
 end})
 
 Other:CreateButton({Name = "Console", Callback = function()
@@ -331,7 +367,7 @@ end})
 local Run
 local speed = 1
 
-Other:CreateInput({Name = "Change Animation Speed", CurrentValue = "Animation Speed", PlaceholderText = "Text Chat", RemoveTextAfterFocusLost = true, Callback = function(Value)
+Other:CreateInput({Name = "Change Animation Speed", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
     speed = tonumber(Value)
 end})
 
@@ -341,10 +377,10 @@ Other:CreateToggle({Name = "Animation Speed", CurrentValue = false, Flag = "Togg
         local chr = plr.Character
         local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
         Run = game:GetService("RunService").Heartbeat:Connect(function()
-        for _, track in pairs(hum:GetPlayingAnimationTracks()) do
-            track:AdjustSpeed(speed)
-        end
-    end)
+            for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+                track:AdjustSpeed(speed)
+            end
+        end)
     else
         if Run then
             Run:Disconnect()
@@ -367,21 +403,6 @@ Other:CreateToggle({Name = "Freeze Animation", CurrentValue = false, Flag = "Tog
             track:AdjustSpeed(1)
         end
     end
-end})
-
-local playlist = {}
-for _, player in pairs(game.Players:GetPlayers()) do
-    table.insert(playlist, player.Name)
-end
-
-Other:CreateButton({Name = "Refresh", Callback = function()
-    playlist = {}
-    for _, player in pairs(game.Players:GetPlayers()) do
-        table.insert(playlist, player.Name)
-    end
-    CPN:Refresh(playlist)
-    TP:Refresh(playlist)
-    SP:Refresh(playlist)
 end})
 
 Other:CreateToggle({Name = "Equip All Toots", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
@@ -445,39 +466,137 @@ Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callb
     end
 end})
 
-local RunScript = RunService.RenderStepped:Connect(function(deltaTime)
-	frameCount += 1
-	timeElapsed += deltaTime
-	if timeElapsed >= 0.5 then
-		local fpsValue = math.floor(frameCount / timeElapsed + 0.5)
-		fps:Set("FPS: " .. fpsValue)
-		frameCount = 0
-		timeElapsed = 0
+
+local Playlist = {}
+
+for _, player in ipairs(Players:GetPlayers()) do
+    table.insert(Playlist, player.Name)
+end
+
+local CPN = Other:CreateDropdown({
+    Name = "Copy Player Name",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        setclipboard(name)
+    end
+})
+
+local TP = Other:CreateDropdown({
+    Name = "Tp Player",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        local localPlayer = Players.LocalPlayer
+        local localChar = localPlayer.Character
+        local localHRP = localChar and localChar:FindFirstChild("HumanoidRootPart")
+
+        if not localHRP then return end
+
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    localHRP.CFrame = targetHRP.CFrame
+                    break
+                end
+            end
+        end
+    end
+})
+
+local SP = Other:CreateDropdown({
+    Name = "Spectator Player",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                local cam = workspace.CurrentCamera
+                if player.Character and player.Character:FindFirstChild("Humanoid") then
+                    cam.CameraSubject = player.Character.Humanoid
+                    break
+                end
+            end
+        end
+    end
+})
+
+Other:CreateButton({
+    Name = "Reference",
+    Callback = function()
+        Playlist = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(Playlist, player.Name)
+        end
+        CPN:Refresh(Playlist)
+        TP:Refresh(Playlist)
+        SP:Refresh(Playlist)
+    end
+})
+
+RunScript = RunService.RenderStepped:Connect(function(deltaTime)
+    if not Rayfield:GetGui() then
+    	frameCount = frameCount + 1
+    	timeElapsed = timeElapsed + deltaTime
+    	if timeElapsed >= 0.5 then
+    		local fpsValue = math.floor(frameCount / timeElapsed + 0.5)
+    		fps:Set("FPS: " .. fpsValue)
+    		frameCount = 0
+    		timeElapsed = 0
+    	end
+    else
+        RunScript:Disconnect()
+        RunScript = nil
 	end
 end)
 
 task.spawn(function()
 	while task.wait(0.5) do
-		PlayerInGame:Set("Players: " .. #game.Players:GetPlayers())
-
-		local char = player.Character
-		if char and char:FindFirstChild("HumanoidRootPart") then
-			local pos = char.HumanoidRootPart.Position
-			position:Set(string.format("X: %d  Y: %d  Z: %d", pos.X, pos.Y, pos.Z))
-		end
-		local h = char and char:FindFirstChildOfClass("Humanoid")
-		if h then
-			health:Set("Health: " .. math.floor(h.Health))
-		end
-
-		local currentTime = time()
-		if currentTime - lastUpdate >= 1 then
-			lastUpdate = currentTime
-			local elapsed = math.floor(currentTime - startTime)
-			local sec = elapsed % 60
-			local min = math.floor(elapsed / 60) % 60
-			local hour = math.floor(elapsed / 3600)
-			GameTime:Set(string.format("Time: %02d:%02d:%02d", hour, min, sec))
-		end
-	end
+	    if not Rayfield:GetGui() then
+	        if game.CoreGui.RobloxPromptGui.promptOverlay:FindFirstChild("ErrorPrompt") then 
+	            if game.CoreGui.RobloxPromptGui.promptOverlay.ErrorPrompt:FindFirstChild("MessageArea") then
+	                if game.CoreGui.RobloxPromptGui.promptOverlay.ErrorPrompt.MessageArea:FindFirstChild("ErrorFrame") then
+	                    if game.CoreGui.RobloxPromptGui.promptOverlay.ErrorPrompt.MessageArea.ErrorFrame:FindFirstChild("ButtonArea") then
+	                        if game.CoreGui.RobloxPromptGui.promptOverlay.ErrorPrompt.MessageArea.ErrorFrame.ButtonArea:FindFirstChild("LeaveButton") and AutoRejoin then
+                                game:GetService("TeleportService"):Teleport(game.PlaceId)
+	                        end
+	                   end
+	                end
+                end
+            end
+        	PlayerInGame:Set("Players: " .. #game.Players:GetPlayers())
+    		local char = player.Character
+    		if char and char:FindFirstChild("HumanoidRootPart") then
+    			local pos = char.HumanoidRootPart.Position
+        		position:Set(string.format("X: %d  Y: %d  Z: %d", pos.X, pos.Y, pos.Z))
+        	end
+        	local h = char and char:FindFirstChildOfClass("Humanoid")
+        	if h then
+        		health:Set("Health: " .. math.floor(h.Health))
+        	end
+        	local currentTime = time()
+    		if currentTime - lastUpdate >= 1 then
+    			lastUpdate = currentTime
+    			local elapsed = math.floor(currentTime - startTime)
+    			local sec = elapsed % 60
+    			local min = math.floor(elapsed / 60) % 60
+    			local hour = math.floor(elapsed / 3600)
+    			GameTime:Set(string.format("Time: %02d:%02d:%02d", hour, min, sec))
+    		end
+    	else
+    	    if s.Playing then
+                s:Stop()
+    	    end
+            if AT then
+                AT:Stop()
+            end
+    	end
+    end
 end)
