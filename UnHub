@@ -246,6 +246,45 @@ end
 
 local Other = Window:CreateTab("Other", 11713339600)
 Other:CreateSection("Other")
+local RunAntiAfk = nil
+local RunAntiFling = nil
+
+Other:CreateToggle({Name = "Anti Afk", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local vu = game:GetService("VirtualUser")
+    if Value then
+    	RunAntiAfk = game:GetService("Players").LocalPlayer.Idled:connect(function()
+    		vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    		wait(1)
+    		vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    	end)
+    else
+        RunAntiAfk:Disconnect()
+        RunAntiAfk = nil
+    end
+end})
+
+Other:CreateToggle({Name = "Anti Fling", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        RunAntiFling = RunService.Stepped:Connect(function()
+            local char = player.Character
+            if char then
+                for _, part in pairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.Velocity = Vector3.zero
+                        part.RotVelocity = Vector3.zero
+                        part.Velocity = Vector3.zero
+                        part.RotVelocity = Vector3.zero
+                    end
+                end
+            end
+        end)
+    else
+        if RunAntiFling then
+            RunAntiFling:Disconnect()
+            RunAntiFling = nil
+        end
+    end
+end})
 
 Other:CreateInput({Name = "Tp To Player", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
     local txt = tostring(Text):lower()
@@ -509,6 +548,29 @@ local TP = Other:CreateDropdown({
     end
 })
 
+local WT = Other:CreateDropdown({
+    Name = "Tp Player",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        local localPlayer = Players.LocalPlayer
+        local localChar = localPlayer.Character
+
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    localChar.Humanoid:MoveTo(targetHRP.Position)
+                    
+                    break
+                end
+            end
+        end
+    end
+})
+
 local SP = Other:CreateDropdown({
     Name = "Spectator Player",
     Options = Playlist,
@@ -538,8 +600,63 @@ Other:CreateButton({
         CPN:Refresh(Playlist)
         TP:Refresh(Playlist)
         SP:Refresh(Playlist)
+        WT:Refresh(Playlist)
     end
 })
+
+Other:CreateToggle({Name = "Black Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
+        
+    if not Gui and Value then
+        Gui = Instance.new("ScreenGui")
+        Gui.Name = "ScreenFrame"
+        Gui.ResetOnSpawn = false
+        Gui.Parent = game.CoreGui
+    end
+    
+    if Value then
+        if not Gui:FindFirstChild("Black") then
+            local Frame = Instance.new("Frame")
+            Frame.Size = UDim2.new(10, 0, 10, 0)
+            Frame.Name = "Black"
+            Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+            Frame.BackgroundTransparency = 0
+            Frame.ZIndex = 10
+            Frame.Parent = Gui
+        end
+    else
+        if Gui and Gui:FindFirstChild("Black") then
+            Gui.Black:Destroy()
+        end
+    end
+end})
+
+Other:CreateToggle({Name = "White Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
+        
+    if not Gui and Value then
+        Gui = Instance.new("ScreenGui")
+        Gui.Name = "ScreenFrame"
+        Gui.ResetOnSpawn = false
+        Gui.Parent = game.CoreGui
+    end
+    
+    if Value then
+        if not Gui:FindFirstChild("White") then
+            local Frame = Instance.new("Frame")
+            Frame.Size = UDim2.new(10, 0, 10, 0)
+            Frame.Name = "White"
+            Frame.BackgroundColor3 = Color3.new(1, 1, 1)
+            Frame.BackgroundTransparency = 0
+            Frame.ZIndex = 10
+            Frame.Parent = Gui
+        end
+    else
+        if Gui and Gui:FindFirstChild("White") then
+            Gui.White:Destroy()
+        end
+    end
+end})
 
 RunScript = RunService.RenderStepped:Connect(function(deltaTime)
     if not Rayfield:GetGui() then
