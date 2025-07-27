@@ -1,12 +1,1 @@
-local Test = {}
-local Text = "Nothing"
-
-function Test:ChangeText(txt)
-	Text = tostring(txt)
-end
-
-function Test:PrintText()
-	print(Text)
-end
-
-return Test
+Hello from Lua! Change this to test content.
