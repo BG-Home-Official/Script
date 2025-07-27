@@ -11,11 +11,78 @@ local AutoRejoin = false
 local Players = game:GetService("Players")
 local frameCount, timeElapsed, lastUpdate = 0, 0, 0
 local WalkSpeedSlider, JumpPowerSlider, Gravity1Slider, Gravity2Slider
-
 local api = {}
+
 pcall(function()
     api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
 end)
+
+local function SetNoCollision(player, Value)
+    local char = player.Character or player.CharacterAdded:Wait()
+    if char then
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = Value
+            end
+        end
+    end
+end
+
+local Lighting = game:GetService("Lighting")
+local TestService = game:GetService("TestService")
+
+local ToDisable = {
+	Textures = true,
+	VisualEffects = true,
+	Parts = true,
+	Particles = true,
+	Sky = true
+}
+
+local ToEnable = {
+	FullBright = false
+}
+
+local Stuff = {}
+
+local function EnabledFps()
+	table.clear(Stuff)
+	for _, v in next, game:GetDescendants() do
+		if ToDisable.Parts and (v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("BasePart")) then
+			v.Material = Enum.Material.SmoothPlastic
+			table.insert(Stuff, v)
+		end
+		if ToDisable.Particles and (v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Explosion") or v:IsA("Sparkles") or v:IsA("Fire")) then
+			v.Enabled = false
+			table.insert(Stuff, v)
+		end
+		if ToDisable.VisualEffects and (v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("DepthOfFieldEffect") or v:IsA("SunRaysEffect")) then
+			v.Enabled = false
+			table.insert(Stuff, v)
+		end
+		if ToDisable.Textures and (v:IsA("Decal") or v:IsA("Texture")) then
+			v.Texture = ""
+			table.insert(Stuff, v)
+		end
+		if ToDisable.Sky and v:IsA("Sky") then
+			v.Parent = nil
+			table.insert(Stuff, v)
+		end
+	end
+
+	if ToEnable.FullBright then
+		Lighting.FogColor = Color3.new(1, 1, 1)
+		Lighting.FogEnd = math.huge
+		Lighting.FogStart = math.huge
+		Lighting.Ambient = Color3.new(1, 1, 1)
+		Lighting.Brightness = 5
+		Lighting.ColorShift_Bottom = Color3.new(1, 1, 1)
+		Lighting.ColorShift_Top = Color3.new(1, 1, 1)
+		Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+		Lighting.Outlines = true
+	end
+	TestService:Message("Effects Disabler: Disabled "..#Stuff.." items")
+end
 
 local Window = Rayfield:CreateWindow({
    Name = "UnHub | by LE_GO89",
@@ -39,22 +106,23 @@ local Window = Rayfield:CreateWindow({
 
 local Main = Window:CreateTab("Main", 125058207637011)
 local fps = Main:CreateSection("FPS: 0")
-Main:CreateSection("Username : " .. player.Name)
-Main:CreateSection("Display Name: " .. player.DisplayName)
-Main:CreateSection("UserId : " .. player.UserId)
-Main:CreateSection("Account Age: " .. player.AccountAge)
-Main:CreateSection("GameID : " .. game.PlaceId)
+local Username = Main:CreateSection("Username: " .. player.Name)
+local Name = Main:CreateSection("Display Name: " .. player.DisplayName)
+local UserId = Main:CreateSection("UserId: " .. player.UserId)
+local Age = Main:CreateSection("Account Age: " .. player.AccountAge)
+Main:CreateSection("GameID: " .. game.PlaceId)
 local PlayerInGame = Main:CreateSection("Players : 0")
 pcall(function()
-	Main:CreateSection("Game : " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name)
+	Main:CreateSection("Game: " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name)
 end)
-Main:CreateSection("ServerID : " .. game.JobId)
+Main:CreateSection("ServerID: " .. game.JobId)
 Main:CreateSection("IP: " .. (api.ip or "Unknown"))
-Main:CreateSection("Country : " .. (api.country or "Unknown") .. " " .. (api.country_code or ""))
-local position = Main:CreateSection("")
-local health = Main:CreateSection("")
-local GameTime = Main:CreateSection("")
+Main:CreateSection("Country: " .. (api.country or "Unknown") .. " " .. (api.country_code or ""))
+local position = Main:CreateSection("X: 0 Y: Z: 0")
+local health = Main:CreateSection("Health: 0")
+local GameTime = Main:CreateSection("Time: 0")
 local RR = Main:CreateSection("")
+local Ping = Main:CreateSection("Ping: 0")
 
 pcall(function()
 	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
@@ -246,8 +314,11 @@ end
 
 local Other = Window:CreateTab("Other", 11713339600)
 Other:CreateSection("Other")
+
 local RunAntiAfk = nil
 local RunAntiFling = nil
+local RunAnimationSpeed = nil
+local speed = 1
 
 Other:CreateToggle({Name = "Anti Afk", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     local vu = game:GetService("VirtualUser")
@@ -258,8 +329,10 @@ Other:CreateToggle({Name = "Anti Afk", CurrentValue = false, Flag = "Toggle1", C
     		vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
     	end)
     else
-        RunAntiAfk:Disconnect()
-        RunAntiAfk = nil
+        if RunAntiAfk then
+            RunAntiAfk:Disconnect()
+            RunAntiAfk = nil
+        end
     end
 end})
 
@@ -267,14 +340,9 @@ Other:CreateToggle({Name = "Anti Fling", CurrentValue = false, Flag = "Toggle1",
     if Value then
         RunAntiFling = RunService.Stepped:Connect(function()
             local char = player.Character
-            if char then
-                for _, part in pairs(char:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.Velocity = Vector3.zero
-                        part.RotVelocity = Vector3.zero
-                        part.Velocity = Vector3.zero
-                        part.RotVelocity = Vector3.zero
-                    end
+            for _, v in pairs(game.Players:GetPlayers()) do
+                if v.Character and v ~= player then
+                    SetNoCollision(v, false)
                 end
             end
         end)
@@ -283,7 +351,16 @@ Other:CreateToggle({Name = "Anti Fling", CurrentValue = false, Flag = "Toggle1",
             RunAntiFling:Disconnect()
             RunAntiFling = nil
         end
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v.Character and v ~= player then
+                SetNoCollision(v, true)
+            end
+        end
     end
+end})
+
+Other:CreateButton({Name = "Fps Booster", Callback = function()
+    EnabledFps()
 end})
 
 Other:CreateInput({Name = "Tp To Player", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
@@ -403,9 +480,6 @@ Other:CreateToggle({Name = "Day & Night", CurrentValue = false, Flag = "Toggle1"
     end
 end})
 
-local Run
-local speed = 1
-
 Other:CreateInput({Name = "Change Animation Speed", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
     speed = tonumber(Value)
 end})
@@ -415,15 +489,15 @@ Other:CreateToggle({Name = "Animation Speed", CurrentValue = false, Flag = "Togg
         local plr = game.Players.LocalPlayer
         local chr = plr.Character
         local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
-        Run = game:GetService("RunService").Heartbeat:Connect(function()
+        RunAnimationSpeed = game:GetService("RunService").Heartbeat:Connect(function()
             for _, track in pairs(hum:GetPlayingAnimationTracks()) do
                 track:AdjustSpeed(speed)
             end
         end)
     else
-        if Run then
-            Run:Disconnect()
-            Run = nil
+        if RunAnimationSpeed then
+            RunAnimationSpeed:Disconnect()
+            RunAnimationSpeed = nil
         end
     end
 end})
@@ -591,7 +665,7 @@ local SP = Other:CreateDropdown({
 })
 
 Other:CreateButton({
-    Name = "Reference",
+    Name = "Refresh",
     Callback = function()
         Playlist = {}
         for _, player in ipairs(Players:GetPlayers()) do
@@ -687,8 +761,21 @@ task.spawn(function()
 	                   end
 	                end
                 end
+	        end
+	        for _, s in pairs(game:GetService("Stats"):GetChildren()) do
+                if s.Name == "PerformanceStats" then
+                    for _, v in pairs(s:GetChildren()) do
+                        if v.Name == "Data Ping" then
+                            Ping:Set("Ping: " .. v)
+                        end
+                    end
+                end
             end
         	PlayerInGame:Set("Players: " .. #game.Players:GetPlayers())
+        	Username:Set("Username: " .. player.Name)
+        	Name:Set("Display Name: " .. player.DisplayName)
+        	UserId:Set("UserId: " .. player.UserId)
+        	Age:Set("Account Age: " .. player.AccountAge)
     		local char = player.Character
     		if char and char:FindFirstChild("HumanoidRootPart") then
     			local pos = char.HumanoidRootPart.Position
@@ -708,6 +795,22 @@ task.spawn(function()
     			GameTime:Set(string.format("Time: %02d:%02d:%02d", hour, min, sec))
     		end
     	else
+    	    if RunAntiAfk then
+                RunAntiAfk:Disconnect()
+                RunAntiAfk = nil
+    	    end
+    	    if InfiniteJumpConnection then
+        	    InfiniteJumpConnection:Disconnect()
+                InfiniteJumpConnection = nil
+            end
+    	    if RunAntiFling then
+                RunAntiFling:Disconnect()
+                RunAntiFling = nil
+    	    end
+            if RunAnimationSpeed then
+                RunAnimationSpeed:Disconnect()
+                RunAnimationSpeed = nil
+            end
     	    if s.Playing then
                 s:Stop()
     	    end
