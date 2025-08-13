@@ -3,6 +3,7 @@ loadstring(game:HttpGet("https://pastebin.com/raw/DxSRTuJz"))()
 local player = game.Players.LocalPlayer
 local OldWalkSpeed = player.Character.Humanoid.WalkSpeed
 local OldJumpPower = player.Character.Humanoid.JumpPower
+local cam = workspace.Camera
 local OldGravity = workspace.Gravity
 local RunService = game:GetService("RunService")
 local RunScript
@@ -12,6 +13,10 @@ local Players = game:GetService("Players")
 local frameCount, timeElapsed, lastUpdate = 0, 0, 0
 local WalkSpeedSlider, JumpPowerSlider, Gravity1Slider, Gravity2Slider
 local api = {}
+local Playlist = {}
+local FOVRadius = 100
+local TeamCheck = false
+local WallCheck = false
 
 pcall(function()
     api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
@@ -26,6 +31,97 @@ local function SetNoCollision(player, Value)
             end
         end
     end
+end
+
+local function GetNP()
+	local shortest, nearest = math.huge
+	local camPos = cam.CFrame.Position
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = {player.Character}
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+	params.IgnoreWater = true
+
+	for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+		if plr ~= player and plr.Character then
+		    if TeamCheck and plr.Team ~= player.Team then continue end
+			local hum = plr.Character:FindFirstChild("Humanoid")
+			local root = plr.Character:FindFirstChild("HumanoidRootPart")
+			if hum and hum.Health > 0 and root then
+				local dist = (root.Position - camPos).Magnitude
+				if dist < shortest then
+					if WallCheck then
+						local hit = workspace:Raycast(camPos, root.Position - camPos, params)
+						if not hit or hit.Instance:IsDescendantOf(plr.Character) then
+							shortest, nearest = dist, plr
+						end
+					else
+						shortest, nearest = dist, plr
+					end
+				end
+			end
+		end
+	end
+	return nearest
+end
+
+local function GetNH()
+	local shortestDistance = math.huge
+	local nearestTarget = nil
+
+	for _, model in ipairs(workspace:GetDescendants()) do
+		if model:IsA("Model") and model:FindFirstChild("Humanoid") and model:FindFirstChild("HumanoidRootPart") then
+			local humanoid = model:FindFirstChild("Humanoid")
+			local root = model:FindFirstChild("HumanoidRootPart")
+			if humanoid.Health > 0 and model ~= player.Character then
+				local distance = (root.Position - cam.CFrame.Position).Magnitude
+				if distance < shortestDistance then
+					shortestDistance = distance
+					nearestTarget = model
+				end
+			end
+		end
+	end
+
+	return nearestTarget
+end
+
+local function GetAA()
+	local closest = nil
+	local shortestDist = FOVRadius
+
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			if TeamCheck and plr.Team == player.Team then
+			   continue
+			end
+
+			local pos, onScreen = cam:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+			if onScreen then
+				local center = Vector2.new(cam.ViewportSize.X/2, cam.ViewportSize.Y/2)
+				local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
+
+				if dist <= shortestDist then
+					if WallCheck then
+						local origin = cam.CFrame.Position
+						local direction = (plr.Character.HumanoidRootPart.Position - origin).Unit * 1000
+						local raycastParams = RaycastParams.new()
+						raycastParams.FilterDescendantsInstances = {player.Character}
+						raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+						local result = workspace:Raycast(origin, direction, raycastParams)
+						if result and result.Instance:IsDescendantOf(plr.Character) then
+							closest = plr
+							shortestDist = dist
+						end
+					else
+						closest = plr
+						shortestDist = dist
+					end
+				end
+			end
+		end
+	end
+	return closest
 end
 
 local Lighting = game:GetService("Lighting")
@@ -231,34 +327,128 @@ local Esp = Window:CreateTab("Esp", 6523858394)
 Esp:CreateSection("Esp")
 
 local E = {
-    {N = "Esp Name", U1 = "https://pastebin.com/raw/tByVj9yS", U2 = "https://pastebin.com/raw/9LmxJ7v9"},
-    {N = "Esp UserID", U1 = "https://pastebin.com/raw/xSWhyND9", U2 = "https://pastebin.com/raw/UkxdiMvK"},
-    {N = "Esp Health", U1 = "https://pastebin.com/raw/P2UYkhs1", U2 = "https://pastebin.com/raw/m4M1SwK3"},
-    {N = "Esp Account Age", U1 = "https://pastebin.com/raw/6VGh3STE", U2 = "https://pastebin.com/raw/pCD17Nwm"},
-    {N = "Esp Display Name", U1 = "https://pastebin.com/raw/CzbT5gQE", U2 = "https://pastebin.com/raw/ycpaM6uq"},
-    {N = "Esp Highlights", U1 = "https://pastebin.com/raw/qkrmZ5tr", U2 = "https://pastebin.com/raw/peDyUsFy"},
-    {N = "Esp Position", U1 = "https://pastebin.com/raw/1PgQeJRx", U2 = "https://pastebin.com/raw/SzfAJLgp"},
-    {N = "Esp Distance", U1 = "https://pastebin.com/raw/2Rvic5rv", U2 = "https://pastebin.com/raw/v5q0Jqeg"},
-    {N = "X-ray", U1 = "https://pastebin.com/raw/v5WPHqsd", U2 = "https://pastebin.com/raw/EiMiSBis"},
+    {N = "Esp Account Age", F = "https://pastebin.com/raw/yBYwTpf8"},
+    {N = "Esp UserId", F = "https://pastebin.com/raw/5QWD3vQY"},
+    {N = "Esp Name", F = "https://pastebin.com/raw/adfZhVPB"},
+    {N = "Esp Health", F = "https://pastebin.com/raw/m6JidyHR"},
+    {N = "Esp Display Name", F = "https://pastebin.com/raw/PTVL4m5a"},
+    {N = "Esp Highlights", F = "https://pastebin.com/raw/qkrmZ5tr"},
+    {N = "Esp Position", F = "https://pastebin.com/raw/1PgQeJRx"},
+    {N = "Esp Distance", F = "https://pastebin.com/raw/Cnu6YWTN"},
+    {N = "Esp Line", F = "https://pastebin.com/raw/vmuyrcmQ"},
+    {N = "Esp Box", F = "https://pastebin.com/raw/agFnyvEr"},
+    {N = "X-ray", F = "https://pastebin.com/raw/v5WPHqsd"},
 }
 
-local EspBox = loadstring(game:HttpGet("https://pastebin.com/raw/agFnyvEr"))()
-Esp:CreateToggle({Name = "Esp Box", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    if Value then
-        EspBox:on()
-    else
-        EspBox:off()
+local EspToggles = {}
+local EspRawScript = {}
+local EHB = Color3.new(1, 0, 0)
+local EHL = Color3.new(0, 0, 1)
+local EHH = Color3.new(0, 1, 0)
+local EHT = Color3.new(1, 1, 1)
+
+function UpDataColor()
+    for i, v in pairs(EspToggles) do
+        if v:Get() then
+            v:Set(false)
+            v:Set(true)
+        end
     end
+end
+
+Esp:CreateColorPicker({Name = "Esp Text Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
+    EHT = Value
+    UpDataColor()
 end})
 
-for i, e in pairs(E) do
-    Esp:CreateToggle({Name = e.N, CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-        if Value then
-            loadstring(game:HttpGet(e.U1))()
-        else
-            loadstring(game:HttpGet(e.U2))()
-        end
-    end})
+Esp:CreateColorPicker({Name = "Esp Box Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
+    EHB = Value
+    UpDataColor()
+end})
+
+Esp:CreateColorPicker({Name = "Esp Line Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
+    EHL = Value
+    UpDataColor()
+end})
+
+Esp:CreateColorPicker({Name = "Esp Highlight Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
+    EHH = Value
+    UpDataColor()
+end})
+
+for i, v in pairs(E) do
+    local EspRaw = loadstring(game:HttpGet(v.F))()
+    table.insert(EspRawScript, EspRaw)
+    if v.N == "Esp Highlights" then
+        local Toggle = Esp:CreateToggle({
+            Name = v.N,
+            CurrentValue = false,
+            Flag = "Toggle_" ..v.N,
+            Callback = function(Value)
+                if Value then 
+                    EspRaw:On(EHH)
+                else 
+                    EspRaw:Off()
+                end
+            end
+        })
+        table.insert(EspToggles, Toggle)
+    elseif v.N == "Esp Line" then
+        local Toggle = Esp:CreateToggle({
+            Name = v.N,
+            CurrentValue = false,
+            Flag = "Toggle_" ..v.N,
+            Callback = function(Value)
+                if Value then 
+                    EspRaw:On(EHL)
+                else 
+                    EspRaw:Off()
+                end
+            end
+        })
+        table.insert(EspToggles, Toggle)
+    elseif v.N == "Esp Box" then
+        local Toggle = Esp:CreateToggle({
+            Name = v.N,
+            CurrentValue = false,
+            Flag = "Toggle_" ..v.N,
+            Callback = function(Value)
+                if Value then 
+                    EspRaw:On(EHB)
+                else 
+                    EspRaw:Off()
+                end
+            end
+        })
+        table.insert(EspToggles, Toggle)
+    elseif v.N == "X-ray" then
+        local Toggle = Esp:CreateToggle({
+            Name = v.N,
+            CurrentValue = false,
+            Flag = "Toggle_" ..v.N,
+            Callback = function(Value)
+                if Value then 
+                    EspRaw:On()
+                else 
+                    EspRaw:Off()
+                end
+            end
+        })
+    else
+        local Toggle = Esp:CreateToggle({
+            Name = v.N,
+            CurrentValue = false,
+            Flag = "Toggle_" ..v.N,
+            Callback = function(Value)
+                if Value then 
+                    EspRaw:On(EHT)
+                else 
+                    EspRaw:Off()
+                end
+            end
+        })
+        table.insert(EspToggles, Toggle)
+    end
 end
 
 local UnHub = Window:CreateTab("UnHub Script", 86591853167234)
@@ -273,6 +463,7 @@ local U = {
     {N = "Calculator", U = "https://pastebin.com/raw/6X4FhAgV"},
     {N = "Fly: Hero", U = "https://pastebin.com/raw/s3gHVQ3H"},
     {N = "Fly: Normal", U = "https://pastebin.com/raw/dmPAAcMq"},
+    {N = "Fly: Soul", U = "https://pastebin.com/raw/cTQcNAqX"},
     {N = "FreeCam", U = "https://pastebin.com/raw/siSuEhpE"},
     {N = "Spin", U = "https://pastebin.com/raw/Xep7v92f"},
     {N = "NoClip", U = "https://pastebin.com/raw/ck5WYjY5"},
@@ -286,7 +477,7 @@ local U = {
     {N = "Executor", U = "https://pastebin.com/raw/ce05FKFH"},
     {N = "Raw Link", U = "https://pastebin.com/raw/XYFgYj1n"},
     {N = "Get Animation", U = "https://pastebin.com/raw/Ryr373ti"},
-    {N = "Get Sound", U = "https://pastebin.com/raw/uPcNafSJ"},
+    {N = "Cloner", U = "https://pastebin.com/raw/dAwk9Nj1"},
 }
 
 for i, u in pairs(U) do
@@ -312,6 +503,163 @@ for i, d in pairs(D) do
     end})
 end
 
+local Aimbot = Window:CreateTab("Aimbot", 11713339600)
+Aimbot:CreateSection("Aimbot")
+
+local AimbotSpeed = 1
+local BodyPart = "HumanoidRootPart"
+local AimbotNP = false
+local SmoothAim = false
+local AimbotTarget = nil
+local AimbotAAScreenGui = nil
+local AimbotAAUIStroke = nil
+local AimbotAAFOVCircle = nil
+local AimbotAARainbow = false
+local CanAimbot = false
+local AimbotNH = false
+local AimbotNPT = false
+local FOVColor = Color3.new(1, 1, 1)
+local AimbotAA = false
+
+Aimbot:CreateInput({Name = "Aim To Player", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
+    local txt = tostring(Text):lower()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= localPlayer then
+            if string.find(player.Name:lower(), txt) then
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    AimbotTarget = player
+                end
+            end
+        end
+    end
+end})
+
+local AP = Aimbot:CreateDropdown({
+    Name = "Aimbot Player",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                local cam = workspace.Camera
+                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    AimbotTarget = player
+                    break
+                end
+            end
+        end
+    end
+})
+
+Aimbot:CreateDropdown({
+    Name = "Aimbot Body Part",
+    Options = {"Body", "Head"},
+    CurrentOption = {"Body"},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        if name == "Body" then
+            BodyPart = "HumanoidRootPart"
+        elseif name == "Head" then
+            BodyPart = "Head"
+        end
+    end
+})
+
+Aimbot:CreateButton({
+    Name = "Refresh",
+    Callback = function()
+        Playlist = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(Playlist, player.Name)
+        end
+        AP:Refresh(Playlist)
+    end
+})
+
+Aimbot:CreateToggle({Name = "Enable Aimbot", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    CanAimbot = Value
+end})
+
+Aimbot:CreateToggle({Name = "Enable Aimbot At Nearest Player", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    AimbotNP = Value
+end})
+
+Aimbot:CreateToggle({Name = "Enable Aimbot At Nearest Player + Bot [Lag]", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    AimbotNH = Value
+end})
+
+Aimbot:CreateToggle({Name = "Enable Aimbot Fov", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    AimbotAA = Value
+    if Value then
+        AimbotAAScreenGui = Instance.new("ScreenGui", game.CoreGui)
+        AimbotAAScreenGui.IgnoreGuiInset = true
+        AimbotAAScreenGui.ResetOnSpawn = false
+        
+        AimbotAAFOVCircle = Instance.new("Frame")
+        AimbotAAFOVCircle.Name = "FOV"
+        AimbotAAFOVCircle.Parent = AimbotAAScreenGui
+        AimbotAAFOVCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+        AimbotAAFOVCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
+        AimbotAAFOVCircle.Size = UDim2.new(0, FOVRadius * 2, 0, FOVRadius * 2)
+        AimbotAAFOVCircle.BackgroundTransparency = 1
+        
+        AimbotAAUIStroke = Instance.new("UIStroke", AimbotAAFOVCircle)
+        AimbotAAUIStroke.Thickness = 2
+        AimbotAAUIStroke.Color = FOVColor
+        
+        local UICorner = Instance.new("UICorner", AimbotAAFOVCircle)
+        UICorner.CornerRadius = UDim.new(0.5, 0)
+    else
+        if AimbotAAScreenGui then
+            AimbotAAScreenGui:Destroy()
+        end
+    end
+end})
+
+Aimbot:CreateToggle({Name = "Team Check", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    TeamCheck = Value
+end})
+
+Aimbot:CreateToggle({Name = "Wall Check", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    WallCheck = Value
+end})
+
+Aimbot:CreateToggle({Name = "Rainbow Fov", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    AimbotAARainbow = Value
+end})
+
+Aimbot:CreateSlider({Name = "Fov Size", Range = {0, 100}, Increment = 1, Suffix = "Speed", CurrentValue = 50, Flag = "Slider1", Callback = function(Value)
+    local number = tonumber(Value) * 2
+    if number then
+        FOVRadius = number
+        if AimbotAAFOVCircle then
+            AimbotAAFOVCircle.Size = UDim2.new(0, number * 2, 0, number * 2)
+        end
+    end
+end})
+
+Aimbot:CreateColorPicker({Name = "Fov Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
+    FOVColor = Value
+    if AimbotAAUIStroke then
+        AimbotAAUIStroke.Color = Value
+    end
+end})
+
+Aimbot:CreateToggle({Name = "Enable Smooth Aim", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    SmoothAim = Value
+end})
+
+Aimbot:CreateSlider({Name = "Aimbot Speed", Range = {0, 100}, Increment = 0.1, Suffix = "Speed", CurrentValue = 1, Flag = "Slider1", Callback = function(Value)
+    local number = tonumber(Value)
+    if number then
+        AimbotSpeed = number
+    end
+end})
+
 local Other = Window:CreateTab("Other", 11713339600)
 Other:CreateSection("Other")
 
@@ -319,6 +667,9 @@ local RunAntiAfk = nil
 local RunAntiFling = nil
 local RunAnimationSpeed = nil
 local speed = 1
+local CanWalkToPlayer = false
+local WalkToPlayerTarget = nil
+
 
 Other:CreateToggle({Name = "Anti Afk", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     local vu = game:GetService("VirtualUser")
@@ -378,6 +729,20 @@ Other:CreateInput({Name = "Tp To Player", CurrentValue = "", PlaceholderText = "
                 if targetHRP then
                     localHRP.CFrame = targetHRP.CFrame
                     break
+                end
+            end
+        end
+    end
+end})
+
+Other:CreateInput({Name = "Walk To Player", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
+    local txt = tostring(Text):lower()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= localPlayer then
+            if string.find(player.Name:lower(), txt) then
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    WalkToPlayerTarget = player
                 end
             end
         end
@@ -579,9 +944,6 @@ Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callb
     end
 end})
 
-
-local Playlist = {}
-
 for _, player in ipairs(Players:GetPlayers()) do
     table.insert(Playlist, player.Name)
 end
@@ -623,21 +985,17 @@ local TP = Other:CreateDropdown({
 })
 
 local WT = Other:CreateDropdown({
-    Name = "Tp Player",
+    Name = "Walk To Player",
     Options = Playlist,
     CurrentOption = {},
     MultipleOptions = false,
     Flag = "Dropdown1",
     Callback = function(name)
-        local localPlayer = Players.LocalPlayer
-        local localChar = localPlayer.Character
-
         for _, player in pairs(Players:GetPlayers()) do
             if player.Name:lower():find(name:lower()) then
                 local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if targetHRP then
-                    localChar.Humanoid:MoveTo(targetHRP.Position)
-                    
+                    WalkToPlayerTarget = player
                     break
                 end
             end
@@ -677,6 +1035,10 @@ Other:CreateButton({
         WT:Refresh(Playlist)
     end
 })
+
+Other:CreateToggle({Name = "Enable Walk To Player", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    CanWalkToPlayer = Value
+end})
 
 Other:CreateToggle({Name = "Black Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
@@ -734,6 +1096,59 @@ end})
 
 RunScript = RunService.RenderStepped:Connect(function(deltaTime)
     if not Rayfield:GetGui() then
+        if AimbotAA then
+    		local Target = GetAA()
+    		if Target then
+    			local Part = Target.Character and Target.Character:FindFirstChild(BodyPart)
+    			if Part then
+    			    if SmoothAim then
+                        cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Part.Position), AimbotSpeed / 100)
+                    else
+                        cam.CFrame = CFrame.new(cam.CFrame.Position, Part.Position)
+    			    end
+    			end
+            end
+        elseif AimbotNP then
+    		local Target = GetNP()
+    		if Target then
+    			local Part = Target.Character and Target.Character:FindFirstChild(BodyPart)
+    			if Part then
+    			    if SmoothAim then
+                        cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Part.Position), AimbotSpeed / 100)
+                    else
+                        cam.CFrame = CFrame.new(cam.CFrame.Position, Part.Position)
+                    end
+    			end
+    		end
+        elseif AimbotNH then
+    		local Target = GetNH()
+    		if Target then
+    			local Part = Target and Target:FindFirstChild(BodyPart)
+    			if Part then
+    			    if SmoothAim then
+                        cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Part.Position), AimbotSpeed / 100)
+                    else
+                        cam.CFrame = CFrame.new(cam.CFrame.Position, Part.Position)
+                    end
+    			end
+    		end
+	    elseif AimbotTarget and AimbotTarget.Character and AimbotTarget.Character:FindFirstChild(BodyPart) and CanAimbot then
+            if SmoothAim then
+                cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, AimbotTarget.Character[BodyPart].Position), AimbotSpeed / 100)
+            else
+                cam.CFrame = CFrame.new(cam.CFrame.Position, AimbotTarget.Character[BodyPart].Position)
+            end
+	    end
+	    if AimbotAARainbow then
+	        if AimbotAAUIStroke then
+	            local hue = tick() % 5 / 5
+        		local color = Color3.fromHSV(hue, 1, 1)
+        		AimbotAAUIStroke.Color = color
+	        end
+	    end
+        if WalkToPlayerTarget and WalkToPlayerTarget.Character and WalkToPlayerTarget.Character:FindFirstChild("HumanoidRootPart") and CanWalkToPlayer then
+            player.Character.Humanoid:MoveTo(WalkToPlayerTarget.Character.HumanoidRootPart.Position)
+        end
     	frameCount = frameCount + 1
     	timeElapsed = timeElapsed + deltaTime
     	if timeElapsed >= 0.5 then
@@ -795,6 +1210,12 @@ task.spawn(function()
     			GameTime:Set(string.format("Time: %02d:%02d:%02d", hour, min, sec))
     		end
     	else
+    	    for i, v in pairs(EspRawScript) do
+                v:Off()
+    	    end
+            if AimbotAA and AimbotAAScreenGui then
+                AimbotAAScreenGui:Destroy()
+            end
     	    if RunAntiAfk then
                 RunAntiAfk:Disconnect()
                 RunAntiAfk = nil
@@ -811,12 +1232,16 @@ task.spawn(function()
                 RunAnimationSpeed:Disconnect()
                 RunAnimationSpeed = nil
             end
+            if AimbotAAScreenGui then
+                AimbotAAScreenGui:Destroy()
+            end
     	    if s.Playing then
                 s:Stop()
     	    end
             if AT then
                 AT:Stop()
             end
+            break
     	end
     end
 end)
