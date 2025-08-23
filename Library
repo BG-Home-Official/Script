@@ -2186,13 +2186,12 @@ function RayfieldLibrary:CreateWindow(Settings)
 		    ImageLabel.AnchorPoint = Vector2.new(0, 0.5)
 		    ImageLabel.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
 		    ImageLabel.BackgroundTransparency = 0.3
-		    ImageLabel.Image = tostring(ButtonSettings.img)
+		    ImageLabel.Image = tostring(ButtonSettings.Img)
 		
 		    local UICorner2 = Instance.new("UICorner")
 		    UICorner2.CornerRadius = UDim.new(0, 9)
 		    UICorner2.Parent = ImageLabel
 		
-		    -- Start hidden then tween visible
 		    Button.BackgroundTransparency = 1
 		    UIStroke.Transparency = 1
 		    Title.TextTransparency = 1
