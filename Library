@@ -2131,7 +2131,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 		
 		    local Button = Instance.new("Frame")
 		    Button.Name = ButtonSettings.Name
-		    Button.TextTransparency = 1
 		    Button.Parent = TabPage
 		    Button.Size = UDim2.new(1, -10, 0, 55)
 		    Button.BackgroundColor3 = Color3.new(0.137, 0.137, 0.137)
@@ -2175,6 +2174,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 		    local Interact = Instance.new("TextButton")
 		    Interact.Name = "Interact"
 		    Interact.Parent = Button
+		    Interact.TextTransparency = 1
 		    Interact.Size = UDim2.new(1, 0, 1, 0)
 		    Interact.BackgroundTransparency = 1
 		    Interact.ZIndex = 5
