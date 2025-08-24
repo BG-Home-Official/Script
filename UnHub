@@ -1,11 +1,16 @@
-local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Rayfield%20Library'))()
-loadstring(game:HttpGet("https://pastebin.com/raw/DxSRTuJz"))()
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Library'))()
+loadstring(game:HttpGet("https://pastefy.app/XUwaJ6e7/raw"))()
 local player = game.Players.LocalPlayer
 local OldWalkSpeed = player.Character.Humanoid.WalkSpeed
 local OldJumpPower = player.Character.Humanoid.JumpPower
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local placeId = game.PlaceId
+local currentServerId = game.JobId
 local cam = workspace.Camera
 local OldGravity = workspace.Gravity
 local RunService = game:GetService("RunService")
+local mouse = player:GetMouse()
 local RunScript
 local startTime = time()
 local AutoRejoin = false
@@ -17,6 +22,35 @@ local Playlist = {}
 local FOVRadius = 100
 local TeamCheck = false
 local WallCheck = false
+local EspToggles = {}
+local EspRawScript = {}
+local EHB = Color3.new(1, 0, 0)
+local EHL = Color3.new(0, 0, 1)
+local EHH = Color3.new(0, 1, 0)
+local EHT = Color3.new(1, 1, 1)
+
+local ST = Instance.new("ScreenGui")
+local T = Instance.new("TextButton")
+local Corner = Instance.new("UICorner")
+ST.Name = "Toggle UnHub"
+ST.Parent = Rayfield:GetParent().Parent
+ST.ResetOnSpawn = false
+Corner.Name = "Corner"
+Corner.Parent = T
+T.Name = "T"
+T.Parent = ST
+T.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+T.Position = UDim2.new(0, 30, 0.08, 0)
+T.Size = UDim2.new(0, 70, 0, 28)
+T.Font = Enum.Font.SourceSans
+T.Text = "UnHub"
+T.TextColor3 = Color3.fromRGB(248, 248, 248)
+T.TextSize = 20
+T.Active = true
+T.Draggable = true
+T.MouseButton1Click:connect(function()
+    Rayfield:SetEnable(not Rayfield:GetEnable())
+end)
 
 pcall(function()
     api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
@@ -180,8 +214,45 @@ local function EnabledFps()
 	TestService:Message("Effects Disabler: Disabled "..#Stuff.." items")
 end
 
+function filler(text)
+       local text = string.gsub(text, ".GetChildren", ":GetChildren")
+       return string.gsub(text, "%.(%d+)", '["%1"]')
+end
+
+local function getFullPath(obj)
+    local parts = {}
+    while obj and obj ~= game and obj ~= workspace do
+        local parent = obj.Parent
+        if parent then
+            local siblings = parent:GetChildren()
+
+            local sameNameCount = 0
+            for _, v in ipairs(siblings) do
+                if v.Name == obj.Name then
+                    sameNameCount += 1
+                end
+            end
+
+            if sameNameCount > 1 then
+                local index = table.find(siblings, obj) or 0
+                table.insert(parts, 1, string.format("%s[%d]", "GetChildren()", index))
+            else
+                table.insert(parts, 1, obj.Name)
+            end
+        end
+        obj = parent
+    end
+
+    if obj == workspace then
+        return filler("workspace." .. table.concat(parts, "."))
+    else
+        return filler(table.concat(parts, "."))
+    end
+end
+
 local Window = Rayfield:CreateWindow({
    Name = "UnHub | by LE_GO89",
+   FileName = "UnHub",
    Icon = 0,
    LoadingTitle = "UnHub",
    LoadingSubtitle = "by LE_GO89",
@@ -197,12 +268,24 @@ local Window = Rayfield:CreateWindow({
       Invite = "",
       RememberJoins = true
    },
-   KeySystem = false
+   KeySystem = false,
+   KeySettings = {
+      Title = "UnHub",
+      Subtitle = "Key",
+      Note = "Get the key by visit the website and wait 5 sec copy the key",
+      FileName = "Key",
+      SaveKey = false,
+      GrabKeyFromSite = false,
+      Key = {game:HttpGet("https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Key")}
+   }
 })
 
 local Main = Window:CreateTab("Main", 125058207637011)
 local fps = Main:CreateSection("FPS: 0")
 local Username = Main:CreateSection("Username: " .. player.Name)
+local Mouse2D = Main:CreateSection("Mouse 2D: X: 0 Y: 0")
+local Mouse3D = Main:CreateSection("Mouse 3D: X: 0 Y: 0 Z: 0")
+local PartPath = Main:CreateSection("Part Path: nil")
 local Name = Main:CreateSection("Display Name: " .. player.DisplayName)
 local UserId = Main:CreateSection("UserId: " .. player.UserId)
 local Age = Main:CreateSection("Account Age: " .. player.AccountAge)
@@ -300,22 +383,22 @@ local Tool = Window:CreateTab("Tool", 6767454852)
 Tool:CreateSection("Tools")
 
 local T = {
-    {N = "TP Tool", U = "https://pastebin.com/raw/R9fcTqCb"},
-    {N = "Block Tool", U = "https://pastebin.com/raw/G7GxjjEU"},
-    {N = "Print Pos Tool", U = "https://pastebin.com/raw/0gsvwvQK"},
-    {N = "Super Tool", U = "https://pastebin.com/raw/aBcvhQEb"},
-    {N = "Fly Tool", U = "https://pastebin.com/raw/pbP1kDjr"},
-    {N = "NoClip Tool", U = "https://pastebin.com/raw/QzP1mSva"},
-    {N = "Swim Tool", U = "https://pastebin.com/raw/262LDFAY"},
-    {N = "Freeze Tool", U = "https://pastebin.com/raw/LKBe81cq"},
-    {N = "FreeCam Tool", U = "https://pastebin.com/raw/bqMTahuy"},
-    {N = "Spin Tool", U = "https://pastebin.com/raw/AS9nQJiY"},
-    {N = "Jerk Tool", U = "https://pastebin.com/raw/Zu9zZdGC"},
-    {N = "Lag Tool", U = "https://pastebin.com/raw/dgnj12Yd"},
-    {N = "Punch Tool [R6]", U = "https://pastebin.com/raw/wADytSMq"},
-    {N = "Telekinesis Tool", U = "https://pastebin.com/raw/jzUqtJmf"},
+    {N = "TP Tool", U = "https://pastefy.app/KxzYTDSG/raw"},
+    {N = "Block Tool", U = "https://pastefy.app/SvoBElGG/raw"},
+    {N = "Print Pos Tool", U = "https://pastefy.app/PvzzLVSr/raw"},
+    {N = "Super Tool", U = "https://pastefy.app/0COIyXe5/raw"},
+    {N = "Fly Tool", U = "https://pastefy.app/v9qA9ev4/raw"},
+    {N = "NoClip Tool", U = "https://pastefy.app/N6sXYltX/raw"},
+    {N = "Swim Tool", U = "https://pastefy.app/5bevqP1O/raw"},
+    {N = "Freeze Tool", U = "https://pastefy.app/hF3HD2Xr/raw"},
+    {N = "FreeCam Tool", U = "https://pastefy.app/gWu7qFcI/raw"},
+    {N = "Spin Tool", U = "https://pastefy.app/TkEIKECR/raw"},
+    {N = "Jerk Tool", U = "https://pastefy.app/2bSw36iK/raw"},
+    {N = "Lag Tool", U = "https://pastefy.app/Tjt19NL2/raw"},
+    {N = "Punch Tool [R6]", U = "https://pastefy.app/aoOwF0KU/raw"},
+    {N = "Telekinesis Tool", U = "https://pastefy.app/8OUD6iGW/raw"},
     {N = "AK-47 Tool", U = "https://rawscripts.net/raw/Universal-Script-Visual-AK-47-gun-29467"},
-    {N = "Delete Tool", U = "https://pastebin.com/raw/Et2zxNyk"},
+    {N = "Delete Tool", U = "https://pastefy.app/wPmcErKC/raw"},
 }
 for i, t in pairs(T) do
     Tool:CreateButton({Name = t.N, Callback = function()
@@ -323,161 +406,161 @@ for i, t in pairs(T) do
     end})
 end
 
-local Esp = Window:CreateTab("Esp", 6523858394)
-Esp:CreateSection("Esp")
-
-local E = {
-    {N = "Esp Account Age", F = "https://pastebin.com/raw/yBYwTpf8"},
-    {N = "Esp UserId", F = "https://pastebin.com/raw/5QWD3vQY"},
-    {N = "Esp Name", F = "https://pastebin.com/raw/adfZhVPB"},
-    {N = "Esp Health", F = "https://pastebin.com/raw/m6JidyHR"},
-    {N = "Esp Display Name", F = "https://pastebin.com/raw/PTVL4m5a"},
-    {N = "Esp Highlights", F = "https://pastebin.com/raw/qkrmZ5tr"},
-    {N = "Esp Position", F = "https://pastebin.com/raw/1PgQeJRx"},
-    {N = "Esp Distance", F = "https://pastebin.com/raw/Cnu6YWTN"},
-    {N = "Esp Line", F = "https://pastebin.com/raw/vmuyrcmQ"},
-    {N = "Esp Box", F = "https://pastebin.com/raw/agFnyvEr"},
-    {N = "X-ray", F = "https://pastebin.com/raw/v5WPHqsd"},
-}
-
-local EspToggles = {}
-local EspRawScript = {}
-local EHB = Color3.new(1, 0, 0)
-local EHL = Color3.new(0, 0, 1)
-local EHH = Color3.new(0, 1, 0)
-local EHT = Color3.new(1, 1, 1)
-
-function UpDataColor()
-    for i, v in pairs(EspToggles) do
-        if v:Get() then
-            v:Set(false)
-            v:Set(true)
+task.spawn(function()
+    local Esp = Window:CreateTab("Esp", 6523858394)
+    
+    local E = {
+        {N = "Esp Account Age", F = "https://pastebin.com/raw/yBYwTpf8"},
+        {N = "Esp UserId", F = "https://pastebin.com/raw/5QWD3vQY"},
+        {N = "Esp Name", F = "https://pastebin.com/raw/adfZhVPB"},
+        {N = "Esp Health", F = "https://pastebin.com/raw/m6JidyHR"},
+        {N = "Esp Display Name", F = "https://pastebin.com/raw/PTVL4m5a"},
+        {N = "Esp Position", F = "https://pastebin.com/raw/1PgQeJRx"},
+        {N = "Esp Distance", F = "https://pastebin.com/raw/Cnu6YWTN"},
+        {N = "Esp Highlights", F = "https://pastebin.com/raw/qkrmZ5tr"},
+        {N = "Esp Line", F = "https://pastebin.com/raw/vmuyrcmQ"},
+        {N = "Esp Box", F = "https://pastebin.com/raw/agFnyvEr"},
+        {N = "X-ray", F = "https://pastebin.com/raw/v5WPHqsd"},
+    }
+    
+    function UpDataColor()
+        for i, v in pairs(EspToggles) do
+            if v:Get() then
+                v:Set(false)
+                v:Set(true)
+            end
         end
     end
-end
-
-Esp:CreateColorPicker({Name = "Esp Text Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
-    EHT = Value
-    UpDataColor()
-end})
-
-Esp:CreateColorPicker({Name = "Esp Box Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
-    EHB = Value
-    UpDataColor()
-end})
-
-Esp:CreateColorPicker({Name = "Esp Line Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
-    EHL = Value
-    UpDataColor()
-end})
-
-Esp:CreateColorPicker({Name = "Esp Highlight Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
-    EHH = Value
-    UpDataColor()
-end})
-
-for i, v in pairs(E) do
-    local EspRaw = loadstring(game:HttpGet(v.F))()
-    table.insert(EspRawScript, EspRaw)
-    if v.N == "Esp Highlights" then
-        local Toggle = Esp:CreateToggle({
-            Name = v.N,
-            CurrentValue = false,
-            Flag = "Toggle_" ..v.N,
-            Callback = function(Value)
-                if Value then 
-                    EspRaw:On(EHH)
-                else 
-                    EspRaw:Off()
-                end
+    
+    Esp:CreateSection("Esp Text")
+    
+    for i, v in pairs(E) do
+        local EspRaw = loadstring(game:HttpGet(v.F))()
+        if EspRaw then
+            table.insert(EspRawScript, EspRaw)
+            if v.N == "Esp Highlights" then
+                Esp:CreateColorPicker({Name = "Esp Text Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
+                    EHT = Value
+                    UpDataColor()
+                end})
+                Esp:CreateSection("Esp Highlights")
+                local Toggle = Esp:CreateToggle({
+                    Name = v.N,
+                    CurrentValue = false,
+                    Flag = "Toggle_" ..v.N,
+                    Callback = function(Value)
+                        if Value then 
+                            EspRaw:On(EHH)
+                        else 
+                            EspRaw:Off()
+                        end
+                    end
+                })
+                Esp:CreateColorPicker({Name = "Esp Highlights", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
+                    EHH = Value
+                    UpDataColor()
+                end})
+                table.insert(EspToggles, Toggle)
+            elseif v.N == "Esp Line" then
+                Esp:CreateSection("Esp Line")
+                local Toggle = Esp:CreateToggle({
+                    Name = v.N,
+                    CurrentValue = false,
+                    Flag = "Toggle_" ..v.N,
+                    Callback = function(Value)
+                        if Value then 
+                            EspRaw:On(EHL)
+                        else 
+                            EspRaw:Off()
+                        end
+                    end
+                })
+                Esp:CreateColorPicker({Name = "Esp Line Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
+                    EHL = Value
+                    UpDataColor()
+                end})
+                table.insert(EspToggles, Toggle)
+            elseif v.N == "Esp Box" then
+                Esp:CreateSection("Esp Box")
+                local Toggle = Esp:CreateToggle({
+                    Name = v.N,
+                    CurrentValue = false,
+                    Flag = "Toggle_" ..v.N,
+                    Callback = function(Value)
+                        if Value then 
+                            EspRaw:On(EHB)
+                        else 
+                            EspRaw:Off()
+                        end
+                    end
+                })
+                Esp:CreateColorPicker({Name = "Esp Box Color", Color = Color3.fromRGB(255,255,255), Flag = "ColorPicker1", Callback = function(Value)
+                    EHB = Value
+                    UpDataColor()
+                end})
+                table.insert(EspToggles, Toggle)
+            elseif v.N == "X-ray" then
+                Esp:CreateSection("X-ray")
+                local Toggle = Esp:CreateToggle({
+                    Name = v.N,
+                    CurrentValue = false,
+                    Flag = "Toggle_" ..v.N,
+                    Callback = function(Value)
+                        if Value then 
+                            EspRaw:On()
+                        else 
+                            EspRaw:Off()
+                        end
+                    end
+                })
+            else
+                local Toggle = Esp:CreateToggle({
+                    Name = v.N,
+                    CurrentValue = false,
+                    Flag = "Toggle_" ..v.N,
+                    Callback = function(Value)
+                        if Value then 
+                            EspRaw:On(EHT)
+                        else 
+                            EspRaw:Off()
+                        end
+                    end
+                })
+                table.insert(EspToggles, Toggle)
             end
-        })
-        table.insert(EspToggles, Toggle)
-    elseif v.N == "Esp Line" then
-        local Toggle = Esp:CreateToggle({
-            Name = v.N,
-            CurrentValue = false,
-            Flag = "Toggle_" ..v.N,
-            Callback = function(Value)
-                if Value then 
-                    EspRaw:On(EHL)
-                else 
-                    EspRaw:Off()
-                end
-            end
-        })
-        table.insert(EspToggles, Toggle)
-    elseif v.N == "Esp Box" then
-        local Toggle = Esp:CreateToggle({
-            Name = v.N,
-            CurrentValue = false,
-            Flag = "Toggle_" ..v.N,
-            Callback = function(Value)
-                if Value then 
-                    EspRaw:On(EHB)
-                else 
-                    EspRaw:Off()
-                end
-            end
-        })
-        table.insert(EspToggles, Toggle)
-    elseif v.N == "X-ray" then
-        local Toggle = Esp:CreateToggle({
-            Name = v.N,
-            CurrentValue = false,
-            Flag = "Toggle_" ..v.N,
-            Callback = function(Value)
-                if Value then 
-                    EspRaw:On()
-                else 
-                    EspRaw:Off()
-                end
-            end
-        })
-    else
-        local Toggle = Esp:CreateToggle({
-            Name = v.N,
-            CurrentValue = false,
-            Flag = "Toggle_" ..v.N,
-            Callback = function(Value)
-                if Value then 
-                    EspRaw:On(EHT)
-                else 
-                    EspRaw:Off()
-                end
-            end
-        })
-        table.insert(EspToggles, Toggle)
+        else
+            print("Error: " ..v.N)
+        end
     end
-end
+end)
 
 local UnHub = Window:CreateTab("UnHub Script", 86591853167234)
 UnHub:CreateSection("UnHub Script")
 
 local U = {
     {N = "UnHub: Fe", U = "https://pastefy.app/jgBN1P1P/raw"},
-    {N = "UnHub: Audio", U = "https://pastebin.com/raw/2dA8A07r"},
-    {N = "UnHub: Custom animation", U = "https://pastebin.com/raw/bsjbiqf1"},
-    {N = "UnHub: Emote", U = "https://pastebin.com/raw/y6mk6rjN"},
-    {N = "Position", U = "https://pastebin.com/raw/8A5Y6EGp"},
-    {N = "Calculator", U = "https://pastebin.com/raw/6X4FhAgV"},
-    {N = "Fly: Hero", U = "https://pastebin.com/raw/s3gHVQ3H"},
-    {N = "Fly: Normal", U = "https://pastebin.com/raw/dmPAAcMq"},
-    {N = "Fly: Soul", U = "https://pastebin.com/raw/cTQcNAqX"},
-    {N = "FreeCam", U = "https://pastebin.com/raw/siSuEhpE"},
-    {N = "Spin", U = "https://pastebin.com/raw/Xep7v92f"},
-    {N = "NoClip", U = "https://pastebin.com/raw/ck5WYjY5"},
-    {N = "Swim", U = "https://pastebin.com/raw/k8Eirqf0"},
-    {N = "Invisible", U = "https://pastebin.com/raw/TX7EYrCE"},
-    {N = "Part Path", U = "https://pastebin.com/raw/u9KJ1Pdx"},
-    {N = "Bang", U = "https://pastebin.com/raw/TY8UabmX"},
-    {N = "Get Banged", U = "https://pastebin.com/raw/pMdGejeW"},
-    {N = "Shift Lock", U = "https://pastebin.com/raw/KaH3Bb2r"},
-    {N = "Gui Edior", U = "https://pastebin.com/raw/qnYj7JYm"},
-    {N = "Executor", U = "https://pastebin.com/raw/ce05FKFH"},
-    {N = "Raw Link", U = "https://pastebin.com/raw/XYFgYj1n"},
-    {N = "Get Animation", U = "https://pastebin.com/raw/Ryr373ti"},
-    {N = "Cloner", U = "https://pastebin.com/raw/dAwk9Nj1"},
+    {N = "UnHub: Audio", U = "https://pastefy.app/xJfT77js/raw"},
+    {N = "UnHub: Custom animation", U = "https://pastefy.app/hDLump1x/raw"},
+    {N = "UnHub: Emote", U = "https://pastefy.app/vELAylpU/raw"},
+    {N = "Position", U = "https://pastefy.app/WIuH0LOz/raw"},
+    {N = "Calculator", U = "https://pastefy.app/Ofm7rqJc/raw"},
+    {N = "Fly: Hero", U = "https://pastefy.app/bx4e8CTF/raw"},
+    {N = "Fly: Normal", U = "https://pastefy.app/8Sq6Dogf/raw"},
+    {N = "Fly: Soul", U = "https://pastefy.app/9XKl5PrP/raw"},
+    {N = "FreeCam", U = "https://pastefy.app/2C9WhLTv/raw"},
+    {N = "Spin", U = "https://pastefy.app/anbObUnY/raw"},
+    {N = "NoClip", U = "https://pastefy.app/XA015S3r/raw"},
+    {N = "Swim", U = "https://pastefy.app/tBFNujcD/raw"},
+    {N = "Invisible", U = "https://pastefy.app/WCsTPR7a/raw"},
+    {N = "Part Path", U = "https://pastebin.com/raw/2NZ54hzb"},
+    {N = "Bang", U = "https://pastefy.app/YiXBkjF4/raw"},
+    {N = "Get Banged", U = "https://pastefy.app/Rh1DCTVq/raw"},
+    {N = "Shift Lock", U = "https://pastefy.app/XONjGO77/raw"},
+    {N = "Gui Edior", U = "https://pastefy.app/RCV8utqr/raw"},
+    {N = "Executor", U = "https://pastefy.app/mrU4RASN/raw"},
+    {N = "Raw Link", U = "https://pastefy.app/UuPGGGLo/raw"},
+    {N = "Get Animation", U = "https://pastefy.app/G2xkaNbc/raw"},
+    {N = "Cloner", U = "https://pastefy.app/DZjbro9h/raw"},
 }
 
 for i, u in pairs(U) do
@@ -503,7 +586,7 @@ for i, d in pairs(D) do
     end})
 end
 
-local Aimbot = Window:CreateTab("Aimbot", 11713339600)
+local Aimbot = Window:CreateTab("Aimbot", 11162755592)
 Aimbot:CreateSection("Aimbot")
 
 local AimbotSpeed = 1
@@ -661,7 +744,6 @@ Aimbot:CreateSlider({Name = "Aimbot Speed", Range = {0, 100}, Increment = 0.1, S
 end})
 
 local Other = Window:CreateTab("Other", 11713339600)
-Other:CreateSection("Other")
 
 local RunAntiAfk = nil
 local RunAntiFling = nil
@@ -670,6 +752,7 @@ local speed = 1
 local CanWalkToPlayer = false
 local WalkToPlayerTarget = nil
 
+Other:CreateSection("Game Preformer")
 
 Other:CreateToggle({Name = "Anti Afk", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     local vu = game:GetService("VirtualUser")
@@ -714,7 +797,65 @@ Other:CreateButton({Name = "Fps Booster", Callback = function()
     EnabledFps()
 end})
 
-Other:CreateInput({Name = "Tp To Player", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
+Other:CreateToggle({Name = "Black Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
+        
+    if not Gui and Value then
+        Gui = Instance.new("ScreenGui")
+        Gui.Name = "ScreenFrame"
+        Gui.ResetOnSpawn = false
+        Gui.Parent = game.CoreGui
+    end
+    
+    if Value then
+        if not Gui:FindFirstChild("Black") then
+            local Frame = Instance.new("Frame")
+            Frame.Size = UDim2.new(1, 1000, 1, 1000)
+            Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+            Frame.Name = "Black"
+            Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+            Frame.BackgroundTransparency = 0
+            Frame.ZIndex = 10
+            Frame.Parent = Gui
+        end
+    else
+        if Gui and Gui:FindFirstChild("Black") then
+            Gui.Black:Destroy()
+        end
+    end
+end})
+
+Other:CreateToggle({Name = "White Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
+        
+    if not Gui and Value then
+        Gui = Instance.new("ScreenGui")
+        Gui.Name = "ScreenFrame"
+        Gui.ResetOnSpawn = false
+        Gui.Parent = game.CoreGui
+    end
+    
+    if Value then
+        if not Gui:FindFirstChild("White") then
+            local Frame = Instance.new("Frame")
+            Frame.Size = UDim2.new(1, 1000, 1, 1000)
+            Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+            Frame.Name = "White"
+            Frame.BackgroundColor3 = Color3.new(1, 1, 1)
+            Frame.BackgroundTransparency = 0
+            Frame.ZIndex = 10
+            Frame.Parent = Gui
+        end
+    else
+        if Gui and Gui:FindFirstChild("White") then
+            Gui.White:Destroy()
+        end
+    end
+end})
+
+Other:CreateSection("Position Player")
+
+Other:CreateInput({Name = "Teleport", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
     local txt = tostring(Text):lower()
     local localPlayer = game.Players.LocalPlayer
     local localChar = localPlayer.Character
@@ -735,7 +876,7 @@ Other:CreateInput({Name = "Tp To Player", CurrentValue = "", PlaceholderText = "
     end
 end})
 
-Other:CreateInput({Name = "Walk To Player", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
+Other:CreateInput({Name = "Follow", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
     local txt = tostring(Text):lower()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= localPlayer then
@@ -749,7 +890,7 @@ Other:CreateInput({Name = "Walk To Player", CurrentValue = "", PlaceholderText =
     end
 end})
 
-Other:CreateInput({Name = "Tp To Position", CurrentValue = "", PlaceholderText = "Position", RemoveTextAfterFocusLost = true, Callback = function(txt)
+Other:CreateInput({Name = "Teleport To Position", CurrentValue = "", PlaceholderText = "Position", RemoveTextAfterFocusLost = true, Callback = function(txt)
     local delimiter = string.find(txt, ",") and "," or " "
     local coords = string.split(txt, delimiter)
     if #coords ~= 3 then
@@ -763,10 +904,6 @@ Other:CreateInput({Name = "Tp To Position", CurrentValue = "", PlaceholderText =
     end
     y = y + 1
     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
-end})
-
-Other:CreateInput({Name = "Tp To Game", CurrentValue = "", PlaceholderText = "Game Id", RemoveTextAfterFocusLost = true, Callback = function(Value)
-    game:GetService("TeleportService"):Teleport(Value)
 end})
 
 Other:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(txt)
@@ -784,24 +921,127 @@ Other:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "Pla
     end
 end})
 
-Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "Text", RemoveTextAfterFocusLost = true, Callback = function(txt)
-    if game:GetService('TextChatService').ChatVersion == Enum.ChatVersion.LegacyChatService then
-        game:GetService('ReplicatedStorage'):WaitForChild('DefaultChatSystemChatEvents'):WaitForChild('SayMessageRequest'):FireServer(txt, 'All')
-    else
-        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(txt)
-    end
-end})
+for _, player in ipairs(Players:GetPlayers()) do
+    table.insert(Playlist, player.Name)
+end
 
-Other:CreateButton({Name = "Reset", Callback = function()
-    game.Players.LocalPlayer.Character.Humanoid.Health = 0
+local TP = Other:CreateDropdown({
+    Name = "Teleport",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        local localPlayer = Players.LocalPlayer
+        local localChar = localPlayer.Character
+        local localHRP = localChar and localChar:FindFirstChild("HumanoidRootPart")
+        if not localHRP then return end
+
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    localHRP.CFrame = targetHRP.CFrame
+                    break
+                end
+            end
+        end
+    end
+})
+
+local WT = Other:CreateDropdown({
+    Name = "Follow",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    WalkToPlayerTarget = player
+                    break
+                end
+            end
+        end
+    end
+})
+
+local SP = Other:CreateDropdown({
+    Name = "Spectator",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                local cam = workspace.CurrentCamera
+                if player.Character and player.Character:FindFirstChild("Humanoid") then
+                    cam.CameraSubject = player.Character.Humanoid
+                    break
+                end
+            end
+        end
+    end
+})
+
+local CPN = Other:CreateDropdown({
+    Name = "Copy Player Name",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        setclipboard(name)
+    end
+})
+
+Other:CreateButton({
+    Name = "Refresh",
+    Callback = function()
+        Playlist = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(Playlist, player.Name)
+        end
+        CPN:Refresh(Playlist)
+        TP:Refresh(Playlist)
+        SP:Refresh(Playlist)
+        WT:Refresh(Playlist)
+    end
+})
+
+Other:CreateToggle({Name = "Enable Following", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    CanWalkToPlayer = Value
 end})
 
 Other:CreateButton({Name = "Reset Spectator", Callback = function()
     game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
 end})
 
+Other:CreateSection("Game & Server")
+
+Other:CreateInput({Name = "Game", CurrentValue = "", PlaceholderText = "GameId", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    TeleportService:Teleport(Value)
+end})
+
+Other:CreateInput({Name = "Server", CurrentValue = "", PlaceholderText = "ServerId", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    TeleportService:TeleportToPlaceInstance(game.PlaceId, Value, player)
+end})
+
 Other:CreateButton({Name = "Rejoin", Callback = function()
-    game:GetService("TeleportService"):Teleport(game.PlaceId)
+    TeleportService:Teleport(game.PlaceId)
+end})
+
+Other:CreateToggle({Name = "Auto Rejoin", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local AutoRejoin = Value
+end})
+
+Other:CreateSection("Character")
+
+Other:CreateButton({Name = "Reset", Callback = function()
+    game.Players.LocalPlayer.Character.Humanoid.Health = 0
 end})
 
 local InfiniteJumpEnabled = false
@@ -824,16 +1064,45 @@ Other:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Flag = "Toggle
     end
 end})
 
-Other:CreateToggle({Name = "Auto Rejoin", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local AutoRejoin = Value
-end})
-
-Other:CreateButton({Name = "Console", Callback = function()
-    game.StarterGui:SetCore("DevConsoleVisible", true)
+Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "Text", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if game:GetService('TextChatService').ChatVersion == Enum.ChatVersion.LegacyChatService then
+        game:GetService('ReplicatedStorage'):WaitForChild('DefaultChatSystemChatEvents'):WaitForChild('SayMessageRequest'):FireServer(txt, 'All')
+    else
+        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(txt)
+    end
 end})
 
 Other:CreateToggle({Name = "Sit", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     game.Players.LocalPlayer.Character.Humanoid.Sit = Value
+end})
+
+Other:CreateToggle({Name = "Equip All Toots", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        for _, tools in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if tools:IsA("Tool") then
+                tools.Parent = game.Players.LocalPlayer.Character
+            end
+        end
+    else
+        for _, tools in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+            if tools:IsA("Tool") then
+                tools.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+    end
+end})
+
+Other:CreateSlider({Name = "Pov View", Range = {0, 120}, Increment = 1, Suffix = "Pov", CurrentValue = cam.FieldOfView, Flag = "Slider1", Callback = function(Value)
+    local number = tonumber(Value)
+    if number then
+        cam.FieldOfView = number
+    end
+end})
+
+Other:CreateSection("Game")
+
+Other:CreateButton({Name = "Console", Callback = function()
+    game.StarterGui:SetCore("DevConsoleVisible", true)
 end})
 
 Other:CreateToggle({Name = "Day & Night", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
@@ -844,6 +1113,12 @@ Other:CreateToggle({Name = "Day & Night", CurrentValue = false, Flag = "Toggle1"
         lighting.TimeOfDay = 12
     end
 end})
+
+Other:CreateSection("Animations & Sounds")
+
+local s = Instance.new("Sound", game.Workspace)
+local a = Instance.new("Animation")
+local AT
 
 Other:CreateInput({Name = "Change Animation Speed", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
     speed = tonumber(Value)
@@ -882,26 +1157,6 @@ Other:CreateToggle({Name = "Freeze Animation", CurrentValue = false, Flag = "Tog
         end
     end
 end})
-
-Other:CreateToggle({Name = "Equip All Toots", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    if Value then
-        for _, tools in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-            if tools:IsA("Tool") then
-                tools.Parent = game.Players.LocalPlayer.Character
-            end
-        end
-    else
-        for _, tools in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-            if tools:IsA("Tool") then
-                tools.Parent = game.Players.LocalPlayer.Backpack
-            end
-        end
-    end
-end})
-
-local s = Instance.new("Sound", game.Workspace)
-local a = Instance.new("Animation")
-local AT
 
 Other:CreateInput({Name = "Load Animation", CurrentValue = "", PlaceholderText = "Animation Id", RemoveTextAfterFocusLost = true, Callback = function(txt)
     if string.find(txt, "http://www.roblox.com") then
@@ -944,227 +1199,171 @@ Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callb
     end
 end})
 
-for _, player in ipairs(Players:GetPlayers()) do
-    table.insert(Playlist, player.Name)
-end
+local Search = Window:CreateTab("Search Script", 118685771787843)
+Search:CreateSection("Search Script")
 
-local CPN = Other:CreateDropdown({
-    Name = "Copy Player Name",
-    Options = Playlist,
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "Dropdown1",
-    Callback = function(name)
-        setclipboard(name)
-    end
-})
+local Items = {
+    Buttons = {},
+    Sections = {}
+}
 
-local TP = Other:CreateDropdown({
-    Name = "Tp Player",
-    Options = Playlist,
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "Dropdown1",
-    Callback = function(name)
-        local localPlayer = Players.LocalPlayer
-        local localChar = localPlayer.Character
-        local localHRP = localChar and localChar:FindFirstChild("HumanoidRootPart")
+Search:CreateInput({
+    Name = "Search Bar",
+    CurrentValue = "",
+    PlaceholderText = "     Search     ",
+    RemoveTextAfterFocusLost = true,
+    Callback = function(Text)
 
-        if not localHRP then return end
-
-        for _, player in pairs(Players:GetPlayers()) do
-            if player.Name:lower():find(name:lower()) then
-                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                if targetHRP then
-                    localHRP.CFrame = targetHRP.CFrame
-                    break
+        -- Clear old results
+        if #Items.Buttons > 0 and Items.Buttons[1]:GetButton().Parent then
+            for _, v in ipairs(Items.Buttons[1]:GetButton().Parent:GetChildren()) do
+                if v:IsA("Frame") and v.Name == "SectionSpacing" then
+                    v:Destroy()
                 end
             end
         end
-    end
-})
+        for _, section in ipairs(Items.Sections) do
+            section:Destroy()
+        end
+        for _, btnValue in ipairs(Items.Buttons) do
+            btnValue:Destroy()
+        end
+        Items.Sections = {}
+        Items.Buttons = {}
 
-local WT = Other:CreateDropdown({
-    Name = "Walk To Player",
-    Options = Playlist,
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "Dropdown1",
-    Callback = function(name)
-        for _, player in pairs(Players:GetPlayers()) do
-            if player.Name:lower():find(name:lower()) then
-                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                if targetHRP then
-                    WalkToPlayerTarget = player
-                    break
+        local HttpService = game:GetService("HttpService")
+        local success, result = pcall(function()
+            return HttpService:JSONDecode(
+                game:HttpGet("https://scriptblox.com/api/script/search?q=" .. Text .. "&max=100&page=1")
+            )
+        end)
+
+        if success and result and result.result and result.result.scripts then
+            for _, scriptData in ipairs(result.result.scripts) do
+                local scriptName = scriptData.title or "Unknown Script"
+                local scriptGameName = (scriptData.game and scriptData.game.name) or "Unknown Game"
+                local scriptGameId = (scriptData.game and scriptData.game.gameId) or 0
+                local scriptSlug = scriptData.slug
+
+                local Image
+                if scriptGameId == 7436755782 then
+                    Image = string.format("rbxthumb://type=GameIcon&id=%d&w=512&h=512", scriptGameId)
+                else
+                    Image = "rbxthumb://type=GameThumbnail&id="..scriptGameId.."&w=256&h=144"
                 end
-            end
-        end
-    end
-})
+                local Section = Search:CreateSection(scriptGameName)
 
-local SP = Other:CreateDropdown({
-    Name = "Spectator Player",
-    Options = Playlist,
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "Dropdown1",
-    Callback = function(name)
-        for _, player in pairs(Players:GetPlayers()) do
-            if player.Name:lower():find(name:lower()) then
-                local cam = workspace.CurrentCamera
-                if player.Character and player.Character:FindFirstChild("Humanoid") then
-                    cam.CameraSubject = player.Character.Humanoid
-                    break
-                end
-            end
-        end
-    end
-})
-
-Other:CreateButton({
-    Name = "Refresh",
-    Callback = function()
-        Playlist = {}
-        for _, player in ipairs(Players:GetPlayers()) do
-            table.insert(Playlist, player.Name)
-        end
-        CPN:Refresh(Playlist)
-        TP:Refresh(Playlist)
-        SP:Refresh(Playlist)
-        WT:Refresh(Playlist)
-    end
-})
-
-Other:CreateToggle({Name = "Enable Walk To Player", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    CanWalkToPlayer = Value
-end})
-
-Other:CreateToggle({Name = "Black Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
-        
-    if not Gui and Value then
-        Gui = Instance.new("ScreenGui")
-        Gui.Name = "ScreenFrame"
-        Gui.ResetOnSpawn = false
-        Gui.Parent = game.CoreGui
-    end
-    
-    if Value then
-        if not Gui:FindFirstChild("Black") then
-            local Frame = Instance.new("Frame")
-            Frame.Size = UDim2.new(10, 0, 10, 0)
-            Frame.Name = "Black"
-            Frame.BackgroundColor3 = Color3.new(0, 0, 0)
-            Frame.BackgroundTransparency = 0
-            Frame.ZIndex = 10
-            Frame.Parent = Gui
-        end
-    else
-        if Gui and Gui:FindFirstChild("Black") then
-            Gui.Black:Destroy()
-        end
-    end
-end})
-
-Other:CreateToggle({Name = "White Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
-        
-    if not Gui and Value then
-        Gui = Instance.new("ScreenGui")
-        Gui.Name = "ScreenFrame"
-        Gui.ResetOnSpawn = false
-        Gui.Parent = game.CoreGui
-    end
-    
-    if Value then
-        if not Gui:FindFirstChild("White") then
-            local Frame = Instance.new("Frame")
-            Frame.Size = UDim2.new(10, 0, 10, 0)
-            Frame.Name = "White"
-            Frame.BackgroundColor3 = Color3.new(1, 1, 1)
-            Frame.BackgroundTransparency = 0
-            Frame.ZIndex = 10
-            Frame.Parent = Gui
-        end
-    else
-        if Gui and Gui:FindFirstChild("White") then
-            Gui.White:Destroy()
-        end
-    end
-end})
-
-RunScript = RunService.RenderStepped:Connect(function(deltaTime)
-    if not Rayfield:GetGui() then
-        if AimbotAA then
-    		local Target = GetAA()
-    		if Target then
-    			local Part = Target.Character and Target.Character:FindFirstChild(BodyPart)
-    			if Part then
-    			    if SmoothAim then
-                        cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Part.Position), AimbotSpeed / 100)
-                    else
-                        cam.CFrame = CFrame.new(cam.CFrame.Position, Part.Position)
-    			    end
-    			end
-            end
-        elseif AimbotNP then
-    		local Target = GetNP()
-    		if Target then
-    			local Part = Target.Character and Target.Character:FindFirstChild(BodyPart)
-    			if Part then
-    			    if SmoothAim then
-                        cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Part.Position), AimbotSpeed / 100)
-                    else
-                        cam.CFrame = CFrame.new(cam.CFrame.Position, Part.Position)
+                local ButtonValue = Search:CreateImageButton({
+                    Name = scriptName,
+                    Img = Image,
+                    Callback = function()
+                        local ok, rawCode = pcall(function()
+                            return game:HttpGet("https://scriptblox.com/raw/" .. scriptSlug)
+                        end)
+                        if ok and rawCode then
+                            loadstring(rawCode)()
+                        else
+                            warn("Failed to load script: " .. scriptName)
+                        end
                     end
-    			end
-    		end
-        elseif AimbotNH then
-    		local Target = GetNH()
-    		if Target then
-    			local Part = Target and Target:FindFirstChild(BodyPart)
-    			if Part then
-    			    if SmoothAim then
-                        cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Part.Position), AimbotSpeed / 100)
-                    else
-                        cam.CFrame = CFrame.new(cam.CFrame.Position, Part.Position)
-                    end
-    			end
-    		end
-	    elseif AimbotTarget and AimbotTarget.Character and AimbotTarget.Character:FindFirstChild(BodyPart) and CanAimbot then
-            if SmoothAim then
-                cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, AimbotTarget.Character[BodyPart].Position), AimbotSpeed / 100)
-            else
-                cam.CFrame = CFrame.new(cam.CFrame.Position, AimbotTarget.Character[BodyPart].Position)
+                })
+
+                table.insert(Items.Sections, Section)
+                table.insert(Items.Buttons, ButtonValue)
             end
-	    end
-	    if AimbotAARainbow then
-	        if AimbotAAUIStroke then
-	            local hue = tick() % 5 / 5
-        		local color = Color3.fromHSV(hue, 1, 1)
-        		AimbotAAUIStroke.Color = color
-	        end
-	    end
-        if WalkToPlayerTarget and WalkToPlayerTarget.Character and WalkToPlayerTarget.Character:FindFirstChild("HumanoidRootPart") and CanWalkToPlayer then
-            player.Character.Humanoid:MoveTo(WalkToPlayerTarget.Character.HumanoidRootPart.Position)
+        else
+            warn("Failed to fetch scripts or invalid response.")
         end
-    	frameCount = frameCount + 1
-    	timeElapsed = timeElapsed + deltaTime
-    	if timeElapsed >= 0.5 then
-    		local fpsValue = math.floor(frameCount / timeElapsed + 0.5)
-    		fps:Set("FPS: " .. fpsValue)
-    		frameCount = 0
-    		timeElapsed = 0
-    	end
-    else
-        RunScript:Disconnect()
-        RunScript = nil
-	end
-end)
+    end
+})
 
 task.spawn(function()
-	while task.wait(0.5) do
+    local RunPartPath = mouse.Button1Down:Connect(function()
+        PartPath:Set("Part Path: " ..getFullPath(mouse.Target))
+    end)
+    RunScript = RunService.RenderStepped:Connect(function(deltaTime)
+        if not Rayfield:GetGui() then
+            if AimbotAA then
+        		local Target = GetAA()
+        		if Target then
+        			local Part = Target.Character and Target.Character:FindFirstChild(BodyPart)
+        			if Part then
+        			    if SmoothAim then
+                            cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Part.Position), AimbotSpeed / 100)
+                        else
+                            cam.CFrame = CFrame.new(cam.CFrame.Position, Part.Position)
+        			    end
+        			end
+                end
+            elseif AimbotNP then
+        		local Target = GetNP()
+        		if Target then
+        			local Part = Target.Character and Target.Character:FindFirstChild(BodyPart)
+        			if Part then
+        			    if SmoothAim then
+                            cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Part.Position), AimbotSpeed / 100)
+                        else
+                            cam.CFrame = CFrame.new(cam.CFrame.Position, Part.Position)
+                        end
+        			end
+        		end
+            elseif AimbotNH then
+        		local Target = GetNH()
+        		if Target then
+        			local Part = Target and Target:FindFirstChild(BodyPart)
+        			if Part then
+        			    if SmoothAim then
+                            cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Part.Position), AimbotSpeed / 100)
+                        else
+                            cam.CFrame = CFrame.new(cam.CFrame.Position, Part.Position)
+                        end
+        			end
+        		end
+    	    elseif AimbotTarget and AimbotTarget.Character and AimbotTarget.Character:FindFirstChild(BodyPart) and CanAimbot then
+                if SmoothAim then
+                    cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, AimbotTarget.Character[BodyPart].Position), AimbotSpeed / 100)
+                else
+                    cam.CFrame = CFrame.new(cam.CFrame.Position, AimbotTarget.Character[BodyPart].Position)
+                end
+    	    end
+    	    if AimbotAARainbow then
+    	        if AimbotAAUIStroke then
+    	            local hue = tick() % 5 / 5
+            		local color = Color3.fromHSV(hue, 1, 1)
+            		AimbotAAUIStroke.Color = color
+    	        end
+    	    end
+            if WalkToPlayerTarget and WalkToPlayerTarget.Character and WalkToPlayerTarget.Character:FindFirstChild("HumanoidRootPart") and CanWalkToPlayer then
+                player.Character.Humanoid:MoveTo(WalkToPlayerTarget.Character.HumanoidRootPart.Position)
+            end
+        	frameCount = frameCount + 1
+        	timeElapsed = timeElapsed + deltaTime
+        	if timeElapsed >= 0.5 then
+        		local fpsValue = math.floor(frameCount / timeElapsed + 0.5)
+        		fps:Set("FPS: " .. fpsValue)
+        		frameCount = 0
+        		timeElapsed = 0
+        	end
+        	Ping:Set("Ping: " .. player:GetNetworkPing()*1000)
+        	Mouse2D:Set("Mouse 2D: " ..string.format("X: %d  Y: %d", player:GetMouse().X, player:GetMouse().Y))
+        	Mouse3D:Set("Mouse 3D: " ..string.format("X: %d  Y: %d Z: %d", player:GetMouse().Hit.Position.X, player:GetMouse().Hit.Position.Y, player:GetMouse().Hit.Position.Z))
+    		local char = player.Character
+    		if char and char:FindFirstChild("HumanoidRootPart") then
+    			local pos = char.HumanoidRootPart.Position
+        		position:Set(string.format("X: %d  Y: %d  Z: %d", pos.X, pos.Y, pos.Z))
+        	end
+        	local h = char and char:FindFirstChildOfClass("Humanoid")
+        	if h then
+        		health:Set("Health: " .. math.floor(h.Health))
+        	end
+        else
+            RunScript:Disconnect()
+            RunScript = nil
+            RunPartPath:Disconnect()
+            RunPartPath = nil
+    	end
+    end)
+    while task.wait(0.5) do
 	    if not Rayfield:GetGui() then
 	        if game.CoreGui.RobloxPromptGui.promptOverlay:FindFirstChild("ErrorPrompt") then 
 	            if game.CoreGui.RobloxPromptGui.promptOverlay.ErrorPrompt:FindFirstChild("MessageArea") then
@@ -1177,29 +1376,12 @@ task.spawn(function()
 	                end
                 end
 	        end
-	        for _, s in pairs(game:GetService("Stats"):GetChildren()) do
-                if s.Name == "PerformanceStats" then
-                    for _, v in pairs(s:GetChildren()) do
-                        if v.Name == "Data Ping" then
-                            Ping:Set("Ping: " .. v)
-                        end
-                    end
-                end
-            end
+	        
         	PlayerInGame:Set("Players: " .. #game.Players:GetPlayers())
         	Username:Set("Username: " .. player.Name)
         	Name:Set("Display Name: " .. player.DisplayName)
         	UserId:Set("UserId: " .. player.UserId)
         	Age:Set("Account Age: " .. player.AccountAge)
-    		local char = player.Character
-    		if char and char:FindFirstChild("HumanoidRootPart") then
-    			local pos = char.HumanoidRootPart.Position
-        		position:Set(string.format("X: %d  Y: %d  Z: %d", pos.X, pos.Y, pos.Z))
-        	end
-        	local h = char and char:FindFirstChildOfClass("Humanoid")
-        	if h then
-        		health:Set("Health: " .. math.floor(h.Health))
-        	end
         	local currentTime = time()
     		if currentTime - lastUpdate >= 1 then
     			lastUpdate = currentTime
@@ -1211,7 +1393,12 @@ task.spawn(function()
     		end
     	else
     	    for i, v in pairs(EspRawScript) do
-                v:Off()
+    	        if v then
+                    v:Off()
+                end
+    	    end
+    	    if ST then
+    	        ST:Destroy()
     	    end
             if AimbotAA and AimbotAAScreenGui then
                 AimbotAAScreenGui:Destroy()
