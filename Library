@@ -3594,8 +3594,9 @@ function RayfieldLibrary:CreateWindow(Settings)
 		return Tab
 	end
 	
-			function Window:CreateChatTab(Name, Image, Ext, TextHolder, ButtonSettings)
+	function Window:CreateChatTab(Name, Image, Ext, TextHolder, ButtonSettings)
 		local SDone = false
+		local connections = {}
 		local TabButton = TabList.Template:Clone()
 		TabButton.Name = Name
 		TabButton.Title.Text = Name
