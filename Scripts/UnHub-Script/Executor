@@ -1,0 +1,484 @@
+local TextService = game:GetService("TextService")
+local TweenService = game:GetService("TweenService")
+local TextAsk = ""
+
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+screenGui.Name = "ScriptEditorGUI"
+screenGui.ResetOnSpawn = false
+
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+mainFrame.Draggable = false
+
+local UICorner = Instance.new("UICorner", mainFrame)
+local Blur = game.Lighting:FindFirstChild("BlurGuiScript")
+if not Blur then
+Blur = Instance.new("BlurEffect", game.Lighting)
+Blur.Size = 0
+Blur.Name = "BlurGuiScript"
+TweenService:Create(Blur, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 25}):Play()
+end
+
+local Title = Instance.new("TextLabel", mainFrame)
+Title.Size = UDim2.new(0, 100, 0, 40)
+Title.AnchorPoint = Vector2.new(0.5, 0)
+Title.Position = UDim2.new(0.5, 0, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "Executor By LE_GO89"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 20
+
+local Close = Instance.new("TextButton", mainFrame)
+Close.Size = UDim2.new(0, 25, 0, 25)
+Close.AnchorPoint = Vector2.new(0.5, 0)
+Close.Position = UDim2.new(0.965, 0, 0, 5)
+Close.BackgroundTransparency = 1
+Close.Text = "x"
+Close.TextColor3 = Color3.new(1, 1, 1)
+Close.Font = Enum.Font.SourceSansBold
+Close.TextSize = 25
+
+local OC = Instance.new("TextButton", mainFrame)
+OC.Size = UDim2.new(0, 25, 0, 25)
+OC.AnchorPoint = Vector2.new(0.5, 0)
+OC.Position = UDim2.new(0.9, 0, 0, 5)
+OC.BackgroundTransparency = 1
+OC.Text = "-"
+OC.TextColor3 = Color3.new(1, 1, 1)
+OC.Font = Enum.Font.SourceSansBold
+OC.TextSize = 25
+
+local scrollFrame = Instance.new("ScrollingFrame", mainFrame)
+scrollFrame.Size = UDim2.new(1, -20, 1, -60)
+scrollFrame.Position = UDim2.new(0, 10, 0, 40)
+scrollFrame.BackgroundTransparency = 0.1
+scrollFrame.BorderSizePixel = 0
+scrollFrame.BackgroundColor3 = Color3.fromRGB(36, 36, 36)
+scrollFrame.ScrollBarThickness = 6
+scrollFrame.ScrollingDirection = Enum.ScrollingDirection.XY
+scrollFrame.ElasticBehavior = Enum.ElasticBehavior.Never
+scrollFrame.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
+scrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+local LineNumbers = Instance.new("TextLabel", scrollFrame)
+LineNumbers.Size = UDim2.new(0, 30, 1, 8)
+LineNumbers.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+LineNumbers.BackgroundTransparency = 1
+LineNumbers.TextColor3 = Color3.fromRGB(200, 200, 200)
+LineNumbers.Font = Enum.Font.Code
+LineNumbers.TextSize = 16
+LineNumbers.TextXAlignment = Enum.TextXAlignment.Center
+LineNumbers.TextYAlignment = Enum.TextYAlignment.Top
+LineNumbers.TextWrapped = false
+LineNumbers.Text = "1"
+
+local highlightLabel = Instance.new("TextButton", scrollFrame)
+highlightLabel.BackgroundTransparency = 1
+highlightLabel.TextXAlignment = Enum.TextXAlignment.Left
+highlightLabel.TextYAlignment = Enum.TextYAlignment.Top
+highlightLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+highlightLabel.Font = Enum.Font.Code
+highlightLabel.TextSize = 16
+highlightLabel.RichText = true
+highlightLabel.TextWrapped = false
+highlightLabel.ClipsDescendants = false
+highlightLabel.ZIndex = 1
+highlightLabel.Size = UDim2.new(1, 0, 1, 0)
+highlightLabel.Text = ""
+
+local editorBox = Instance.new("TextBox", mainFrame)
+editorBox.BackgroundTransparency = 1
+editorBox.Size = UDim2.new(1, -20, 0.38, 0)
+editorBox.Position = UDim2.new(0, 10, 0, 40)
+editorBox.TextColor3 = Color3.new(1, 1, 1)
+editorBox.TextXAlignment = Enum.TextXAlignment.Left
+editorBox.TextYAlignment = Enum.TextYAlignment.Top
+editorBox.Font = Enum.Font.Code
+editorBox.TextSize = 16
+editorBox.ClearTextOnFocus = false
+editorBox.MultiLine = true
+editorBox.TextWrapped = false
+editorBox.Text = ""
+editorBox.ZIndex = 1
+editorBox.Visible = false
+
+local Execute = Instance.new("TextButton", mainFrame)
+Execute.Size = UDim2.new(0, 100, 0, 40)
+Execute.Position = UDim2.new(1, -110, 1, -50)
+Execute.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+Execute.Text = "Execute"
+Execute.TextColor3 = Color3.new(1, 1, 1)
+Execute.Font = Enum.Font.SourceSansBold
+Execute.TextSize = 20
+Execute.ZIndex = 10
+Execute.AnchorPoint = Vector2.new(0.5, 0.5)
+
+local Clear = Instance.new("TextButton", mainFrame)
+Clear.Size = UDim2.new(0, 100, 0, 40)
+Clear.Position = UDim2.new(1, -220, 1, -50)
+Clear.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+Clear.Text = "Clear"
+Clear.TextColor3 = Color3.new(1, 1, 1)
+Clear.Font = Enum.Font.SourceSansBold
+Clear.TextSize = 20
+Clear.ZIndex = 10
+Clear.AnchorPoint = Vector2.new(0.5, 0.5)
+
+local Copy = Instance.new("TextButton", mainFrame)
+Copy.Size = UDim2.new(0, 100, 0, 40)
+Copy.Position = UDim2.new(1, -330, 1, -50)
+Copy.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+Copy.Text = "Copy"
+Copy.TextColor3 = Color3.new(1, 1, 1)
+Copy.Font = Enum.Font.SourceSansBold
+Copy.ZIndex = 10
+Copy.TextSize = 20
+Copy.AnchorPoint = Vector2.new(0.5, 0.5)
+
+local BlackFrame = Instance.new("Frame")
+BlackFrame.Size = UDim2.new(1, 1000, 1, 1000)
+BlackFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+BlackFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+BlackFrame.BackgroundColor3  = Color3.fromRGB(0, 0, 0)
+BlackFrame.BackgroundTransparency  = 0.5
+BlackFrame.Visible = false
+BlackFrame.Parent = mainFrame
+BlackFrame.ZIndex = 15
+BlackFrame.Active = true
+
+local Frame = Instance.new("Frame")
+Frame.Name = "Frame"
+Frame.Active = true
+Frame.Parent = mainFrame
+Frame.Size = UDim2.new(0, 0, 0, 0)
+Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame.BackgroundColor3  = Color3.fromRGB(22, 22, 22)
+Frame.Visible = false
+
+local UICorner = Instance.new("UICorner")
+UICorner.Name = "UICorner"
+UICorner.Parent = Frame
+UICorner.CornerRadius = UDim.new(0, 16)
+
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Name = "TextLabel"
+TextLabel.Parent = Frame
+TextLabel.Position = UDim2.new(0.5, 0, 0.4, 0)
+TextLabel.Size = UDim2.new(0.8, 0, 0.7, 0)
+TextLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+TextLabel.BackgroundTransparency = 1
+TextLabel.ZIndex = 20
+TextLabel.Text = "Do to want to "..TextAsk .."?"
+TextLabel.TextColor3 = Color3.new(1, 1, 1)
+TextLabel.TextSize = 0
+
+local Decline = Instance.new("TextButton")
+Decline.Name = "TextButton"
+Decline.Parent = Frame
+Decline.Position = UDim2.new(0.3, 0, 0.7, 0)
+Decline.Size = UDim2.new(0.25, 0, 0.2, 0)
+Decline.AnchorPoint = Vector2.new(0.5, 0.5)
+Decline.BackgroundColor3 = Color3.new(0.28140702843666077, 0.28140702843666077, 0.28140702843666077)
+Decline.Visible = true
+Decline.ZIndex = 20
+Decline.Text = "Decline"
+Decline.TextColor3 = Color3.new(1, 1, 1)
+Decline.TextSize = 0
+
+local DeclineUICorner = Instance.new("UICorner")
+DeclineUICorner.Name = "UICorner"
+DeclineUICorner.Parent = Decline
+DeclineUICorner.CornerRadius = UDim.new(0, 16)
+
+local Confirm = Instance.new("TextButton")
+Confirm.Name = "TextButton"
+Confirm.Parent = Frame
+Confirm.Position = UDim2.new(0.7, 0, 0.7, 0)
+Confirm.Size = UDim2.new(0.25, 0, 0.2, 0)
+Confirm.AnchorPoint = Vector2.new(0.5, 0.5)
+Confirm.BackgroundColor3 = Color3.new(0.28140702843666077, 0.28140702843666077, 0.28140702843666077)
+Confirm.Visible = true
+Confirm.ZIndex = 20
+Confirm.Text = "Confirm"
+Confirm.TextColor3 = Color3.new(1, 1, 1)
+Confirm.TextSize = 0
+
+Decline.MouseButton1Click:Connect(function()
+	local s = Decline.Size
+	TweenService:Create(Frame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+	TweenService:Create(TextLabel, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 0}):Play()
+	TweenService:Create(Confirm, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 0}):Play()
+	TweenService:Create(Decline, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 0}):Play()
+	TweenService:Create(BlackFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 1}):Play()
+	wait(0.8)
+	Frame.Visible = false
+	BlackFrame.Visible = false
+end)
+
+Confirm.MouseButton1Click:Connect(function()
+	local s = Confirm.Size
+	if TextLabel.Text == "Do to want to Close?" then
+		screenGui:Destroy()
+		TweenService:Create(Blur, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 0}):Play()
+	elseif TextLabel.Text == "Do to want to Copy?" then
+		setclipboard(editorBox.Text)
+	elseif TextLabel.Text == "Do to want to Execute?" then
+		local code = editorBox.Text
+		local f, err = loadstring(code)
+		if f then
+			local ok, runtimeErr = pcall(f)
+			if not ok then
+				warn("Runtime error:", runtimeErr)
+			end
+		else
+			warn("Syntax error:", err)
+		end
+	elseif TextLabel.Text == "Do to want to Clear?" then
+		editorBox.Text = ""
+		highlightLabel.Text = ""
+	end
+	TweenService:Create(Frame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+	TweenService:Create(TextLabel, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 0}):Play()
+	TweenService:Create(Confirm, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 0}):Play()
+	TweenService:Create(Decline, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 0}):Play()
+	TweenService:Create(BlackFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 1}):Play()
+	wait(0.8)
+	Frame.Visible = false
+	BlackFrame.Visible = false
+end)
+
+local ConfirmUICorner = Instance.new("UICorner")
+ConfirmUICorner.Name = "UICorner"
+ConfirmUICorner.Parent = Confirm
+ConfirmUICorner.CornerRadius = UDim.new(0, 16)
+
+local keywords = {
+	-- Core Lua keywords
+	["and"] = "#B800B3", ["break"] = "#B800B3", ["continue"] = "#B800B3", ["do"] = "#B800B3",
+	["else"] = "#B800B3", ["elseif"] = "#B800B3", ["end"] = "#B800B3", ["false"] = "#FF0000",
+	["for"] = "#B800B3", ["function"] = "#B800B3", ["goto"] = "#B800B3", ["if"] = "#B800B3",
+	["in"] = "#B800B3", ["local"] = "#B800B3", ["nil"] = "#B800B3", ["not"] = "#B800B3",
+	["or"] = "#B800B3", ["repeat"] = "#B800B3", ["return"] = "#B800B3",
+	["then"] = "#B800B3", ["true"] = "#4A00FF", ["until"] = "#B800B3", ["while"] = "#B800B3",
+
+	-- Standard Lua libraries (green)
+	["string"] = "#A2FD99", ["math"] = "#A2FD99", ["table"] = "#A2FD99",
+	["coroutine"] = "#A2FD99", ["os"] = "#A2FD99", ["io"] = "#A2FD99",
+	["debug"] = "#A2FD99", ["utf8"] = "#A2FD99",
+
+	-- Standard Lua functions (blue)
+	["assert"] = "#2241FF", ["collectgarbage"] = "#2241FF", ["dofile"] = "#2241FF",
+	["error"] = "#2241FF", ["getmetatable"] = "#2241FF", ["ipairs"] = "#2241FF",
+	["load"] = "#2241FF", ["loadfile"] = "#2241FF", ["loadstring"] = "#2241FF",
+	["next"] = "#2241FF", ["pairs"] = "#2241FF", ["pcall"] = "#2241FF",
+	["print"] = "#2241FF", ["rawequal"] = "#2241FF", ["rawget"] = "#2241FF",
+	["rawlen"] = "#2241FF", ["rawset"] = "#2241FF", ["require"] = "#2241FF",
+	["select"] = "#2241FF", ["setmetatable"] = "#2241FF", ["tonumber"] = "#2241FF",
+	["tostring"] = "#2241FF", ["type"] = "#2241FF", ["xpcall"] = "#2241FF",
+
+	-- Common string functions (blue)
+	["byte"] = "#2241FF", ["char"] = "#2241FF", ["find"] = "#2241FF", ["format"] = "#2241FF",
+	["gmatch"] = "#2241FF", ["gsub"] = "#2241FF", ["len"] = "#2241FF", ["lower"] = "#2241FF",
+	["match"] = "#2241FF", ["rep"] = "#2241FF", ["reverse"] = "#2241FF",
+	["sub"] = "#2241FF", ["upper"] = "#2241FF", ["."] = "#FFFFFF", ["("] = "#FFFFFF", [")"] = "#FFFFFF",
+
+	-- Common math functions (blue)
+	["abs"] = "#2241FF", ["acos"] = "#2241FF", ["asin"] = "#2241FF", ["atan"] = "#2241FF",
+	["ceil"] = "#2241FF", ["cos"] = "#2241FF", ["deg"] = "#2241FF", ["exp"] = "#2241FF",
+	["floor"] = "#2241FF", ["fmod"] = "#2241FF", ["huge"] = "#2241FF", ["log"] = "#2241FF",
+	["max"] = "#2241FF", ["min"] = "#2241FF", ["modf"] = "#2241FF", ["pi"] = "#2241FF",
+	["rad"] = "#2241FF", ["random"] = "#2241FF", ["sin"] = "#2241FF", ["sqrt"] = "#2241FF",
+	["tan"] = "#2241FF",
+
+	-- Roblox globals (green)
+	["game"] = "#A2FD99", ["workspace"] = "#A2FD99", ["script"] = "#A2FD99",
+	["Enum"] = "#A2FD99", ["Instance"] = "#A2FD99", ["Vector3"] = "#A2FD99",
+	["Vector2"] = "#A2FD99", ["UDim"] = "#A2FD99", ["UDim2"] = "#A2FD99",
+	["Color3"] = "#A2FD99", ["CFrame"] = "#A2FD99", ["RaycastParams"] = "#A2FD99",
+	["BrickColor"] = "#A2FD99", ["NumberRange"] = "#A2FD99", ["NumberSequence"] = "#A2FD99",
+	["NumberSequenceKeypoint"] = "#A2FD99", ["ColorSequence"] = "#A2FD99",
+	["ColorSequenceKeypoint"] = "#A2FD99", ["Faces"] = "#A2FD99", ["Axes"] = "#A2FD99",
+	["Rect"] = "#A2FD99", ["Region3"] = "#A2FD99", ["Region3int16"] = "#A2FD99",
+	["TweenInfo"] = "#A2FD99", ["PathWaypoint"] = "#A2FD99", ["DockWidgetPluginGuiInfo"] = "#A2FD99",
+
+	-- Roblox functions/methods (blue)
+	["FindFirstChild"] = "#2241FF", ["FindFirstAncestor"] = "#2241FF", ["WaitForChild"] = "#2241FF",
+	["GetService"] = "#2241FF", ["IsA"] = "#2241FF", ["Clone"] = "#2241FF",
+	["Destroy"] = "#2241FF", ["Play"] = "#2241FF", ["Stop"] = "#2241FF",
+	["Fire"] = "#2241FF", ["Invoke"] = "#2241FF", ["Connect"] = "#2241FF",
+	["Disconnect"] = "#2241FF", ["Wait"] = "#2241FF", ["TweenSize"] = "#2241FF",
+	["TweenPosition"] = "#2241FF", ["TweenSizeAndPosition"] = "#2241FF"
+}
+
+local function escapeRichText(str)
+	str = str:gsub("&", "&amp;")
+	str = str:gsub("<", "&lt;")
+	str = str:gsub(">", "&gt;")
+	return str
+end
+
+local function highlightSyntax(text)
+	text = escapeRichText(text)
+	
+	text = text:gsub('(".-")', '<font color="#C4FE4A">%1</font>')
+	text = text:gsub("('.-')", '<font color="#C4FE4A">%1</font>')
+	
+	text = text:gsub("(%f[%a_])([%a_][%w_]*)(%f[^%w_])", function(front, word, back)
+		local color = keywords[word]
+		if color then
+			return front .. string.format('<font color="%s">%s</font>', color, word) .. back
+		else
+			return front .. word .. back
+		end
+	end)
+	
+	return text
+end
+
+local function updateCanvasSize()
+	scrollFrame.CanvasSize = UDim2.new(0, highlightLabel.TextBounds.X + 20, 0, highlightLabel.TextBounds.Y + 20)
+end
+
+local function UpdateLineNumbers()
+	local lines = string.split(editorBox.Text, "\n")
+	local numStr = ""
+	for i = 1, #lines do
+		numStr = numStr .. i .. "\n"
+	end
+	LineNumbers.Text = numStr
+end
+
+local function updateHighlight()
+	wait()
+	UpdateLineNumbers()
+	editorBox.TextTransparency = 0
+	highlightLabel.Text = highlightSyntax(editorBox.Text)
+	updateCanvasSize()
+end
+
+scrollFrame:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+	local offset = -scrollFrame.CanvasPosition
+     updateCanvasSize()
+end)
+
+editorBox:GetPropertyChangedSignal("Text"):Connect(updateHighlight)
+
+editorBox.Focused:Connect(function()
+	highlightLabel.TextTransparency = 1
+     updateCanvasSize()
+end)
+
+editorBox.FocusLost:Connect(function()
+	highlightLabel.TextTransparency = 0
+    updateCanvasSize()
+end)
+
+Execute.MouseButton1Click:Connect(function()
+	local s = Execute.Size
+	TextAsk = "Execute"
+	TextLabel.Text = "Do to want to "..TextAsk .."?"
+	Frame.Visible = true
+	BlackFrame.Visible = true
+	TweenService:Create(Frame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.4, 0, 0.4, 0)}):Play()
+	TweenService:Create(TextLabel, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 18}):Play()
+	TweenService:Create(Confirm, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 10}):Play()
+	TweenService:Create(Decline, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 10}):Play()
+	TweenService:Create(BlackFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 0.5}):Play()
+	TweenService:Create(Execute, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(s.X.Scale * 0.9, s.X.Offset * 0.9, s.Y.Scale * 0.9, s.Y.Offset * 0.9)}):Play()
+	wait(0.1)
+	TweenService:Create(Execute, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 100, 0, 40)}):Play()
+end)
+
+Clear.MouseButton1Click:Connect(function()
+	local s = Clear.Size
+	TextAsk = "Clear"
+	TextLabel.Text = "Do to want to "..TextAsk .."?"
+	Frame.Visible = true
+	BlackFrame.Visible = true
+	TweenService:Create(Frame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.4, 0, 0.4, 0)}):Play()
+	TweenService:Create(TextLabel, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 18}):Play()
+	TweenService:Create(Confirm, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 10}):Play()
+	TweenService:Create(Decline, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 10}):Play()
+	TweenService:Create(BlackFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 0.5}):Play()
+	TweenService:Create(Clear, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(s.X.Scale * 0.9, s.X.Offset * 0.9, s.Y.Scale * 0.9, s.Y.Offset * 0.9)}):Play()
+	wait(0.1)
+	TweenService:Create(Clear, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 100, 0, 40)}):Play()
+end)
+
+Close.MouseButton1Click:Connect(function()
+	TextAsk = "Close"
+	TextLabel.Text = "Do to want to "..TextAsk .."?"
+	Frame.Visible = true
+	BlackFrame.Visible = true
+	TweenService:Create(Frame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.4, 0, 0.4, 0)}):Play()
+	TweenService:Create(TextLabel, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 18}):Play()
+	TweenService:Create(Confirm, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 10}):Play()
+	TweenService:Create(Decline, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 10}):Play()
+	TweenService:Create(BlackFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 0.5}):Play()
+end)
+
+highlightLabel.MouseButton1Click:Connect(function()
+    editorBox:CaptureFocus()
+end)
+
+Copy.MouseButton1Click:Connect(function()
+	local s = Copy.Size
+	TextAsk = "Copy"
+	TextLabel.Text = "Do to want to "..TextAsk .."?"
+	Frame.Visible = true
+	BlackFrame.Visible = true
+	TweenService:Create(Frame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.4, 0, 0.4, 0)}):Play()
+	TweenService:Create(TextLabel, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 18}):Play()
+	TweenService:Create(Confirm, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 10}):Play()
+	TweenService:Create(Decline, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextSize = 10}):Play()
+	TweenService:Create(BlackFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 0.5}):Play()
+	TweenService:Create(Copy, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(s.X.Scale * 0.9, s.X.Offset * 0.9, s.Y.Scale * 0.9, s.Y.Offset * 0.9)}):Play()
+	wait(0.1)
+	TweenService:Create(Copy, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 100, 0, 40)}):Play()
+end)
+
+local T = false
+OC.MouseButton1Click:Connect(function()
+	T = not T
+    Close.Visible = not T
+	Clear.Visible = true
+    Copy.Visible = true
+	Execute.Visible = true
+	scrollFrame.Visible = not T
+    mainFrame.Draggable = T
+    TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.52, 0, 0.44, 0)}):Play()
+	OC.Text = T and "+" or "-"
+    OC.Position = T and UDim2.new(0.9, 0, 0.5, 0) or UDim2.new(0.9, 0, 0, 5)
+    OC.AnchorPoint = T and Vector2.new(0.5, 0.5) or Vector2.new(0.5, 0)
+    Title.Position = T and UDim2.new(0.5, 0, 0.5, 0) or UDim2.new(0.5, 0, 0, 0)
+    Title.AnchorPoint = T and Vector2.new(0.5, 0.5) or Vector2.new(0.5, 0)
+    TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), T and {Size = UDim2.new(0.95, 0, 0, 50)} or {Size = UDim2.new(0.95, 0, 1, 50)}):Play()
+    TweenService:Create(Blur, TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), T and {Size = 0} or {Size = 25}):Play()
+
+	TweenService:Create(mainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), T and {Size = UDim2.new(0, 250, 0, 50)} or {Size = UDim2.new(0.95, 0, 1, 50)}):Play()
+	TweenService:Create(Clear, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), T and {Transparency = 1} or {Transparency = 0}):Play()
+	TweenService:Create(Copy, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), T and {Transparency = 1} or {Transparency = 0}):Play()
+	TweenService:Create(Execute, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), T and {Transparency = 1} or {Transparency = 0}):Play()
+	wait(0.7)
+	Close.Visible = not T
+	Clear.Visible = not T
+	Copy.Visible = not T
+	Execute.Visible = not T
+end)
+
+UpdateLineNumbers()
+updateHighlight()
+updateCanvasSize()
+mainFrame.Size = UDim2.new(0.95, 0, 1, 50)
+mainFrame.Position = UDim2.new(0.52, 0, 0.44, 0)
+highlightLabel.Size = UDim2.new(1, -40, 1, 0)
+highlightLabel.Position = UDim2.new(0, 40, 0, 0)
+editorBox.Size = UDim2.new(1, -60, 0.38, 0)
+editorBox.Position = UDim2.new(0, 50, 0, 40)
