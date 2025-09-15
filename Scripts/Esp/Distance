@@ -1,0 +1,119 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local EspName = "EDI"
+
+local CharacterConnections = {}
+local NewPlayers = {}
+local RenderConnections = {}
+local PlayerAddedConnection = nil
+
+local RunEspHealth = {}
+
+local function calculateDistance(pos1, pos2)
+	return (pos1 - pos2).Magnitude
+end
+
+function CreateEspDistance(player, Color)
+	if not player.Character then return end
+	local head = player.Character:FindFirstChild("Head")
+	local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+	if not head or not humanoid then return end
+
+	local oldGui = head:FindFirstChild(EspName)
+	if oldGui then oldGui:Destroy() end
+
+	local BillboardGui = Instance.new("BillboardGui")
+	BillboardGui.Name = EspName
+	BillboardGui.Size = UDim2.new(0, 100, 0, 20)
+	BillboardGui.Adornee = head
+	BillboardGui.AlwaysOnTop = true
+	BillboardGui.Parent = head
+
+	local Label = Instance.new("TextLabel")
+	Label.Size = UDim2.new(1, 0, 1, 0)
+	Label.BackgroundTransparency = 1
+	Label.TextColor3 = Color
+	Label.TextStrokeTransparency = 0.5
+	Label.TextStrokeColor3 = Color3.new(0, 0, 0)
+	Label.Text = ""
+	Label.Font = Enum.Font.SourceSansBold
+	Label.TextSize = 14
+	Label.TextScaled = true
+	Label.Parent = BillboardGui
+
+	if RenderConnections[player] then
+		RenderConnections[player]:Disconnect()
+	end
+
+	RenderConnections[player] = RunService.RenderStepped:Connect(function()
+		local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		local localHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+		if targetHRP and localHRP then
+			local distance = calculateDistance(localHRP.Position, targetHRP.Position)
+			Label.Text = tostring(math.floor(distance)/10) .. " M"
+		else
+			Label.Text = "N/A"
+		end
+	end)
+end
+
+function RunEspHealth:On(Color)
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer then
+			CreateEspDistance(player, Color)
+
+			if CharacterConnections[player] then
+				CharacterConnections[player]:Disconnect()
+			end
+
+			CharacterConnections[player] = player.CharacterAdded:Connect(function()
+				task.wait(1)
+				CreateEspDistance(player, Color)
+			end)
+		end
+	end
+
+	PlayerAddedConnection = Players.PlayerAdded:Connect(function(plr)
+		NewPlayers[plr] = plr.CharacterAdded:Connect(function()
+			task.wait(1)
+			CreateEspDistance(plr, Color)
+		end)
+	end)
+end
+
+function RunEspHealth:Off()
+	for _, player in pairs(Players:GetPlayers()) do
+		local character = player.Character
+		if character and character:FindFirstChild("Head") then
+			local head = character.Head
+			local esp = head:FindFirstChild(EspName)
+			if esp then
+				esp:Destroy()
+			end
+		end
+
+		if CharacterConnections[player] then
+			CharacterConnections[player]:Disconnect()
+			CharacterConnections[player] = nil
+		end
+
+		if RenderConnections[player] then
+			RenderConnections[player]:Disconnect()
+			RenderConnections[player] = nil
+		end
+	end
+
+	for plr, conn in pairs(NewPlayers) do
+		if conn then conn:Disconnect() end
+		NewPlayers[plr] = nil
+	end
+
+	if PlayerAddedConnection then
+		PlayerAddedConnection:Disconnect()
+		PlayerAddedConnection = nil
+	end
+end
+
+return RunEspHealth
