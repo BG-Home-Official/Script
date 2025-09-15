@@ -1,0 +1,42 @@
+local toggle = true
+local InfiniteJumpConnection
+local player = game.Players.LocalPlayer.Character.Humanoid
+tool = Instance.new("Tool")
+tool.RequiresHandle = false
+tool.Name = "Super Disabled"
+tool.Equipped:Connect(function()
+    local Tool
+    for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Tool") and v.Name == tool.Name then
+            Tool = v
+        end
+    end
+    if toggle then
+        toggle = false
+        Tool.Name = "Super Enable"
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 64
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = 150
+        game.Players.LocalPlayer.Character:SetAttribute("SpeedMultiplier", 4)
+        game.Players.LocalPlayer.Character:SetAttribute("DashLength", 150)
+        local InfiniteJumpEnabled = true
+        InfiniteJumpConnection = game:GetService("UserInputService").JumpRequest:connect(function()
+            if InfiniteJumpEnabled then
+                game:GetService"Players".LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
+            end
+        end)
+        task.wait()
+        Tool.Parent = game.Players.LocalPlayer.Backpack
+    else
+        toggle = true
+        Tool.Name = "Super Disabled"
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = 50
+        game.Players.LocalPlayer.Character:SetAttribute("SpeedMultiplier", 1)
+        game.Players.LocalPlayer.Character:SetAttribute("DashLength", 50)
+        InfiniteJumpConnection:Disconnect()
+        InfiniteJumpConnection = nil
+        task.wait()
+        Tool.Parent = game.Players.LocalPlayer.Backpack
+    end
+end)
+tool.Parent = game.Players.LocalPlayer.Backpack
