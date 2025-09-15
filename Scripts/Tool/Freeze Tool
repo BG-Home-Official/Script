@@ -1,0 +1,66 @@
+local chr = game.Players.LocalPlayer.Character
+
+local hum = chr.Humanoid
+
+local hrp = chr.HumanoidRootPart
+
+local toggle = false
+
+tool = Instance.new("Tool")
+
+tool.RequiresHandle = false
+
+tool.Name = "Freeze Disable"
+
+tool.Equipped:Connect(function()
+local Tool
+    for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Tool") and v.Name == tool.Name then
+            Tool = v
+        end
+    end
+	toggle = not toggle	if toggle then
+
+       Tool.Name = "Freeze Enable"
+
+		hum.WalkSpeed = 0
+
+		hum.JumpPower = 0
+
+		hrp.Anchored = true
+
+		for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+
+    		track:AdjustSpeed(0)
+
+		end
+
+		wait()
+
+		Tool.Parent = game.Players.LocalPlayer.Backpack
+
+	else
+
+       Tool.Name = "Freeze Disable"
+
+		hum.WalkSpeed = 16
+
+		hum.JumpPower = 50
+
+		hrp.Anchored = false
+
+		for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+
+    		track:AdjustSpeed(1)
+
+		end
+
+		wait()
+
+		Tool.Parent = game.Players.LocalPlayer.Backpack
+
+	end
+
+end)
+
+tool.Parent = game.Players.LocalPlayer.Backpack
