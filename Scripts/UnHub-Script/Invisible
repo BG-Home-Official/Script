@@ -1,0 +1,91 @@
+local invis_on = false
+
+local function toggleInvisibility()
+    
+end
+
+local S = Instance.new("ScreenGui")
+S.Parent = game.CoreGui
+S.Name = "Invisible"
+
+local F = Instance.new("Frame")
+F.Parent = S
+F.Size = UDim2.new(0, 230, 0, 130)
+F.Position = UDim2.new(0, 230, 0, 100)
+F.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+F.Active = true
+F.Draggable = true
+F.BorderSizePixel = 3
+F.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+local T = Instance.new("TextButton")
+T.Parent = F
+T.Size = UDim2.new(0, 180, 0, 50)
+T.Position = UDim2.new(0, 23, 0, 15)
+T.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+T.BorderSizePixel = 2
+T.BorderColor3 = Color3.fromRGB(0, 0, 0)
+T.TextScaled = true
+T.Font = Enum.Font.SciFi
+T.Text = "Invisible"
+local B3Fly = Instance.new("TextButton")
+B3Fly.Parent = F
+B3Fly.TextScaled = true
+B3Fly.Font = Enum.Font.SciFi
+B3Fly.Size = UDim2.new(0, 48, 0, 30)
+B3Fly.Position = UDim2.new(0, 90, 0, 85)
+B3Fly.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+B3Fly.BorderSizePixel = 2
+B3Fly.BorderColor3 = Color3.fromRGB(0, 0, 0)
+B3Fly.Text = "Visible"
+B3Fly.MouseButton1Click:Connect(function()
+    invis_on = not invis_on
+    B3Fly.Text = invis_on and "Invisible" or "Visible"
+    if invis_on then
+        for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+        	if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then v.Transparency = 0.5 end
+        end
+        local savedpos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        wait()
+        game.Players.LocalPlayer.Character:MoveTo(Vector3.new(-25.95, 84, 3537.55))
+        wait(.15)
+        local Seat = Instance.new('Seat', game.Workspace)
+        Seat.Anchored = false
+        Seat.CanCollide = false
+        Seat.Name = 'invischair'
+        Seat.Transparency = 1
+        Seat.Position = Vector3.new(-25.95, 84, 3537.55)
+        local Weld = Instance.new("Weld", Seat)
+        Weld.Part0 = Seat
+        Weld.Part1 = game.Players.LocalPlayer.Character:FindFirstChild("Torso") or game.Players.LocalPlayer.Character.UpperTorso
+        wait()
+        Seat.CFrame = savedpos
+    else
+        local invisChair = workspace:FindFirstChild('invischair')
+        if invisChair then
+            invisChair:Destroy()
+        end
+        for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+        	if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then v.Transparency = 0 end
+        end
+    end
+end)
+
+local B3Close = Instance.new("TextButton")
+B3Close.Parent = F
+B3Close.Font = Enum.Font.ArimoBold
+B3Close.Size = UDim2.new(0, 48, 0, 30)
+B3Close.Position = UDim2.new(0, 190, 0, -5)
+B3Close.Text = "X"
+B3Close.TextSize = 15
+B3Close.BackgroundTransparency = 1
+B3Close.MouseButton1Click:Connect(function()
+    S:Destroy()
+    local invisChair = workspace:FindFirstChild('invischair')
+    if invisChair then
+        invisChair:Destroy()
+    end
+    for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+        if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then v.Transparency = 0 end
+    end
+end)
