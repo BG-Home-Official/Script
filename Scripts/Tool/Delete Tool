@@ -1,0 +1,100 @@
+local player = game.Players.LocalPlayer
+
+local mouse = player:GetMouse()
+
+local old = nil
+
+local run = false
+
+mouse.Button1Down:Connect(function()
+
+	if run then		local target = mouse.Target
+
+		if target then
+
+			if target:FindFirstChild("H") then
+
+				target:Destroy()
+
+			end
+
+			if old and old:FindFirstChild("H") then
+
+				old.H:Destroy()
+
+			end
+
+			local existing = target:FindFirstChild("H")
+
+			if existing then existing:Destroy() end
+
+			local highlight = Instance.new("Highlight")
+
+			highlight.Name = "H"
+
+			highlight.Adornee = target
+
+			highlight.FillColor = Color3.fromRGB(200, 200, 0)
+
+			highlight.FillTransparency = 0.5
+
+			highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+
+			highlight.OutlineTransparency = 0
+
+			highlight.Parent = target
+
+			old = target
+
+		end
+
+	end
+
+end)
+
+local tool = Instance.new("Tool")
+
+tool.RequiresHandle = false
+
+tool.Name = "Delete Disable"
+
+tool.Equipped:Connect(function()
+local Tool
+    for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Tool") and v.Name == tool.Name then
+            Tool = v
+        end
+    end
+	run = not run
+
+	Tool.Name = run and "Delete Enable" or "Delete Disable"
+
+    if not run then
+
+         if old and old:FindFirstChild("H") then
+
+		     old.H:Destroy()
+
+	     end
+
+    end
+
+	wait()
+
+	Tool.Parent = player:WaitForChild("Backpack")
+
+end)
+
+tool.Parent = player:WaitForChild("Backpack")
+
+player.CharacterAdded:Connect(function(character)
+
+	run = false
+
+	if old and old:FindFirstChild("H") then
+
+		old.H:Destroy()
+
+	end
+
+end)
