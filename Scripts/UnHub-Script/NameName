@@ -1,0 +1,661 @@
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Rayfield%20Library'))()
+local Window = Rayfield:CreateWindow({
+   Name = "UnHub: Fe | by LE_GO89",
+   FileName = "UnHub: Fe",
+   Icon = 0,
+   LoadingTitle = "UnHub",
+   LoadingSubtitle = "by LE_GO89",
+   Theme = "Default",
+   ToggleUIKeybind = "H",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = ""
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "",
+      RememberJoins = true
+   },
+   KeySystem = false
+})
+local player = game.Players.LocalPlayer
+local animator
+local animTrack
+local id
+local speed = 1
+local isPlaying = false
+local RunService = game:GetService("RunService")
+local tracks = {}
+local connections = {}
+
+local function Walk(id)
+local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+animate.walk.WalkAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function Run(id)
+local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+animate.run.RunAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function Jump(id)
+local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+animate.jump.JumpAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function Climb(id)
+local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+animate.climb.ClimbAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function fall(id)
+local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+animate.fall.FallAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function Swim(id1, id2)
+local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+animate.swim.Swim.AnimationId = "rbxassetid://" ..id2
+animate.swimidle.SwimIdle.AnimationId = "rbxassetid://" ..id1
+end
+
+local function Idle(id1, id2)
+local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+animate.idle.Animation1.AnimationId = "rbxassetid://" ..id1
+animate.idle.Animation2.AnimationId = "rbxassetid://" ..id2
+end
+
+local animations = {
+walk = {
+{N = "Astronaut", Id = "891667138"},
+{N = "Adidas Community", Id = "122150855457006"},
+{N = "Bold", Id = "16738340646"},
+{N = "Bubbly", Id = "910034870"},
+{N = "Cartoony", Id = "742640026"},
+{N = "Confident", Id = "1070017263"},
+{N = "Cowboy", Id = "1014421541"},
+{N = "Catwalk Glam", Id = "109168724482748"},
+{N = "Drooling Zombie", Id = "3489174223"},
+{N = "Elder", Id = "10921111375"},
+{N = "Ghost", Id = "616013216"},
+{N = "Knight", Id = "10921127095"},
+{N = "Levitation", Id = "616013216"},
+{N = "Mage", Id = "707897309"},
+{N = "Ninja", Id = "656121766"},
+{N = "NFL", Id = "110358958299415"},
+{N = "OldSchool", Id = "10921244891"},
+{N = "Patrol", Id = "1151231493"},
+{N = "Pirate", Id = "750785693"},
+{N = "Default Retarget", Id = "115825677624788"},
+{N = "Popstar", Id = "1212980338"},
+{N = "Princess", Id = "941028902"},
+{N = "R6", Id = "12518152696"},
+{N = "R15 Reanimated", Id = "4211223236"},
+{N = "Robot", Id = "616095330"},
+{N = "Sneaky", Id = "1132510133"},
+{N = "Sports (Adidas)", Id = "18537392113"},
+{N = "Stylish", Id = "616146177"},
+{N = "Stylized Female", Id = "4708193840"},
+{N = "Superhero", Id = "10921298616"},
+{N = "Toy", Id = "782843345"},
+{N = "Vampire", Id = "1083473930"},
+{N = "Werewolf", Id = "1083178339"},
+{N = "Wicked (Popular)", Id = "92072849924640"},
+{N = "No Boundaries (Walmart)", Id = "18747074203"},
+{N = "Zombie", Id = "616168032"},
+},
+
+run = {  
+{N = "Astronaut", Id = "10921039308"},  
+{N = "Adidas Community", Id = "82598234841035"},  
+{N = "Bold", Id = "16738337225"},
+{N = "Bubbly", Id = "10921057244"},
+{N = "Cartoony", Id = "10921076136"},
+{N = "Confident", Id = "1070001516"},
+{N = "Cowboy", Id = "1014401683"},
+{N = "Catwalk Glam", Id = "81024476153754"},
+{N = "Drooling Zombie", Id = "3489173414"},
+{N = "Elder", Id = "10921104374"},
+{N = "Ghost", Id = "616013216"},
+{N = "Knight", Id = "10921121197"},
+{N = "Levitation", Id = "616010382"},
+{N = "Mage", Id = "10921148209"},
+{N = "Ninja", Id = "656118852"},
+{N = "NFL", Id = "117333533048078"},
+{N = "OldSchool", Id = "10921240218"},
+{N = "Patrol", Id = "1150967949"},
+{N = "Pirate", Id = "750783738"},
+{N = "Default Retarget", Id = "102294264237491"},
+{N = "Popstar", Id = "1212980348"},
+{N = "Princess", Id = "941015281"},
+{N = "R6", Id = "12518152696"},
+{N = "R15 Reanimated", Id = "4211220381"},
+{N = "Robot", Id = "10921250460"},
+{N = "Sneaky", Id = "1132494274"},
+{N = "Sports (Adidas)", Id = "18537384940"},
+{N = "Stylish", Id = "10921276116"},
+{N = "Stylized Female", Id = "4708192705"},
+{N = "Superhero", Id = "10921291831"},
+{N = "Toy", Id = "10921306285"},
+{N = "Vampire", Id = "10921320299"},
+{N = "Werewolf", Id = "10921336997"},
+{N = "Wicked (Popular)", Id = "72301599441680"},
+{N = "No Boundaries (Walmart)", Id = "18747070484"},
+{N = "Zombie", Id = "616163682"},
+},
+
+jump = {
+{N = "Astronaut", Id = "891627522"},
+{N = "Adidas Community", Id = "656117878"},
+{N = "Bold", Id = "16738336650"},
+{N = "Bubbly", Id = "910016857"},
+{N = "Cartoony", Id = "742637942"},
+{N = "Confident", Id = "1069984524"},
+{N = "Cowboy", Id = "1014394726"},
+{N = "Catwalk Glam", Id = "116936326516985"},
+{N = "Drooling Zombie", Id = "891627522"},
+{N = "Elder", Id = "10921107367"},
+{N = "Ghost", Id = "616008936"},
+{N = "Knight", Id = "910016857"},
+{N = "Levitation", Id = "616008936"},
+{N = "Mage", Id = "10921149743"},
+{N = "Ninja", Id = "656117878"},
+{N = "NFL", Id = "119846112151352"},
+{N = "OldSchool", Id = "10921242013"},
+{N = "Patrol", Id = "1148811837"},
+{N = "Pirate", Id = "750782230"},
+{N = "Default Retarget", Id = "117150377950987"},
+{N = "Popstar", Id = "1212954642"},
+{N = "Princess", Id = "941008832"},
+{N = "R6", Id = "12520880485"},
+{N = "R15 Reanimated", Id = "4211219390"},
+{N = "Robot", Id = "616090535"},
+{N = "Sneaky", Id = "1132489853"},
+{N = "Sports (Adidas)", Id = "18537380791"},
+{N = "Stylish", Id = "616139451"},
+{N = "Stylized Female", Id = "4708188025"},
+{N = "Superhero", Id = "10921294559"},
+{N = "Toy", Id = "10921308158"},
+{N = "Vampire", Id = "1083455352"},
+{N = "Werewolf", Id = "1083218792"},
+{N = "Wicked (Popular)", Id = "104325245285198"},
+{N = "No Boundaries (Walmart)", Id = "18747069148"},
+{N = "Zombie", Id = "616161997"},
+},
+
+fall = {
+{N = "Astronaut", Id = "891617961"},
+{N = "Adidas Community", Id = "98600215928904"},
+{N = "Bold", Id = "16738333171"},
+{N = "Bubbly", Id = "910001910"},
+{N = "Cartoony", Id = "742637151"},
+{N = "Confident", Id = "1069973677"},
+{N = "Cowboy", Id = "1014384571"},
+{N = "Catwalk Glam", Id = "92294537340807"},
+{N = "Drooling Zombie", Id = "616157476"},
+{N = "Elder", Id = "10921105765"},
+{N = "Ghost", Id = "10921122579"},
+{N = "Knight", Id = "10921122579"},
+{N = "Levitation", Id = "616005863"},
+{N = "Mage", Id = "707829716"},
+{N = "Ninja", Id = "656115606"},
+{N = "NFL", Id = "129773241321032"},
+{N = "OldSchool", Id = "10921241244"},
+{N = "Patrol", Id = "1148863382"},
+{N = "Pirate", Id = "750780242"},
+{N = "Default Retarget", Id = "110205622518029"},
+{N = "Popstar", Id = "1212900995"},
+{N = "Princess", Id = "941000007"},
+{N = "R6", Id = "12520972571"},
+{N = "R15 Reanimated", Id = "4211216152"},
+{N = "Robot", Id = "616087089"},
+{N = "Sneaky", Id = "1132469004"},
+{N = "Sports (Adidas)", Id = "18537367238"},
+{N = "Stylish", Id = "616134815"},
+{N = "Stylized Female", Id = "4708186162"},
+{N = "Superhero", Id = "10921293373"},
+{N = "Toy", Id = "782846423"},
+{N = "Vampire", Id = "1083443587"},
+{N = "Werewolf", Id = "1083189019"},
+{N = "Wicked (Popular)", Id = "121152442762481"},
+{N = "No Boundaries (Walmart)", Id = "18747062535"},
+{N = "Zombie", Id = "616157476"},
+},
+
+climb = {
+{N = "Astronaut", Id = "10921032124"},
+{N = "Adidas Community", Id = "88763136693023"},
+{N = "Bold", Id = "16738332169"},
+{N = "Bubbly", Id = "16738332169"},
+{N = "Cartoony", Id = "742636889"},
+{N = "Confident", Id = "1069946257"},
+{N = "Cowboy", Id = "1014380606"},
+{N = "Catwalk Glam", Id = "119377220967554"},
+{N = "Drooling Zombie", Id = "616156119"},
+{N = "Elder", Id = "845392038"},
+{N = "Ghost", Id = "616003713"},
+{N = "Knight", Id = "10921125160"},
+{N = "Levitation", Id = "10921132092"},
+{N = "Mage", Id = "707826056"},
+{N = "Ninja", Id = "656114359"},
+{N = "NFL", Id = "134630013742019"},
+{N = "OldSchool", Id = "10921229866"},
+{N = "Patrol", Id = "1148811837"},
+{N = "Pirate", Id = "10921032124"},
+{N = "Default Retarget", Id = "10921286911"},
+{N = "Popstar", Id = "1213044953"},
+{N = "Princess", Id = "940996062"},
+{N = "R6", Id = "12520982150"},
+{N = "R15 Reanimated", Id = "4211214992"},
+{N = "Robot", Id = "616086039"},
+{N = "Sneaky", Id = "1132461372"},
+{N = "Sports (Adidas)", Id = "18537363391"},
+{N = "Stylish", Id = "10921271391"},
+{N = "Stylized Female", Id = "4708184253"},
+{N = "Superhero", Id = "10921286911"},
+{N = "Toy", Id = "10921300839"},
+{N = "Vampire", Id = "1083439238"},
+{N = "Werewolf", Id = "10921329322"},
+{N = "Wicked (Popular)", Id = "131326830509784"},
+{N = "No Boundaries (Walmart)", Id = "18747060903"},
+{N = "Zombie", Id = "616156119"},
+},
+
+swim = {
+{N = "Astronaut", Id1 = "891663592", Id2 = "891663592"},
+{N = "Adidas Community", Id1 = "109346520324160", Id2 = "133308483266208"},
+{N = "Bold", Id1 = "16738339817", Id2 = "16738339158"},
+{N = "Bubbly", Id1 = "910030921", Id2 = "910028158"},
+{N = "Cartoony", Id1 = "10921079380", Id2 = "10921079380"},
+{N = "Confident", Id1 = "1070012133", Id2 = "1070009914"},
+{N = "CowBoy", Id1 = "1014411816", Id2 = "1014406523"},
+{N = "Catwalk Glam", Id1 = "98854111361360", Id2 = "134591743181628"},
+{N = "Drooling Zombie", Id1 = "18747071682", Id2 = "616165109"},
+{N = "Elder", Id1 = "10921110146", Id2 = "10921108971"},
+{N = "Ghost", Id1 = "10921325443", Id2 = "10921324408"},
+{N = "Knight", Id1 = "10921125935", Id2 = "10921125160"},
+{N = "Levitation", Id1 = "10921325443", Id2 = "10921324408"},
+{N = "Mage", Id1 = "707894699", Id2 = "707876443"},
+{N = "Ninja", Id1 = "656118341", Id2 = "656118341"},
+{N = "NFL", Id1 = "79090109939093", Id2 = "132697394189921"},
+{N = "OldSchool", Id1 = "10921244018", Id2 = "10921243048"},
+{N = "Patrol", Id1 = "1151221899", Id2 = "1151204998"},
+{N = "Pirate", Id1 = "750785176", Id2 = "750784579"},
+{N = "Default Retarget", Id1 = "10921297391", Id2 = "10921295495"},
+{N = "Popstar", Id1 = "1212998578", Id2 = "1212998578"},
+{N = "Princess", Id1 = "941025398", Id2 = "941018893"},
+{N = "R6", Id1 = "12518152696", Id2 = "12518152696"},
+{N = "R15 Reanimated", Id1 = "12518152696", Id2 = "12518152696"},
+{N = "Robot", Id1 = "10921253767", Id2 = "10921253142"},
+{N = "Sneaky", Id1 = "1132506407", Id2 = "1132500520"},
+{N = "Sports (Adidas)", Id1 = "18537387180", Id2 = "18537389531"},
+{N = "Stylish", Id1 = "10921281964", Id2 = "10921281000"},
+{N = "Stylized Female", Id1 = "4708190607", Id2 = "10921281000"},
+{N = "SuperHero", Id1 = "10921297391", Id2 = "10921295495"},
+{N = "Toy", Id1 = "10921310341", Id2 = "10921309319"},
+{N = "Vampire", Id1 = "10921325443", Id2 = "10921324408"},
+{N = "Werewolf", Id1 = "10921341319", Id2 = "10921340419"},
+{N = "Wicked (Popular)", Id1 = "113199415118199", Id2 = "99384245425157"},
+{N = "No Boundaries (Walmart)", Id1 = "18747071682", Id2 = "18747073181"},
+{N = "Zombie", Id1 = "18747071682", Id2 = "616165109"},
+},
+
+idle = {
+{N = "Astronaut", Id1 = "891621366", Id2 = "891633237"},
+{N = "Adidas Community", Id1 = "122257458498464", Id2 = "102357151005774"},
+{N = "Bold", Id1 = "16738333868", Id2 = "16738334710"},
+{N = "Bubbly", Id1 = "910004836", Id2 = "910009958"},
+{N = "Cartoony", Id1 = "742637544", Id2 = "742638445"},
+{N = "Confident", Id1 = "1069977950", Id2 = "1069987858"},
+{N = "Cowboy", Id1 = "1014390418", Id2 = "1014398616"},
+{N = "Catwalk Glam", Id1 = "133806214992291", Id2 = "94970088341563"},
+{N = "Drooling Zombie", Id1 = "3489171152", Id2 = "3489171152"},
+{N = "Elder", Id1 = "10921101664", Id2 = "10921102574"},
+{N = "Ghost", Id1 = "616006778", Id2 = "616008087"},
+{N = "Borock", Id1 = "3293641938", Id2 = "3293642554"},
+{N = "Knight", Id1 = "657595757", Id2 = "657568135"},
+{N = "Levitation", Id1 = "616006778", Id2 = "616008087"},
+{N = "Mage", Id1 = "707742142", Id2 = "707855907"},
+{N = "Ninja", Id1 = "656117400", Id2 = "656118341"},
+{N = "NFL", Id1 = "92080889861410", Id2 = "74451233229259"},
+{N = "OldSchool", Id1 = "10921230744", Id2 = "10921232093"},
+{N = "Patrol", Id1 = "1149612882", Id2 = "1150842221"},
+{N = "Pirate", Id1 = "750781874", Id2 = "750782770"},
+{N = "Default Retarget", Id1 = "95884606664820", Id2 = "95884606664820"},
+{N = "Popstar", Id1 = "1212900985", Id2 = "1150842221"},
+{N = "Princess", Id1 = "941003647", Id2 = "941013098"},
+{N = "R6", Id1 = "12521158637", Id2 = "12521162526"},
+{N = "R15 Reanimated", Id1 = "4211217646", Id2 = "4211218409"},
+{N = "Robot", Id1 = "616088211", Id2 = "616089559"},
+{N = "Sneaky", Id1 = "1132473842", Id2 = "1132477671"},
+{N = "Sports (Adidas)", Id1 = "18537376492", Id2 = "18537371272"},
+{N = "Stylish", Id1 = "616136790", Id2 = "616138447"},
+{N = "Stylized Female", Id1 = "4708191566", Id2 = "4708192150"},
+{N = "Superhero", Id1 = "10921288909", Id2 = "10921290167"},
+{N = "Toy", Id1 = "782841498", Id2 = "782845736"},
+{N = "Vampire", Id1 = "1083445855", Id2 = "1083450166"},
+{N = "Werewolf", Id1 = "1083195517", Id2 = "1083214717"},
+{N = "Wicked (Popular)", Id1 = "118832222982049", Id2 = "76049494037641"},
+{N = "No Boundaries (Walmart)", Id1 = "18747067405", Id2 = "18747063918"},
+{N = "Zombie", Id1 = "616158929", Id2 = "616160636"},
+
+{N = "MrToilet", Id1 = "4417977954", Id2 = "4417978624"},
+{N = "Very Long", Id1 = "18307781743", Id2 = "18307781743"},
+{N = "Sway", Id1 = "560832030", Id2 = "560833564"},
+{N = "Realistic", Id1 = "17172918855", Id2 = "17173014241"},
+{N = "Soldier", Id1 = "3972151362", Id2 = "3972151362"},
+{N = "Udzal", Id1 = "3303162274", Id2 = "3303162549"},
+},
+}
+
+local Animation = Window:CreateTab("Animation", 4483345998)
+Animation:CreateSection("Animation")
+
+for i, data in ipairs(animations.walk) do
+Animation:CreateButton({Name = animations.walk[i].N, Callback = function()
+local runData = animations.run[i]
+local jumpData = animations.jump[i]
+local fallData = animations.fall[i]
+local climbData = animations.climb[i]
+local swimData = animations.swim[i]
+local idleData = animations.idle[i]
+
+if data then Walk(data.Id) end
+if runData then Run(runData.Id) end
+if jumpData then Jump(jumpData.Id) end
+if fallData then fall(fallData.Id) end
+if climbData then Climb(climbData.Id) end
+if swimData then Swim(swimData.Id1, swimData.Id2) end
+if idleData then Idle(idleData.Id1, idleData.Id2) end
+end})
+end
+
+local Fe = Window:CreateTab("Fe Sus", 86591853167234)
+Fe:CreateSection("Fe Sus")
+
+Fe:CreateButton({Name = "[Fe] Jerk", Callback = function()
+loadstring(game:HttpGet("https://pastebin.com/raw/Zu9zZdGC"))()
+end})
+
+Fe:CreateButton({Name = "[Fe] Bang", Callback = function()
+loadstring(game:HttpGet("https://pastebin.com/raw/UKGrSuhg"))()
+end})
+
+Fe:CreateButton({Name = "[Fe] Get Banged", Callback = function()
+loadstring(game:HttpGet("https://pastebin.com/raw/xWjReLRN"))()
+end})
+
+Fe:CreateButton({Name = "[Fe] Suck", Callback = function()
+loadstring(game:HttpGet("https://pastebin.com/raw/kAzBmV3P"))()
+end})
+
+Fe:CreateButton({Name = "[Fe] Get Sucked", Callback = function()
+loadstring(game:HttpGet("https://pastebin.com/raw/CxHY86Ez"))()
+end})
+
+local function cleanupAnimations()
+for i, track in pairs(tracks) do
+if track and track.IsPlaying then
+track:Stop()
+end
+tracks[i] = nil
+if connections[i] then
+connections[i]:Disconnect()
+connections[i] = nil
+end
+end
+end
+
+local animationData = {
+R15 = {
+{name = "[Fe] Crazy Slash", id = "674871189", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Open", id = "582855105", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Spinner", id = "754658275", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Arms Out", id = "582384156", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Float Slash", id = "717879555", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Weird Zombie", id = "708553116", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Down Slash", id = "746398327", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Pull", id = "675025795", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Circle Arm", id = "698251653", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Bend", id = "696096087", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Rotate Slash", id = "675025570", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Fling Arms", id = "754656200", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Baby Queen - Face Frame", id = "14352340648", track = {0.1, 1, 1}},
+{name = "[Fe] Bored", id = "10713992055", track = {0.1, 1, 1}},
+{name = "[Fe] High-Wave", id = "10714362852", track = {0.1, 1, 1}},
+{name = "[Fe] Baby-Queen-Strut", id = "14352362059", track = {0.1, 1, 1}},
+{name = "[Fe] Curtsy", id = "10714061912", track = {0.1, 1, 1}},
+{name = "[Fe] Greatest", id = "10714349037", track = {0.1, 1, 1}},
+{name = "[Fe] Secret-Handshake-Dance", id = "71243990877913", track = {0.1, 1, 1}},
+{name = "[Fe] Jawny-Stomp", id = "16392075853", track = {0.1, 1, 1}},
+{name = "[Fe] Cuco-Levitate", id = "15698404340", track = {0.1, 1, 1}},
+{name = "[Fe] Baby-Queen-Bouncy-Twirl", id = "14352343065", track = {0.1, 1, 1}},
+{name = "[Fe] Godlike", id = "10714347256", track = {0.1, 1, 1}},
+{name = "[Fe] Sleep", id = "10714360343", track = {0.1, 1, 1}},
+{name = "[Fe] Olivia-Rodrigo-Head-Bop", id = "15517864808", track = {0.1, 1, 1}},
+{name = "[Fe] Haha", id = "10714350889", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Happy", id = "10714352626", track = {0.1, 1, 1}},
+{name = "[Fe] HIPMOTION-Amaarae", id = "16572740012", track = {0.1, 1, 1}},
+{name = "[Fe] Yungblud-Happier-Jump", id = "15609995579", track = {0.1, 1, 1}},
+{name = "[Fe] Shy", id = "10714369325", track = {0.1, 1, 1}},
+{name = "[Fe] ylAlo-Yoga-Pose-Lotus-Position", id = "12507085924", track = {0.1, 1, 1}},
+{name = "[Fe] Cower", id = "4940563117", track = {0.1, 1, 1}},
+{name = "[Fe] d4vd-Backflip", id = "15693621070", track = {0.1, 1, 1}},
+{name = "[Fe] Air Guitar", id = "15505454268", track = {0.1, 1, 1}},
+{name = "[Fe] Jumping Wave", id = "10714378156", track = {0.1, 1, 1}},
+},
+R6 = {
+{name = "[Fe] Throwing Head", id = "35154961", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Floating Head", id = "121572214", track = {0.1, 1, 1}},
+{name = "[Fe] Crouch", id = "182724289", track = {0.1, 1, 1}},
+{name = "[Fe] Crouch2", id = "287325678", track = {1, 2, 1}},
+{name = "[Fe] Floor Crawl", id = "282574440", track = {0.1, 1, 1}},
+{name = "[Fe] Dino Walk", id = "204328711", track = {0.1, 1, 1}},
+{name = "[Fe] Jumping Jacks", id = "429681631", track = {0.1, 1, 1}},
+{name = "[Fe] Loop Head", id = "35154961", loop = true, track = {0.5, 1, 1e6}},
+{name = "[Fe] Hero Jump", id = "184574340", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Faint", id = "181526230", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Super Faint", id = "181525546", loop = true, track = {0.1, 0.5, 40}},
+{name = "[Fe] Floor Faint", id = "181525546", loop = true, track = {0.1, 1, 2}},
+{name = "[Fe] Levitate", id = "313762630", track = {0.1, 1, 1}},
+{name = "[Fe] Dab", id = "183412246", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Spinner", id = "188632011", loop = true, track = {0.1, 1, 2}},
+{name = "[Fe] Float Sit", id = "179224234", track = {0.1, 1, 1}},
+{name = "[Fe] Moving Dance", id = "429703734", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Weird Move", id = "215384594", track = {0.1, 1, 2}},
+{name = "[Fe] Clone Illusion", id = "215384594", track = {0.5, 1, 1e7}},
+{name = "[Fe] Spin Dance", id = "429730430", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Moon Dance", id = "45834924", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Full Punch", id = "204062532", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Spin Dance 2", id = "186934910", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Bow Down", id = "204292303", loop = true, track = {0.1, 1, 3}},
+{name = "[Fe] Sword Slam", id = "204295235", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Loop Slam", id = "204295235", loop = true, track = {0.1, 1, 1e4}},
+{name = "[Fe] Mega Insane", id = "184574340", loop = true, track = {0.1, 0.5, 40}},
+{name = "[Fe] Super Punch", id = "126753849", loop = true, track = {0.1, 1, 3}},
+{name = "[Fe] Full Swing", id = "218504594", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Arm Turbine", id = "259438880", track = {0.1, 1, 1e3}},
+{name = "[Fe] Barrel Roll", id = "136801964", loop = true, track = {0.1, 1, 1}},
+{name = "[Fe] Scared", id = "180612465", loop = true, track = {0.7, 2, 0}, Time = 2},
+{name = "[Fe] Insane", id = "33796059", track = {0.1, 1, 1e8}},
+{name = "[Fe] Arm Detach", id = "33169583", loop = true, track = {0.1, 1, 1e6}},
+{name = "[Fe] Sword Slice", id = "35978879", track = {0.1, 1, 1}},
+{name = "[Fe] Insane Arms", id = "27432691", loop = true, track = {0.1, 1, 1e4}},
+{name = "[Fe] Dance1", id = "182435998", track = {1, 20, 1}},
+{name = "[Fe] Dance2", id = "182491277", track = {1, 5, 1}},
+{name = "[Fe] Dance3", id = "182491423", track = {1, 5, 1}},
+{name = "[Fe] Laugh", id = "129423131", loop = true, track = {1, 20, 1}},
+{name = "[Fe] Cheer", id = "129423030", loop = true, track = {1, 20, 1}},
+{name = "[Fe] Point", id = "128853357", loop = true, track = {1, 20, 1}},
+{name = "[Fe] T", id = "188242481", track = {1, 2, 1}},
+{name = "[Fe] Arms Up", id = "187951261", track = {1, 2, 1}},
+{name = "[Fe] Backpack Head", id = "68339848", loop = true, track = {1, 2, 1}},
+{name = "[Fe] Driving", id = "168138731", track = {1, 2, 1}},
+{name = "[Fe] Bang", id = "148840371", track = {1, 2, 1}},
+{name = "[Fe] Right Head Position", id = "88016955", track = {1, 2, 1}},
+{name = "[Fe] Flexing", id = "248263260", track = {1, 2, 1}},
+},
+}
+
+local R6 = Window:CreateTab("R6", 111159927879774)
+R6:CreateSection("R6")
+
+R6:CreateButton({Name = "Stop All Animation", Callback = function()
+    cleanupAnimations()
+end})
+
+for i, data in ipairs(animationData.R6) do
+    R6:CreateToggle({Name = data.name, CurrentValue = false, Flag = "Toggle1", Callback = function(state)
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return end
+        cleanupAnimations()
+        if not tracks[i] then
+            local anim = Instance.new("Animation")
+            anim.AnimationId = "rbxassetid://" .. data.id
+            tracks[i] = humanoid:LoadAnimation(anim)
+        end
+        if state then
+            if data.loop then
+                connections[i] = RunService.Heartbeat:Connect(function()
+                    if not tracks[i].IsPlaying then
+                        tracks[i]:Play(unpack(data.track))
+                        wait()
+                        for i, track in pairs(tracks) do
+                            if track and track.IsPlaying then
+                                track:AdjustSpeed(speed)
+                            end
+                        end
+                    end
+                end)
+            end
+            if data.Time then
+                tracks[i]:Play(unpack(data.track))
+                tracks[i].TimePosition = data.Time
+            else 
+                tracks[i]:Play(unpack(data.track))
+                wait()
+                for i, track in pairs(tracks) do
+                    if track and track.IsPlaying then
+                        track:AdjustSpeed(speed)
+                    end
+                end
+            end
+        else
+            if tracks[i] then
+                tracks[i]:Stop()
+            end
+            if connections[i] then
+                connections[i]:Disconnect()
+                connections[i] = nil
+            end
+        end
+    end})
+end
+
+local R15 = Window:CreateTab("R15", 111159927879774)
+R15:CreateSection("R15")
+
+R15:CreateButton({Name = "Stop All Animation", Callback = function()
+    cleanupAnimations()
+end})
+
+for i, data in ipairs(animationData.R15) do
+    R15:CreateToggle({Name = data.name, CurrentValue = false, Flag = "Toggle1", Callback = function(state)
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return end
+        cleanupAnimations()
+        if not tracks[i] then
+            local anim = Instance.new("Animation")
+            anim.AnimationId = "rbxassetid://" .. data.id
+            tracks[i] = humanoid:LoadAnimation(anim)
+        end
+        if state then
+            if data.loop then
+                connections[i] = RunService.Heartbeat:Connect(function()
+                    if not tracks[i].IsPlaying then
+                        tracks[i]:Play(unpack(data.track))
+                        wait()
+                        for i, track in pairs(tracks) do
+                            if track and track.IsPlaying then
+                                track:AdjustSpeed(speed)
+                            end
+                        end
+                    end
+                end)
+            end
+            if data.Time then
+                tracks[i]:Play(unpack(data.track))
+                tracks[i].TimePosition = data.Time
+            else 
+                tracks[i]:Play(unpack(data.track))
+                wait()
+                for i, track in pairs(tracks) do
+                    if track and track.IsPlaying then
+                        track:AdjustSpeed(speed)
+                    end
+                end
+            end
+        else
+            if tracks[i] then
+                tracks[i]:Stop()
+            end
+            if connections[i] then
+                connections[i]:Disconnect()
+                connections[i] = nil
+            end
+        end
+    end})
+end
+
+local Setting = Window:CreateTab("Setting", 11713339600)
+Setting:CreateSection("Setting")
+
+Setting:CreateButton({Name = "Stop All Animation", Callback = function()
+    cleanupAnimations()
+end})
+
+Setting:CreateInput({Name = "Load Animation", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if string.find(txt, "http://www.roblox.com") then
+        id = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
+        print(id)
+    elseif string.find(txt, "rbxassetid://") then
+    	id = txt
+    	print(id)
+    else
+        id = "rbxassetid://" .. txt
+        print(id)
+    end
+end})
+
+Setting:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callback = function(state)
+    if state and not isPlaying then
+        isPlaying = true
+        local success, result = pcall(function()
+            local animation = Instance.new("Animation")
+            animation.AnimationId = id
+            return animator:LoadAnimation(animation)
+        end)
+        if success then
+            animTrack = result
+            animTrack:Play()
+        else
+            warn("Animation failed to load:", result)
+            isPlaying = false
+        end
+    elseif not state and isPlaying and animTrack then
+        animTrack:Stop()
+        isPlaying = false
+    end
+end})
+
+Setting:CreateInput({Name = "Speed", CurrentValue = "", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    speed = tostring(txt)
+    for i, track in pairs(tracks) do
+        if track and track.IsPlaying then
+            track:AdjustSpeed(speed)
+        end
+    end
+end})
