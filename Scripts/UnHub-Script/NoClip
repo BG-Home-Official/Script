@@ -1,0 +1,163 @@
+local RunService = game:GetService("RunService")
+
+local heartbeatConnection
+
+local toggle = false
+
+local function NoClip()
+
+    local plr = game.Players.LocalPlayer
+
+    local character = plr.Character or plr.CharacterAdded:Wait()
+
+    heartbeatConnection = RunService.Heartbeat:Connect(function()
+
+        for i, v in pairs(character:GetChildren()) do
+
+            if v:IsA("BasePart") then
+
+                v.CanCollide = false
+
+            end
+
+        end
+
+    end)
+
+end
+
+local function Clip()
+
+    local plr = game.Players.LocalPlayer
+
+    local character = plr.Character or plr.CharacterAdded:Wait()
+
+    if heartbeatConnection then
+
+        heartbeatConnection:Disconnect()
+
+        heartbeatConnection = nil
+
+    end
+
+    for i, v in pairs(character:GetChildren()) do
+
+        if v:IsA("BasePart") then
+
+            v.CanCollide = true
+
+        end
+
+    end
+
+end
+
+local S = Instance.new("ScreenGui")
+
+S.Parent = game.CoreGui
+
+S.Name = "NoClip"
+
+local F = Instance.new("Frame")
+
+F.Parent = S
+
+F.Size = UDim2.new(0, 230, 0, 130)
+
+F.Position = UDim2.new(0, 230, 0, 100)
+
+F.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+
+F.Active = true
+
+F.Draggable = true
+
+F.BorderSizePixel = 3
+
+F.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+local T = Instance.new("TextButton")
+
+T.Parent = F
+
+T.Size = UDim2.new(0, 180, 0, 50)
+
+T.Position = UDim2.new(0, 23, 0, 15)
+
+T.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+
+T.BorderSizePixel = 2
+
+T.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+T.TextScaled = true
+
+T.Font = Enum.Font.SciFi
+
+T.Text = "NoClip"
+
+local B3Fly = Instance.new("TextButton")
+
+B3Fly.Parent = F
+
+B3Fly.TextScaled = true
+
+B3Fly.Font = Enum.Font.SciFi
+
+B3Fly.Size = UDim2.new(0, 48, 0, 30)
+
+B3Fly.Position = UDim2.new(0, 90, 0, 85)
+
+B3Fly.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+
+B3Fly.BorderSizePixel = 2
+
+B3Fly.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+B3Fly.Text = "NoClip"
+
+B3Fly.MouseButton1Click:Connect(function()
+
+if toggle then
+
+   Clip()
+
+   toggle = false
+
+   B3Fly.Text = "NoClip"
+
+else
+
+   NoClip()
+
+   toggle = true
+
+   B3Fly.Text = "Clip"
+
+end
+
+end)
+
+local B3Close = Instance.new("TextButton")
+
+B3Close.Parent = F
+
+B3Close.Font = Enum.Font.ArimoBold
+
+B3Close.Size = UDim2.new(0, 48, 0, 30)
+
+B3Close.Position = UDim2.new(0, 190, 0, -5)
+
+B3Close.Text = "X"
+
+B3Close.TextSize = 15
+
+B3Close.BackgroundTransparency = 1
+
+B3Close.MouseButton1Click:Connect(function()
+
+    S:Destroy()
+
+    Clip()
+
+end)
