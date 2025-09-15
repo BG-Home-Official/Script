@@ -1,0 +1,27 @@
+mouse = game.Players.LocalPlayer:GetMouse()
+
+tool = Instance.new("Tool")
+
+tool.RequiresHandle = false
+
+tool.Name = "Block Tool"
+
+tool.Activated:connect(function()
+
+local pos = mouse.Hit+Vector3.new(0,2.5,0)
+
+pos = Vector3.new(pos.X,pos.Y,pos.Z)
+
+local B = Instance.new("Part")
+
+B.Size = Vector3.new(4, 4, 4)
+
+B.Position = pos
+
+B.Parent = game.Workspace
+
+B.Name = "Block"
+
+end)
+
+tool.Parent = game.Players.LocalPlayer.Backpack
