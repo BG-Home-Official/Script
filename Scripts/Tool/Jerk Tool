@@ -1,0 +1,53 @@
+local player = game.Players.LocalPlayer
+
+local character = player.Character or player.CharacterAdded:Wait()
+
+local humanoid = character:WaitForChild("Humanoid")
+
+if humanoid.RigType == Enum.HumanoidRigType.R6 then
+
+    loadstring(game:HttpGet("https://pastefy.app/wa3v2Vgm/raw"))()
+
+    
+
+    player.CharacterAdded:Connect(function()
+
+        task.wait()
+
+        local tool = player.Backpack:FindFirstChild("Jerk Off")
+
+        if tool then tool:Destroy() end
+
+    end)
+
+elseif humanoid.RigType == Enum.HumanoidRigType.R15 then
+
+    loadstring(game:HttpGet("https://pastefy.app/YZoglOyJ/raw"))()
+
+    
+
+    local tool = player.Backpack:FindFirstChild("Jerk Off R15")
+
+    if tool then tool.Name = "Jerk Off" end
+
+    
+
+    while wait() do
+
+if game.Players.LocalPlayer.Backpack:GetChildren() then
+
+for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+
+    if item.Name == "Jerk Off R15" then
+
+        item:Destroy()
+
+    end
+
+end
+
+end
+
+end
+
+end
