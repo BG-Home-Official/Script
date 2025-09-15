@@ -1,0 +1,70 @@
+local plr = game.Players.LocalPlayer
+
+local humanoidRootPart = plr.Character:WaitForChild("HumanoidRootPart")
+
+local spinning = false
+
+local spinSpeed = 30
+
+local function Spin()
+
+	while spinning do		if humanoidRootPart then
+
+			humanoidRootPart.CFrame *= CFrame.Angles(0, math.rad(spinSpeed), 0)
+
+		end
+
+		task.wait(1/60)
+
+	end
+
+end
+
+local toggle = true
+
+local player = game.Players.LocalPlayer.Character.Humanoid
+
+tool = Instance.new("Tool")
+
+tool.RequiresHandle = false
+
+tool.Name = "Spin Disabled"
+
+tool.Equipped:Connect(function()
+local Tool
+    for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Tool") and v.Name == tool.Name then
+            Tool = v
+        end
+    end
+if toggle then
+
+toggle = false
+
+Tool.Name = "Spin Enable"
+
+task.wait()
+
+Tool.Parent = game.Players.LocalPlayer.Backpack
+
+spinning = true
+
+Spin()
+
+else
+
+toggle = true
+
+Tool.Name = "Spin Disabled"
+
+task.wait()
+
+Tool.Parent = game.Players.LocalPlayer.Backpack
+
+spinning = false
+
+end
+
+end)
+
+tool.Parent = game.Players.LocalPlayer.Backpack
