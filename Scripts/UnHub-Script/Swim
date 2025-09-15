@@ -1,0 +1,375 @@
+local tpHero, flyingHero, flyHero = false, false, false
+
+local speeds = 1
+
+local notMoving = false
+
+local loadanim
+
+local heartbeatConnection = nil
+
+local flyMoveConn = nil
+
+local anim
+
+local function PlayAnim(id, time, speed)
+
+    local plr = game.Players.LocalPlayer
+
+    local chr = plr.Character
+
+    local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+
+    pcall(function()
+
+        chr.Animate.Disabled = false
+
+        for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+
+            track:Stop()
+
+        end
+
+        chr.Animate.Disabled = true
+
+        local anim = Instance.new("Animation")
+
+        anim.AnimationId = "rbxassetid://" .. id
+
+        loadanim = hum:LoadAnimation(anim)
+
+        loadanim:Play()
+
+        loadanim.TimePosition = time
+
+        loadanim:AdjustSpeed(speed)
+
+        loadanim.Stopped:Connect(function()
+
+            chr.Animate.Disabled = false
+
+        end)
+
+    end)
+
+end
+
+function FlyHero()
+
+    local plr = game.Players.LocalPlayer
+
+    local chr = plr.Character
+
+    local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+
+    if not chr or not hum then return end
+
+    
+
+    notMoving = true
+
+    flyHero, flyingHero, tpHero = true, true, true
+
+    local Torso = chr:FindFirstChild("UpperTorso") or chr:FindFirstChild("Torso")
+
+    
+
+    local flyBV = Instance.new("BodyVelocity", Torso)
+
+    flyBV.Velocity = Vector3.new(0, 0.1, 0)
+
+    flyBV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+
+    flyBV.Name = "flyBVHero"
+
+    
+
+    chr.Animate.Disabled = true
+
+    for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+
+        track:AdjustSpeed(0)
+
+    end
+
+    if hum.RigType == Enum.HumanoidRigType.R6 then
+
+        PlayAnim(180426354, 0.1, 0.3)
+
+        anim = game:GetService("RunService").Heartbeat:Connect(function()
+
+        	if tpHero and hum then        		local moving = hum.MoveDirection.Magnitude > 0
+
+        		if moving and notMoving then
+
+        			notMoving = false
+
+        			PlayAnim(180426354, 0.1, 1)
+
+        		elseif not moving and not notMoving then
+
+        			notMoving = true
+
+        			PlayAnim(180426354, 0.1, 0.3)
+
+        		end
+
+        	end
+
+        end)
+
+    elseif hum.RigType == Enum.HumanoidRigType.R15 then
+
+        PlayAnim(913389285, 0.1, 1)
+
+        anim = game:GetService("RunService").Heartbeat:Connect(function()
+
+        	if tpHero and hum then
+
+        		local moving = hum.MoveDirection.Magnitude > 0
+
+        		if moving and notMoving then
+
+        			notMoving = false
+
+        			PlayAnim(913384386, 0.1, 1)
+
+        		elseif not moving and not notMoving then
+
+        			notMoving = true
+
+        			PlayAnim(913389285, 0.1, 1)
+
+        		end
+
+        	end
+
+        end)
+
+end
+
+flyMoveConn = game:GetService("RunService").Heartbeat:Connect(function()
+
+        if tpHero and hum then
+
+            if hum.MoveDirection.Magnitude > 0 then
+
+            	chr:TranslateBy(hum.MoveDirection * speeds * 0.3)
+
+            end
+
+        end
+
+    end)
+
+    
+
+    for _, state in pairs(Enum.HumanoidStateType:GetEnumItems()) do
+
+        pcall(function() hum:SetStateEnabled(state, false) end)
+
+    end
+
+    hum:SetStateEnabled(Enum.HumanoidStateType.Flying, true)
+
+    hum:ChangeState(Enum.HumanoidStateType.Swimming)
+
+end
+
+function unFlyHero()
+
+    local plr = game.Players.LocalPlayer
+
+    if flyMoveConn then
+
+        flyMoveConn:Disconnect()
+
+        flyMoveConn = nil
+
+    end
+
+    if anim then
+
+        anim:Disconnect()
+
+        anim = nil
+
+    end
+
+    notMoving = false
+
+    wait()
+
+    if loadanim then loadanim:Stop() end
+
+    flyHero, flyingHero, tpHero = false, false, false
+
+    local chr = plr.Character
+
+    if not chr then return end
+
+    local hum = chr:FindFirstChildWhichIsA("Humanoid")
+
+    local Torso = chr:FindFirstChild("UpperTorso") or chr:FindFirstChild("Torso")
+
+    if hum then
+
+        for _, state in pairs(Enum.HumanoidStateType:GetEnumItems()) do
+
+            pcall(function() hum:SetStateEnabled(state, true) end)
+
+        end
+
+        hum:ChangeState(Enum.HumanoidStateType.Running)
+
+    end
+
+    if Torso then
+
+        wait()
+
+        local bv = Torso:FindFirstChild("flyBVHero")
+
+        if bv then bv:Destroy() end
+
+    end
+
+    local animateScript = chr:FindFirstChild("Animate")
+
+    if animateScript then
+
+        animateScript.Disabled = false
+
+    end
+
+end
+
+local function onCharacterAdded(char)
+
+	local hum = char:WaitForChild("Humanoid")
+
+	local rootPart = char:WaitForChild("HumanoidRootPart")
+
+	hum.Died:Connect(function()
+
+		if flyHero then unFlyHero() end
+
+	end)
+
+end
+
+local function onPlayerAdded(plr)
+
+	if plr.Character then
+
+		onCharacterAdded(plr.Character)
+
+	end
+
+	plr.CharacterAdded:Connect(onCharacterAdded)
+
+end
+
+onPlayerAdded(game.Players.LocalPlayer)
+
+local S = Instance.new("ScreenGui")
+
+S.Parent = game.CoreGui
+
+S.Name = "Swim"
+
+local F = Instance.new("Frame")
+
+F.Parent = S
+
+F.Size = UDim2.new(0, 230, 0, 130)
+
+F.Position = UDim2.new(0, 230, 0, 100)
+
+F.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+
+F.Active = true
+
+F.Draggable = true
+
+F.BorderSizePixel = 3
+
+F.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+local T = Instance.new("TextButton")
+
+T.Parent = F
+
+T.Size = UDim2.new(0, 180, 0, 50)
+
+T.Position = UDim2.new(0, 23, 0, 15)
+
+T.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+
+T.BorderSizePixel = 2
+
+T.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+T.TextScaled = true
+
+T.Font = Enum.Font.SciFi
+
+T.Text = "Swim"
+
+local B3Fly = Instance.new("TextButton")
+
+B3Fly.Parent = F
+
+B3Fly.TextScaled = true
+
+B3Fly.Font = Enum.Font.SciFi
+
+B3Fly.Size = UDim2.new(0, 48, 0, 30)
+
+B3Fly.Position = UDim2.new(0, 90, 0, 85)
+
+B3Fly.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+
+B3Fly.BorderSizePixel = 2
+
+B3Fly.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+B3Fly.Text = "Swim"
+
+B3Fly.MouseButton1Click:Connect(function()
+
+    if flyHero then
+
+       unFlyHero()
+
+    else
+
+       FlyHero()
+
+    end
+
+end)
+
+local B3Close = Instance.new("TextButton")
+
+B3Close.Parent = F
+
+B3Close.Font = Enum.Font.ArimoBold
+
+B3Close.Size = UDim2.new(0, 48, 0, 30)
+
+B3Close.Position = UDim2.new(0, 190, 0, -5)
+
+B3Close.Text = "X"
+
+B3Close.TextSize = 15
+
+B3Close.BackgroundTransparency = 1
+
+B3Close.MouseButton1Click:Connect(function()
+
+    S:Destroy()
+
+    unFlyHero()
+
+end)
