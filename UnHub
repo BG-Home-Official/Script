@@ -1,5 +1,4 @@
 local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Rayfield%20Library'))()
-loadstring(game:HttpGet("https://pastefy.app/XUwaJ6e7/raw"))()
 local player = game.Players.LocalPlayer
 local OldWalkSpeed = player.Character.Humanoid.WalkSpeed
 local OldJumpPower = player.Character.Humanoid.JumpPower
@@ -8,8 +7,10 @@ local HttpService = game:GetService("HttpService")
 local placeId = game.PlaceId
 local currentServerId = game.JobId
 local cam = workspace.Camera
+local UserService = game:GetService("UserService")
 local OldGravity = workspace.Gravity
 local RunService = game:GetService("RunService")
+local hrp = player.Character.HumanoidRootPart
 local mouse = player:GetMouse()
 local RunScript
 local startTime = time()
@@ -20,6 +21,7 @@ local WalkSpeedSlider, JumpPowerSlider, Gravity1Slider, Gravity2Slider
 local api = {}
 local Playlist = {}
 local FOVRadius = 100
+local up = loadstring(game:HttpGet('https://pastefy.app/aZcja1vg/raw'))()
 local TeamCheck = false
 local WallCheck = false
 local EspToggles = {}
@@ -51,9 +53,18 @@ T.Draggable = true
 T.MouseButton1Click:connect(function()
     Rayfield:SetEnable(not Rayfield:GetEnable())
 end)
-
+local follower, following, friend
 pcall(function()
     api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
+end)
+pcall(function()
+    follower = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followers/count'))
+end)
+pcall(function()
+    following = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followings/count'))
+end)
+pcall(function()
+    friend = game.HttpService:JSONDecode(game:HttpGet('https://friends.roblox.com/v1/users/' ..player.UserId ..'/friends/count'))
 end)
 
 local function SetNoCollision(player, Value)
@@ -286,6 +297,9 @@ local Username = Main:CreateSection("Username: " .. player.Name)
 local Mouse2D = Main:CreateSection("Mouse 2D: X: 0 Y: 0")
 local Mouse3D = Main:CreateSection("Mouse 3D: X: 0 Y: 0 Z: 0")
 local PartPath = Main:CreateSection("Part Path: nil")
+local Friend = Main:CreateSection("Friend: " ..(friend and friend.count or nil))
+local Follower = Main:CreateSection("Follower: " .. (follower and follower.count or "nil"))
+local Following = Main:CreateSection("Following: " ..(following and following.count or nil))
 local Name = Main:CreateSection("Display Name: " .. player.DisplayName)
 local UserId = Main:CreateSection("UserId: " .. player.UserId)
 local Age = Main:CreateSection("Account Age: " .. player.AccountAge)
@@ -300,7 +314,8 @@ Main:CreateSection("Country: " .. (api.country or "Unknown") .. " " .. (api.coun
 local position = Main:CreateSection("X: 0 Y: Z: 0")
 local health = Main:CreateSection("Health: 0")
 local GameTime = Main:CreateSection("Time: 0")
-local RR = Main:CreateSection("")
+local Speed = Main:CreateSection("Speed: 0/s")
+local RR = Main:CreateSection("nil")
 local Ping = Main:CreateSection("Ping: 0")
 
 pcall(function()
@@ -383,22 +398,22 @@ local Tool = Window:CreateTab("Tool", 6767454852)
 Tool:CreateSection("Tools")
 
 local T = {
-    {N = "TP Tool", U = "https://pastefy.app/KxzYTDSG/raw"},
-    {N = "Block Tool", U = "https://pastefy.app/SvoBElGG/raw"},
-    {N = "Print Pos Tool", U = "https://pastefy.app/PvzzLVSr/raw"},
-    {N = "Super Tool", U = "https://pastefy.app/0COIyXe5/raw"},
-    {N = "Fly Tool", U = "https://pastefy.app/v9qA9ev4/raw"},
-    {N = "NoClip Tool", U = "https://pastefy.app/N6sXYltX/raw"},
-    {N = "Swim Tool", U = "https://pastefy.app/5bevqP1O/raw"},
-    {N = "Freeze Tool", U = "https://pastefy.app/hF3HD2Xr/raw"},
-    {N = "FreeCam Tool", U = "https://pastefy.app/gWu7qFcI/raw"},
-    {N = "Spin Tool", U = "https://pastefy.app/TkEIKECR/raw"},
-    {N = "Jerk Tool", U = "https://pastefy.app/2bSw36iK/raw"},
-    {N = "Lag Tool", U = "https://pastefy.app/Tjt19NL2/raw"},
-    {N = "Punch Tool [R6]", U = "https://pastefy.app/aoOwF0KU/raw"},
-    {N = "Telekinesis Tool", U = "https://pastefy.app/8OUD6iGW/raw"},
-    {N = "AK-47 Tool", U = "https://rawscripts.net/raw/Universal-Script-Visual-AK-47-gun-29467"},
-    {N = "Delete Tool", U = "https://pastefy.app/wPmcErKC/raw"},
+    {N = "TP Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/TP%20Tool"},
+    {N = "Block Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Block%20Tool"},
+    {N = "Print Pos Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Print%20Pos%20Tool"},
+    {N = "Super Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Super%20Tool"},
+    {N = "Fly Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Fly%20Tool"},
+    {N = "NoClip Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/NoClip%20Tool"},
+    {N = "Swim Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Swim%20Tool"},
+    {N = "Freeze Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Freeze%20Tool"},
+    {N = "FreeCam Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/FreeCam%20Tool"},
+    {N = "Spin Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Spin%20Tool"},
+    {N = "Jerk Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Jerk%20Tool"},
+    {N = "Lag Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Lag%20Tool"},
+    {N = "Punch Tool [R6]", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Punch%20Tool%20%5BR6%5D"},
+    {N = "Telekinesis Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Telekinesis%20Tool"},
+    {N = "AK-47 Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/AK%2D47%20Tool"},
+    {N = "Delete Tool", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Tool/Delete%20Tool"},
 }
 for i, t in pairs(T) do
     Tool:CreateButton({Name = t.N, Callback = function()
@@ -410,17 +425,17 @@ task.spawn(function()
     local Esp = Window:CreateTab("Esp", 6523858394)
     
     local E = {
-        {N = "Esp Account Age", F = "https://pastebin.com/raw/yBYwTpf8"},
-        {N = "Esp UserId", F = "https://pastebin.com/raw/5QWD3vQY"},
-        {N = "Esp Name", F = "https://pastebin.com/raw/adfZhVPB"},
-        {N = "Esp Health", F = "https://pastebin.com/raw/m6JidyHR"},
-        {N = "Esp Display Name", F = "https://pastebin.com/raw/PTVL4m5a"},
-        {N = "Esp Position", F = "https://pastebin.com/raw/1PgQeJRx"},
-        {N = "Esp Distance", F = "https://pastebin.com/raw/Cnu6YWTN"},
-        {N = "Esp Highlights", F = "https://pastebin.com/raw/qkrmZ5tr"},
-        {N = "Esp Line", F = "https://pastebin.com/raw/vmuyrcmQ"},
-        {N = "Esp Box", F = "https://pastebin.com/raw/agFnyvEr"},
-        {N = "X-ray", F = "https://pastebin.com/raw/v5WPHqsd"},
+        {N = "Esp Account Age", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/AccountAge"},
+        {N = "Esp UserId", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/UserId"},
+        {N = "Esp Name", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/Name"},
+        {N = "Esp Health", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/Health"},
+        {N = "Esp Display Name", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/DisplayName"},
+        {N = "Esp Position", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/Position"},
+        {N = "Esp Distance", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/Distance"},
+        {N = "Esp Highlights", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/Highlights"},
+        {N = "Esp Line", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/Line"},
+        {N = "Esp Box", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/Box"},
+        {N = "X-ray", F = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/Esp/X-ray"},
     }
     
     function UpDataColor()
@@ -538,29 +553,30 @@ local UnHub = Window:CreateTab("UnHub Script", 86591853167234)
 UnHub:CreateSection("UnHub Script")
 
 local U = {
-    {N = "UnHub: Fe", U = "https://pastefy.app/jgBN1P1P/raw"},
-    {N = "UnHub: Audio", U = "https://pastefy.app/xJfT77js/raw"},
-    {N = "UnHub: Custom animation", U = "https://pastefy.app/hDLump1x/raw"},
-    {N = "UnHub: Emote", U = "https://pastefy.app/vELAylpU/raw"},
-    {N = "Position", U = "https://pastefy.app/WIuH0LOz/raw"},
-    {N = "Calculator", U = "https://pastefy.app/Ofm7rqJc/raw"},
-    {N = "Fly: Hero", U = "https://pastefy.app/bx4e8CTF/raw"},
-    {N = "Fly: Normal", U = "https://pastefy.app/8Sq6Dogf/raw"},
-    {N = "Fly: Soul", U = "https://pastefy.app/9XKl5PrP/raw"},
-    {N = "FreeCam", U = "https://pastefy.app/2C9WhLTv/raw"},
-    {N = "Spin", U = "https://pastefy.app/anbObUnY/raw"},
-    {N = "NoClip", U = "https://pastefy.app/XA015S3r/raw"},
-    {N = "Swim", U = "https://pastefy.app/tBFNujcD/raw"},
-    {N = "Invisible", U = "https://pastefy.app/WCsTPR7a/raw"},
-    {N = "Part Path", U = "https://pastebin.com/raw/2NZ54hzb"},
-    {N = "Bang", U = "https://pastefy.app/YiXBkjF4/raw"},
-    {N = "Get Banged", U = "https://pastefy.app/Rh1DCTVq/raw"},
-    {N = "Shift Lock", U = "https://pastefy.app/XONjGO77/raw"},
-    {N = "Gui Edior", U = "https://pastefy.app/RCV8utqr/raw"},
-    {N = "Executor", U = "https://pastefy.app/mrU4RASN/raw"},
-    {N = "Raw Link", U = "https://pastefy.app/UuPGGGLo/raw"},
-    {N = "Get Animation", U = "https://pastefy.app/G2xkaNbc/raw"},
-    {N = "Cloner", U = "https://pastefy.app/DZjbro9h/raw"},
+    {N = "UnHub: Fe", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Fe"},
+    {N = "UnHub: Audio", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Audio"},
+    {N = "UnHub: Custom animation", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Custom%20animation"},
+    {N = "UnHub: Emote", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Emote"},
+    {N = "Position", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Position"},
+    {N = "Calculator", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Calculator"},
+    {N = "Fly: Hero", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Fly%3A%20Hero"},
+    {N = "Fly: Normal", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Fly%3A%20Normal"},
+    {N = "Fly: Soul", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Fly%3A%20Soul"},
+    {N = "FreeCam", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/FreeCam"},
+    {N = "Spin", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Spin"},
+    {N = "NoClip", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/NoClip"},
+    {N = "Swim", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Swim"},
+    {N = "Invisible", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Invisible"},
+    {N = "Part Path", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Part%20Path"},
+    {N = "Part Position", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Part%20Position"},
+    {N = "Bang", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Bang"},
+    {N = "Get Banged", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Get%20Banged"},
+    {N = "Shift Lock", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Shift%20Lock"},
+    {N = "Gui Edior", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Gui%20Edior"},
+    {N = "Executor", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Executor"},
+    {N = "Raw Link", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Raw%20Link"},
+    {N = "Get Animation", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Get%20Animation"},
+    {N = "Cloner", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Cloner"},
 }
 
 for i, u in pairs(U) do
@@ -775,6 +791,7 @@ Other:CreateToggle({Name = "Anti Fling", CurrentValue = false, Flag = "Toggle1",
         RunAntiFling = RunService.Stepped:Connect(function()
             local char = player.Character
             for _, v in pairs(game.Players:GetPlayers()) do
+                wait(0.1)
                 if v.Character and v ~= player then
                     SetNoCollision(v, false)
                 end
@@ -1099,6 +1116,23 @@ Other:CreateSlider({Name = "Pov View", Range = {0, 120}, Increment = 1, Suffix =
     end
 end})
 
+local Blur = game:GetService("Lighting"):FindFirstChild("Blur")
+if not Blur then
+    Blur = Instance.new("BlurEffect")
+    Blur.Parent = game:GetService("Lighting")
+    Blur.Size = 0
+end
+
+Other:CreateSlider({Name = "Blur", Range = {0, 100}, Increment = 1, Suffix = "Size", CurrentValue = Blur.Size, Flag = "Slider1", Callback = function(Value)
+    local Blur = game:GetService("Lighting"):FindFirstChild("Blur")
+    if not Blur then
+        Blur = Instance.new("BlurEffect")
+        Blur.Parent = game:GetService("Lighting")
+        Blur.Size = 0
+    end
+    Blur.Size = Value
+end})
+
 Other:CreateSection("Game")
 
 Other:CreateButton({Name = "Console", Callback = function()
@@ -1199,6 +1233,92 @@ Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callb
     end
 end})
 
+local Troll = Window:CreateTab("Troll", 6862780932)
+Troll:CreateSection("Troll")
+
+local RunEgor
+local WalkId = ""
+local PartInAir = nil
+
+Troll:CreateToggle({Name = "Egor", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local hum = player.Character.Humanoid
+    local Walk, Run = player.Character:WaitForChild("Animate").walk.WalkAnim or player.Character.Animate.walk.WalkAnim, game.Players.LocalPlayer.Character:WaitForChild("Animate").run.RunAnim or player.Character.Animate.run.RunAnim
+    if Value then
+        hum.WalkSpeed = 6
+        workspace.Gravity = 10
+        hum.JumpPower = 12
+        WalkId = game.Players.LocalPlayer.Character:WaitForChild("Animate").walk.WalkAnim.AnimationId
+        Walk.AnimationId = Run.AnimationId
+        RunEgor = game:GetService("RunService").Heartbeat:Connect(function()
+            for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+                track:AdjustSpeed(5)
+            end
+        end)
+    else
+        if RunEgor then
+            RunEgor:Disconnect()
+            RunEgor = nil
+        end
+        Walk.AnimationId = WalkId
+        hum.WalkSpeed = OldWalkSpeed
+        workspace.Gravity = OldGravity
+        hum.JumpPower = OldJumpPower
+    end
+end})
+
+Troll:CreateToggle({Name = "Walk On Air", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        local char = player.Character
+        local Part = Instance.new("Part")
+        Part.Anchored = true
+        Part.Transparency = 1
+        Part.Size = Vector3.new(10, 1, 10)
+        Part.Position = char.HumanoidRootPart.Position + Vector3.new(0, -3.5, 0)
+        Part.Parent = workspace
+        PartInAir = Part
+    else
+        PartInAir:Destroy()
+        PartInAir = nil
+    end
+end})
+
+Troll:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    InfiniteJumpEnabled = Value
+    if Value and not InfiniteJumpConnection then
+        InfiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+            if InfiniteJumpEnabled then
+                local humanoid = game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end
+        end)
+    elseif not Value and InfiniteJumpConnection then
+        InfiniteJumpConnection:Disconnect()
+        InfiniteJumpConnection = nil
+    end
+end})
+
+Troll:CreateButton({Name = "Bang", Callback = function()
+    loadstring(game:HttpGet("https://pastefy.app/YiXBkjF4/raw"))()
+end})
+
+Troll:CreateButton({Name = "Get Bang", Callback = function()
+    loadstring(game:HttpGet("https://pastefy.app/Rh1DCTVq/raw"))()
+end})
+
+Troll:CreateButton({Name = "No Clip", Callback = function()
+    loadstring(game:HttpGet("https://pastefy.app/XA015S3r/raw"))()
+end})
+
+Troll:CreateButton({Name = "Invisible", Callback = function()
+    loadstring(game:HttpGet("https://pastefy.app/WCsTPR7a/raw"))()
+end})
+
+Troll:CreateButton({Name = "Jerk Tool", Callback = function()
+    loadstring(game:HttpGet("https://pastefy.app/2bSw36iK/raw"))()
+end})
+
 local Search = Window:CreateTab("Search Script", 118685771787843)
 Search:CreateSection("Search Script")
 
@@ -1213,8 +1333,6 @@ Search:CreateInput({
     PlaceholderText = "     Search     ",
     RemoveTextAfterFocusLost = true,
     Callback = function(Text)
-
-        -- Clear old results
         if #Items.Buttons > 0 and Items.Buttons[1]:GetButton().Parent then
             for _, v in ipairs(Items.Buttons[1]:GetButton().Parent:GetChildren()) do
                 if v:IsA("Frame") and v.Name == "SectionSpacing" then
@@ -1277,12 +1395,247 @@ Search:CreateInput({
     end
 })
 
+local Save = Window:CreateTab("Save Script", 105856032975609)
+Save:CreateSection("Save Script")
+
+local AllScript = {}
+local TextName = ""
+local TextScript = ""
+
+Save:CreateInput({
+    Name = "Load Name",
+    CurrentValue = "",
+    PlaceholderText = "Name",
+    RemoveTextAfterFocusLost = true,
+    Callback = function(txt)
+        TextName = (txt == "" and "Untitled") or txt
+    end
+})
+
+Save:CreateInput({
+    Name = "Load Script",
+    CurrentValue = "",
+    PlaceholderText = "Script",
+    RemoveTextAfterFocusLost = true,
+    Callback = function(txt)
+        TextScript = txt
+    end
+})
+
+Save:CreateButton({
+    Name = "Save",
+    Callback = function()
+        if TextName == "" or TextScript == "" then
+            Rayfield:Notify({
+               Title = "⚠️ Warn!",
+               Content = "Missing name or script",
+               Duration = 6.5,
+               Image = 4483362458,
+            })
+            return
+        end
+        if AllScript[TextName] then
+            Rayfield:Notify({
+               Title = "⚠️ Warn!",
+               Content = "Script already exists",
+               Duration = 6.5,
+               Image = 4483362458,
+            })
+            return
+        end
+
+        AllScript[TextName] = TextScript
+
+        Save:CreateButton({
+            Name = TextName,
+            Callback = function()
+                local success, err = pcall(function()
+                    loadstring(AllScript[TextName])()
+                end)
+            end
+        })
+
+        local content = HttpService:JSONEncode(AllScript)
+        local message = "Update " .. path .. " via API"
+        up:uploadToGitHub(content, message)
+    end
+})
+
+Save:CreateSection("Scripts")
+
+local loaded = up:downloadFromGitHub()
+if not loaded then return end
+
+AllScript = loaded
+for name, script in pairs(AllScript) do
+    Save:CreateButton({
+        Name = name,
+        Callback = function()
+            local success, err = pcall(function()
+                loadstring(script)()
+            end)
+        end
+    })
+end
+
+local GetInfo = Window:CreateTab("Get Info", 13874214925)
+GetInfo:CreateSection("Get Info")
+
+local UsernameInfo
+local UserIdInfo
+local DisplayNameInfo
+local AccountAgeInfo
+local AccountCreationDateInfo
+local IsOnlineInfo
+local IsPlayingInfo
+local FriendCountInfo
+local FollowerCountInfo
+local FollowingCountInfo
+local IsBannedInfo
+local LastDeviceInfo
+local Description
+
+local TextInSearch = 0
+
+GetInfo:CreateInput({Name = "Search", CurrentValue = "", PlaceholderText = "Put Username or UserId", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if txt == 0 then
+        Rayfield:Notify({
+            Title = "⚠️ Warn!",
+            Content = "Failed to get player",
+            Duration = 3.5,
+            Image = 4483362458,
+        })
+        TextInSearch = 0
+    elseif txt:match("^%d+$") then
+        TextInSearch = txt
+    else
+        local success, userId = pcall(function()
+            return Players:GetUserIdFromNameAsync(txt)
+        end)
+        if success then
+            TextInSearch = userId
+        else
+            Rayfield:Notify({
+               Title = "⚠️ Warn!",
+               Content = "Failed to get player",
+               Duration = 3.5,
+               Image = 4483362458,
+            })
+            TextInSearch = 0
+        end
+    end
+end})
+
+GetInfo:CreateButton({Name = "Search", Callback = function()
+    if TextInSearch == 0 then
+        Rayfield:Notify({
+            Title = "⚠️ Warn!",
+            Content = "Failed to get player info",
+            Duration = 3.5,
+            Image = 4483362458,
+        })
+    else
+        UsernameInfo:Set("Username: Loading...")
+        UserIdInfo:Set("UserId: Loading...")
+        DisplayNameInfo:Set("DisplayName: Loading...")
+        AccountAgeInfo:Set("AccountAge: Loading...")
+        AccountCreationDateInfo:Set("Account Creation Date: Loading...")
+        IsOnlineInfo:Set("IsOnline: Loading...")
+        IsPlayingInfo:Set("IsPlaying: Loading...")
+        FriendCountInfo:Set("Friend: Loading...")
+        FollowerCountInfo:Set("Follower: Loading...")
+        FollowingCountInfo:Set("Following: Loading...")
+        IsBannedInfo:Set("IsBanned: Loading...")
+        IsVerifiedInfo:Set("IsVerified: Loading...")
+        Description:Set("Description: Loading...")
+        local okName, name = pcall(function()
+        	return Players:GetNameFromUserIdAsync(TextInSearch)
+        end)
+        local name = okName and name or "nil"
+        local api = {}
+        local followerCount = {}
+        local followingCount = {}
+        local friendCount = {}
+        pcall(function()
+            api = game.HttpService:JSONDecode(game:HttpGet('https://users.roblox.com/v1/users/'..TextInSearch))
+        end)
+        pcall(function()
+            followerCount = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..TextInSearch ..'/followers/count'))
+        end)
+        pcall(function()
+            followingCount = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..TextInSearch ..'/followings/count'))
+        end)
+        pcall(function()
+            friendCount = game.HttpService:JSONDecode(game:HttpGet('https://friends.roblox.com/v1/users/' ..TextInSearch ..'/friends/count'))
+        end)
+        local accountCreatedTime = DateTime.fromIsoDate(api.created).UnixTimestamp
+        local currentTime = DateTime.now().UnixTimestamp
+        local accountAgeDays = (currentTime - accountCreatedTime) / 86400
+        local date = os.date("*t", os.time() - (math.floor(accountAgeDays + 1) * 24 * 60 * 60))
+        local requestFunction = (syn and syn.request) or (http and http.request)
+        local function CheckIfOnline(UserId)
+            local ProxyURL = "roproxy.com"
+            local URL = "https://presence." .. ProxyURL .. "/v1/presence/users"
+            local Body = HttpService:JSONEncode({userIds = {UserId}})
+            local response = requestFunction({Url = URL, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = Body})
+            if response.StatusCode ~= 200 then return false end
+            local decoded = HttpService:JSONDecode(response.Body)
+            local presence = decoded.userPresences[1].userPresenceType
+            return tonumber(presence)
+        end
+        UsernameInfo:Set("Username: "..name)
+        UserIdInfo:Set("UserId: " ..TextInSearch)
+        DisplayNameInfo:Set("DisplayName: " ..api.displayName)
+        AccountAgeInfo:Set("AccountAge: " ..math.floor(accountAgeDays + 1))
+        AccountCreationDateInfo:Set("Account Creation Date: " ..string.format("%04d/%02d/%02d", date.year, date.month, date.day))
+        if CheckIfOnline(TextInSearch) > 0 then
+            IsOnlineInfo:Set("IsOnline: true")
+            if CheckIfOnline(TextInSearch) == 2 then
+                IsOnlineInfo:Set("IsOnline: true")
+                IsPlayingzInfo:Set("IsPlaying: true")
+            end
+        else
+            IsOnlineInfo:Set("IsOnline: false")
+            IsPlayingzInfo:Set("IsPlaying: false")
+        end
+        FriendCountInfo:Set("Friend: " ..friendCount.count)
+        FollowingCountInfo:Set("Following: " ..followingCount.count)
+        FollowerCountInfo:Set("Follower: " ..followerCount.count)
+        IsBannedInfo:Set("IsBanned: "..tostring(api.isBanned))
+        IsVerifiedInfo:Set("IsVerified: "..tostring(api.hasVerifiedBadge))
+        Description:Set("Description: " ..api.description)
+    end
+end})
+
+UsernameInfo = GetInfo:CreateSection("Username: nil")
+UserIdInfo = GetInfo:CreateSection("UserId: nil")
+DisplayNameInfo = GetInfo:CreateSection("DisplayName: nil")
+AccountAgeInfo = GetInfo:CreateSection("AccountAge: nil")
+AccountCreationDateInfo = GetInfo:CreateSection("Account Creation Date: nil")
+IsOnlineInfo = GetInfo:CreateSection("IsOnline: nil")
+IsPlayingInfo = GetInfo:CreateSection("IsPlaying: nil")
+FriendCountInfo = GetInfo:CreateSection("Friend: nil")
+FollowerCountInfo = GetInfo:CreateSection("Follower: nil")
+FollowingCountInfo = GetInfo:CreateSection("Following: nil")
+IsBannedInfo = GetInfo:CreateSection("IsBanned: nil")
+IsVerifiedInfo = GetInfo:CreateSection("IsVerified: nil")
+Description = GetInfo:CreateSection("Description: nil")
+
+local lastPos = hrp.Position
+
 task.spawn(function()
+    local speed
     local RunPartPath = mouse.Button1Down:Connect(function()
         PartPath:Set("Part Path: " ..getFullPath(mouse.Target))
     end)
     RunScript = RunService.RenderStepped:Connect(function(deltaTime)
         if not Rayfield:GetGui() then
+            local hrp = player.Character.HumanoidRootPart
+        	local currentPos = hrp.Position
+        	local distance = (currentPos - lastPos).Magnitude
+        	speed = math.floor(distance / deltaTime)
+        	
+        	lastPos = currentPos
             if AimbotAA then
         		local Target = GetAA()
         		if Target then
@@ -1356,6 +1709,9 @@ task.spawn(function()
         	if h then
         		health:Set("Health: " .. math.floor(h.Health))
         	end
+        	if PartInAir then
+        	    PartInAir.Position = char.HumanoidRootPart.Position + Vector3.new(0, -3.5, 0)
+        	end
         else
             RunScript:Disconnect()
             RunScript = nil
@@ -1376,7 +1732,7 @@ task.spawn(function()
 	                end
                 end
 	        end
-	        
+	        Speed:Set("Speed: " .. speed .."/s")
         	PlayerInGame:Set("Players: " .. #game.Players:GetPlayers())
         	Username:Set("Username: " .. player.Name)
         	Name:Set("Display Name: " .. player.DisplayName)
@@ -1397,6 +1753,17 @@ task.spawn(function()
                     v:Off()
                 end
     	    end
+    	    if RunEgor then
+    	        local hum = player.Character.Humanoid
+                RunEgor:Disconnect()
+                RunEgor = nil
+                hum.WalkSpeed = OldWalkSpeed
+                workspace.Gravity = OldGravity
+                hum.JumpPower = OldJumpPower
+                local walk = game.Players.LocalPlayer.Character:WaitForChild("Animate"):FindFirstChild("walk").WalkAnim
+                if not walk then return end
+                walk.AnimationId = WalkId
+            end
     	    if ST then
     	        ST:Destroy()
     	    end
@@ -1432,3 +1799,5 @@ task.spawn(function()
     	end
     end
 end)
+
+loadstring(game:HttpGet("https://pastefy.app/XUwaJ6e7/raw"))()
