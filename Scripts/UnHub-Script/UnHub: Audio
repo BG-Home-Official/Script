@@ -1,0 +1,238 @@
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Rayfield%20Library'))()
+local RunService = game:GetService("RunService")
+local Window = Rayfield:CreateWindow({
+   Name = "UnHub: Audio | by LE_GO89",
+   FileName = "UnHub: Audio",
+   Icon = 0,
+   LoadingTitle = "UnHub",
+   LoadingSubtitle = "by LE_GO89",
+   Theme = "Default",
+   ToggleUIKeybind = "H",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = ""
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "",
+      RememberJoins = true
+   },
+   KeySystem = false
+})
+
+local Slider
+local AllToggles = {}
+
+local Audio = game.Workspace:FindFirstChild("Audio")
+if not Audio then
+    Audio = Instance.new("Sound")
+    Audio.Volume = 1
+    Audio.Name = "Audio"
+    Audio.Parent = game.Workspace
+end
+
+local function PlayAudio(Id)
+    if Audio.IsPlaying then
+        Audio:Stop()
+    end
+    local success, err = pcall(function()
+        Audio.SoundId = "rbxassetid://" .. Id
+        Audio:Play()
+    end)
+end
+
+local function SetAllTogglesFalse(except)
+    for _, toggle in pairs(AllToggles) do
+        if toggle ~= except then
+            toggle:Set(false)
+        end
+    end
+end
+
+local MusicTab = Window:CreateTab("Music", 18187351229)
+MusicTab:CreateSection("Music")
+
+local MusicId = {
+    {Id = 1840684529, Name = "Cool Vibes"},
+    {Id = 1846458016, Name = "No More"},
+    {Id = 1838457617, Name = "Clair De Lune"},
+    {Id = 1846575559, Name = "Diamonds"},
+    {Id = 1843404009, Name = "Happy Song"},
+    {Id = 1846911135, Name = "Really Fast"},
+    {Id = 1841476350, Name = "Happy-Go-Lively"},
+    {Id = 1837560230, Name = "Classes Chase"},
+    {Id = 9040296745, Name = "Desert Trails"},
+    {Id = 1845554017, Name = "Uptown"},
+    {Id = 1848354536, Name = "Relaxed Scene"},
+    {Id = 1841647093, Name = "Life In Elevator"},
+    {Id = 1837879082, Name = "Paradise Falls"},
+    {Id = 142376088, Name = "It Raining Tanos"},
+    {Id = 5409360995, Name = "Dion Timmer"},
+    {Id = 1848028342, Name = "Nocturne Opus 9 C"},
+    {Id = 9047876673, Name = "Happy Adventure"},
+    {Id = 9038254260, Name = "Fight though Adversity"},
+}
+
+for _, data in ipairs(MusicId) do
+    local toggle
+    toggle = MusicTab:CreateToggle({
+        Name = data.Name,
+        CurrentValue = false,
+        Callback = function(Value)
+            if Value then
+                SetAllTogglesFalse(toggle)
+                PlayAudio(data.Id)
+                task.wait(0.2)
+                Slider:SetRange(0, Audio.TimeLength)
+            else
+                Audio:Stop()
+                Slider:SetRange(0, 0)
+            end
+        end
+    })
+    table.insert(AllToggles, toggle)
+end
+
+local Phonk = Window:CreateTab("Phonk", 18186327709)
+Phonk:CreateSection("Phonk")
+
+local PhonkId = {
+    {Id = 122863102226559, Name = "SKIBIDI TOILET PHONK"},
+    {Id = 14145620056, Name = "The Final Phonk"},
+    {Id = 103409297553965, Name = "FUNK FESTA"},
+    {Id = 14145623221, Name = "No Lights"},
+    {Id = 71123357599630, Name = "Beauty"},
+    {Id = 120889371113999, Name = "pac man phonk"},
+    {Id = 81508660514757, Name = "Phonky Maxwell"},
+    {Id = 110856257452699, Name = "Spooky Phonk"},
+    {Id = 129098116998483, Name = "TOMA FUNK PHONK"},
+    {Id = 136932193331774, Name = "Roblox Phonk"},
+    {Id = 120423453615283, Name = "Bravery"},
+    {Id = 14145625078, Name = "Distorted"},
+    {Id = 135667903253566, Name = "Brazilian Phonk"},
+    {Id = 139161205970637, Name = "Dress To Impress Theme"},
+    {Id = 14145622615, Name = "Black Seed"},
+    {Id = 75057905314659, Name = "Sigma Phonk"},
+    {Id = 85721148897646, Name = "TOKYO DRIFT PHONK"},
+    {Id = 73432582424998, Name = "Breakcore Phonky"},
+    {Id = 93202214051700, Name = "Hardcore Drift Phonk"},
+    {Id = 84364989216881, Name = "King Of The Kill"},
+    {Id = 101326109963284, Name = "F-Phonk"},
+}
+
+for _, data in ipairs(PhonkId) do
+    local toggle
+    toggle = Phonk:CreateToggle({
+        Name = data.Name,
+        CurrentValue = false,
+        Callback = function(Value)
+            if Value then
+                SetAllTogglesFalse(toggle)
+                PlayAudio(data.Id)
+                task.wait(0.2)
+                Slider:SetRange(0, Audio.TimeLength)
+            else
+                Audio:Stop()
+                Slider:SetRange(0, 0)
+            end
+        end
+    })
+    table.insert(AllToggles, toggle)
+end
+
+local Setting = Window:CreateTab("Setting", 11713339600)
+Setting:CreateSection("Setting")
+
+Setting:CreateInput({
+    Name = "Load Sound",
+    CurrentValue = "",
+    PlaceholderText = "Value",
+    RemoveTextAfterFocusLost = true,
+    Callback = function(Value)
+        if Audio.IsPlaying then
+            Audio:Stop()
+        end
+        if string.find(Value, "http://www.roblox.com/asset/?id=") then
+            Audio.SoundId = string.gsub(Value, "http://www.roblox.com/asset/?id=", "rbxassetid://")
+        elseif string.find(Value, "rbxassetid://") then
+            Audio.SoundId = Value
+        else
+            Audio.SoundId = "rbxassetid://" .. Value
+        end
+    end
+})
+
+Setting:CreateToggle({
+    Name = "Play",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then
+            Audio:Play()
+        else
+            Audio:Stop()
+        end
+    end
+})
+
+Setting:CreateToggle({
+    Name = "Loop",
+    CurrentValue = false,
+    Callback = function(Value)
+        Audio.Looped = Value
+    end
+})
+
+Setting:CreateInput({
+    Name = "Time",
+    CurrentValue = "",
+    PlaceholderText = "Value",
+    RemoveTextAfterFocusLost = true,
+    Callback = function(txt)
+        Audio.TimePosition = tonumber(txt)
+    end
+})
+
+Setting:CreateInput({
+    Name = "Volume",
+    CurrentValue = "",
+    PlaceholderText = "Value",
+    RemoveTextAfterFocusLost = true,
+    Callback = function(txt)
+        Audio.Volume = tonumber(txt)
+    end
+})
+
+Setting:CreateInput({
+    Name = "Speed",
+    CurrentValue = "",
+    PlaceholderText = "Value",
+    RemoveTextAfterFocusLost = true,
+    Callback = function(txt)
+        Audio.PlaybackSpeed = tonumber(txt)
+    end
+})
+
+Setting:CreateButton({
+    Name = "Stop All Sounds",
+    Callback = function()
+        Audio:Stop()
+    end
+})
+
+Slider = Setting:CreateSlider({
+    Name = "Time",
+    Range = {0, 0},
+    Increment = 0.1,
+    Suffix = "s",
+    CurrentValue = 0,
+    Callback = function(Value)
+        Audio.TimePosition = Value
+    end
+})
+
+RunService.RenderStepped:Connect(function()
+    if not Rayfield:GetGui() then
+        Slider:Set(Audio.TimePosition)
+    end
+end)
