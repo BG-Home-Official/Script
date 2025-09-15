@@ -1,0 +1,406 @@
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Rayfield%20Library'))()
+local Window = Rayfield:CreateWindow({
+   Name = "UnHub: Custom Animation | by LE_GO89",
+   FileName = "UnHub: Custom Animation",
+   Icon = 0,
+   LoadingTitle = "UnHub",
+   LoadingSubtitle = "by LE_GO89",
+   Theme = "Default",
+   ToggleUIKeybind = "H",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = ""
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "",
+      RememberJoins = true
+   },
+   KeySystem = false
+})
+local player = game.Players.LocalPlayer
+
+local function Walk(id)
+    local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+    animate.walk.WalkAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function Run(id)
+    local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+    animate.run.RunAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function Jump(id)
+    local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+    animate.jump.JumpAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function Climb(id)
+    local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+    animate.climb.ClimbAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function fall(id)
+    local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+    animate.fall.FallAnim.AnimationId = "rbxassetid://" ..id
+end
+
+local function Swim(id1, id2)
+    local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+    animate.swim.Swim.AnimationId = "rbxassetid://" ..id2
+    animate.swimidle.SwimIdle.AnimationId = "rbxassetid://" ..id1
+end
+
+local function Idle(id1, id2)
+    local animate = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+    animate.idle.Animation1.AnimationId = "rbxassetid://" ..id1
+    animate.idle.Animation2.AnimationId = "rbxassetid://" ..id2
+end
+
+local animations = {
+    walk = {
+    {Name = "Astronaut", Id = "891667138"},
+    {Name = "Adidas Community", Id = "122150855457006"},
+    {Name = "Bold", Id = "16738340646"},
+    {Name = "Bubbly", Id = "910034870"},
+    {Name = "Cartoony", Id = "742640026"},
+    {Name = "Confident", Id = "1070017263"},
+    {Name = "Cowboy", Id = "1014421541"},
+    {Name = "Catwalk Glam", Id = "109168724482748"},
+    {Name = "Drooling Zombie", Id = "3489174223"},
+    {Name = "Elder", Id = "10921111375"},
+    {Name = "Ghost", Id = "616013216"},
+    {Name = "Knight", Id = "10921127095"},
+    {Name = "Levitation", Id = "616013216"},
+    {Name = "Mage", Id = "707897309"},
+    {Name = "Ninja", Id = "656121766"},
+    {Name = "NFL", Id = "110358958299415"},
+    {Name = "OldSchool", Id = "10921244891"},
+    {Name = "Patrol", Id = "1151231493"},
+    {Name = "Pirate", Id = "750785693"},
+    {Name = "Default Retarget", Id = "115825677624788"},
+    {Name = "Popstar", Id = "1212980338"},
+    {Name = "Princess", Id = "941028902"},
+    {Name = "R6", Id = "12518152696"},
+    {Name = "R15 Reanimated", Id = "4211223236"},
+    {Name = "Robot", Id = "616095330"},
+    {Name = "Sneaky", Id = "1132510133"},
+    {Name = "Sports (Adidas)", Id = "18537392113"},
+    {Name = "Stylish", Id = "616146177"},
+    {Name = "Stylized Female", Id = "4708193840"},
+    {Name = "Superhero", Id = "10921298616"},
+    {Name = "Toy", Id = "782843345"},
+    {Name = "Vampire", Id = "1083473930"},
+    {Name = "Werewolf", Id = "1083178339"},
+    {Name = "Wicked (Popular)", Id = "92072849924640"},
+    {Name = "No Boundaries (Walmart)", Id = "18747074203"},
+    {Name = "Zombie", Id = "616168032"},
+    },
+
+    run = {  
+    {Name = "Astronaut", Id = "10921039308"},  
+    {Name = "Adidas Community", Id = "82598234841035"},  
+    {Name = "Bold", Id = "16738337225"},
+    {Name = "Bubbly", Id = "10921057244"},
+    {Name = "Cartoony", Id = "10921076136"},
+    {Name = "Confident", Id = "1070001516"},
+    {Name = "Cowboy", Id = "1014401683"},
+    {Name = "Catwalk Glam", Id = "81024476153754"},
+    {Name = "Drooling Zombie", Id = "3489173414"},
+    {Name = "Elder", Id = "10921104374"},
+    {Name = "Ghost", Id = "616013216"},
+    {Name = "Knight", Id = "10921121197"},
+    {Name = "Levitation", Id = "616010382"},
+    {Name = "Mage", Id = "10921148209"},
+    {Name = "Ninja", Id = "656118852"},
+    {Name = "NFL", Id = "117333533048078"},
+    {Name = "OldSchool", Id = "10921240218"},
+    {Name = "Patrol", Id = "1150967949"},
+    {Name = "Pirate", Id = "750783738"},
+    {Name = "Default Retarget", Id = "102294264237491"},
+    {Name = "Popstar", Id = "1212980348"},
+    {Name = "Princess", Id = "941015281"},
+    {Name = "R6", Id = "12518152696"},
+    {Name = "R15 Reanimated", Id = "4211220381"},
+    {Name = "Robot", Id = "10921250460"},
+    {Name = "Sneaky", Id = "1132494274"},
+    {Name = "Sports (Adidas)", Id = "18537384940"},
+    {Name = "Stylish", Id = "10921276116"},
+    {Name = "Stylized Female", Id = "4708192705"},
+    {Name = "Superhero", Id = "10921291831"},
+    {Name = "Toy", Id = "10921306285"},
+    {Name = "Vampire", Id = "10921320299"},
+    {Name = "Werewolf", Id = "10921336997"},
+    {Name = "Wicked (Popular)", Id = "72301599441680"},
+    {Name = "No Boundaries (Walmart)", Id = "18747070484"},
+    {Name = "Zombie", Id = "616163682"},
+    },
+    
+    jump = {
+    {Name = "Astronaut", Id = "891627522"},
+    {Name = "Adidas Community", Id = "656117878"},
+    {Name = "Bold", Id = "16738336650"},
+    {Name = "Bubbly", Id = "910016857"},
+    {Name = "Cartoony", Id = "742637942"},
+    {Name = "Confident", Id = "1069984524"},
+    {Name = "Cowboy", Id = "1014394726"},
+    {Name = "Catwalk Glam", Id = "116936326516985"},
+    {Name = "Drooling Zombie", Id = "891627522"},
+    {Name = "Elder", Id = "10921107367"},
+    {Name = "Ghost", Id = "616008936"},
+    {Name = "Knight", Id = "910016857"},
+    {Name = "Levitation", Id = "616008936"},
+    {Name = "Mage", Id = "10921149743"},
+    {Name = "Ninja", Id = "656117878"},
+    {Name = "NFL", Id = "119846112151352"},
+    {Name = "OldSchool", Id = "10921242013"},
+    {Name = "Patrol", Id = "1148811837"},
+    {Name = "Pirate", Id = "750782230"},
+    {Name = "Default Retarget", Id = "117150377950987"},
+    {Name = "Popstar", Id = "1212954642"},
+    {Name = "Princess", Id = "941008832"},
+    {Name = "R6", Id = "12520880485"},
+    {Name = "R15 Reanimated", Id = "4211219390"},
+    {Name = "Robot", Id = "616090535"},
+    {Name = "Sneaky", Id = "1132489853"},
+    {Name = "Sports (Adidas)", Id = "18537380791"},
+    {Name = "Stylish", Id = "616139451"},
+    {Name = "Stylized Female", Id = "4708188025"},
+    {Name = "Superhero", Id = "10921294559"},
+    {Name = "Toy", Id = "10921308158"},
+    {Name = "Vampire", Id = "1083455352"},
+    {Name = "Werewolf", Id = "1083218792"},
+    {Name = "Wicked (Popular)", Id = "104325245285198"},
+    {Name = "No Boundaries (Walmart)", Id = "18747069148"},
+    {Name = "Zombie", Id = "616161997"},
+    },
+
+    fall = {
+    {Name = "Astronaut", Id = "891617961"},
+    {Name = "Adidas Community", Id = "98600215928904"},
+    {Name = "Bold", Id = "16738333171"},
+    {Name = "Bubbly", Id = "910001910"},
+    {Name = "Cartoony", Id = "742637151"},
+    {Name = "Confident", Id = "1069973677"},
+    {Name = "Cowboy", Id = "1014384571"},
+    {Name = "Catwalk Glam", Id = "92294537340807"},
+    {Name = "Drooling Zombie", Id = "616157476"},
+    {Name = "Elder", Id = "10921105765"},
+    {Name = "Ghost", Id = "10921122579"},
+    {Name = "Knight", Id = "10921122579"},
+    {Name = "Levitation", Id = "616005863"},
+    {Name = "Mage", Id = "707829716"},
+    {Name = "Ninja", Id = "656115606"},
+    {Name = "NFL", Id = "129773241321032"},
+    {Name = "OldSchool", Id = "10921241244"},
+    {Name = "Patrol", Id = "1148863382"},
+    {Name = "Pirate", Id = "750780242"},
+    {Name = "Default Retarget", Id = "110205622518029"},
+    {Name = "Popstar", Id = "1212900995"},
+    {Name = "Princess", Id = "941000007"},
+    {Name = "R6", Id = "12520972571"},
+    {Name = "R15 Reanimated", Id = "4211216152"},
+    {Name = "Robot", Id = "616087089"},
+    {Name = "Sneaky", Id = "1132469004"},
+    {Name = "Sports (Adidas)", Id = "18537367238"},
+    {Name = "Stylish", Id = "616134815"},
+    {Name = "Stylized Female", Id = "4708186162"},
+    {Name = "Superhero", Id = "10921293373"},
+    {Name = "Toy", Id = "782846423"},
+    {Name = "Vampire", Id = "1083443587"},
+    {Name = "Werewolf", Id = "1083189019"},
+    {Name = "Wicked (Popular)", Id = "121152442762481"},
+    {Name = "No Boundaries (Walmart)", Id = "18747062535"},
+    {Name = "Zombie", Id = "616157476"},
+    },
+
+    climb = {
+    {Name = "Astronaut", Id = "10921032124"},
+    {Name = "Adidas Community", Id = "88763136693023"},
+    {Name = "Bold", Id = "16738332169"},
+    {Name = "Bubbly", Id = "16738332169"},
+    {Name = "Cartoony", Id = "742636889"},
+    {Name = "Confident", Id = "1069946257"},
+    {Name = "Cowboy", Id = "1014380606"},
+    {Name = "Catwalk Glam", Id = "119377220967554"},
+    {Name = "Drooling Zombie", Id = "616156119"},
+    {Name = "Elder", Id = "845392038"},
+    {Name = "Ghost", Id = "616003713"},
+    {Name = "Knight", Id = "10921125160"},
+    {Name = "Levitation", Id = "10921132092"},
+    {Name = "Mage", Id = "707826056"},
+    {Name = "Ninja", Id = "656114359"},
+    {Name = "NFL", Id = "134630013742019"},
+    {Name = "OldSchool", Id = "10921229866"},
+    {Name = "Patrol", Id = "1148811837"},
+    {Name = "Pirate", Id = "10921032124"},
+    {Name = "Default Retarget", Id = "10921286911"},
+    {Name = "Popstar", Id = "1213044953"},
+    {Name = "Princess", Id = "940996062"},
+    {Name = "R6", Id = "12520982150"},
+    {Name = "R15 Reanimated", Id = "4211214992"},
+    {Name = "Robot", Id = "616086039"},
+    {Name = "Sneaky", Id = "1132461372"},
+    {Name = "Sports (Adidas)", Id = "18537363391"},
+    {Name = "Stylish", Id = "10921271391"},
+    {Name = "Stylized Female", Id = "4708184253"},
+    {Name = "Superhero", Id = "10921286911"},
+    {Name = "Toy", Id = "10921300839"},
+    {Name = "Vampire", Id = "1083439238"},
+    {Name = "Werewolf", Id = "10921329322"},
+    {Name = "Wicked (Popular)", Id = "131326830509784"},
+    {Name = "No Boundaries (Walmart)", Id = "18747060903"},
+    {Name = "Zombie", Id = "616156119"},
+    },
+
+    
+    swim = {
+    {Name = "Astronaut", Id1 = "891663592", Id2 = "891663592"},
+    {Name = "Adidas Community", Id1 = "109346520324160", Id2 = "133308483266208"},
+    {Name = "Bold", Id1 = "16738339817", Id2 = "16738339158"},
+    {Name = "Bubbly", Id1 = "910030921", Id2 = "910028158"},
+    {Name = "Cartoony", Id1 = "10921079380", Id2 = "10921079380"},
+    {Name = "Confident", Id1 = "1070012133", Id2 = "1070009914"},
+    {Name = "CowBoy", Id1 = "1014411816", Id2 = "1014406523"},
+    {Name = "Catwalk Glam", Id1 = "98854111361360", Id2 = "134591743181628"},
+    {Name = "Drooling Zombie", Id1 = "18747071682", Id2 = "616165109"},
+    {Name = "Elder", Id1 = "10921110146", Id2 = "10921108971"},
+    {Name = "Ghost", Id1 = "10921325443", Id2 = "10921324408"},
+    {Name = "Knight", Id1 = "10921125935", Id2 = "10921125160"},
+    {Name = "Levitation", Id1 = "10921325443", Id2 = "10921324408"},
+    {Name = "Mage", Id1 = "707894699", Id2 = "707876443"},
+    {Name = "Ninja", Id1 = "656118341", Id2 = "656118341"},
+    {Name = "NFL", Id1 = "79090109939093", Id2 = "132697394189921"},
+    {Name = "OldSchool", Id1 = "10921244018", Id2 = "10921243048"},
+    {Name = "Patrol", Id1 = "1151221899", Id2 = "1151204998"},
+    {Name = "Pirate", Id1 = "750785176", Id2 = "750784579"},
+    {Name = "Default Retarget", Id1 = "10921297391", Id2 = "10921295495"},
+    {Name = "Popstar", Id1 = "1212998578", Id2 = "1212998578"},
+    {Name = "Princess", Id1 = "941025398", Id2 = "941018893"},
+    {Name = "R6", Id1 = "12518152696", Id2 = "12518152696"},
+    {Name = "R15 Reanimated", Id1 = "12518152696", Id2 = "12518152696"},
+    {Name = "Robot", Id1 = "10921253767", Id2 = "10921253142"},
+    {Name = "Sneaky", Id1 = "1132506407", Id2 = "1132500520"},
+    {Name = "Sports (Adidas)", Id1 = "18537387180", Id2 = "18537389531"},
+    {Name = "Stylish", Id1 = "10921281964", Id2 = "10921281000"},
+    {Name = "Stylized Female", Id1 = "4708190607", Id2 = "10921281000"},
+    {Name = "SuperHero", Id1 = "10921297391", Id2 = "10921295495"},
+    {Name = "Toy", Id1 = "10921310341", Id2 = "10921309319"},
+    {Name = "Vampire", Id1 = "10921325443", Id2 = "10921324408"},
+    {Name = "Werewolf", Id1 = "10921341319", Id2 = "10921340419"},
+    {Name = "Wicked (Popular)", Id1 = "113199415118199", Id2 = "99384245425157"},
+    {Name = "No Boundaries (Walmart)", Id1 = "18747071682", Id2 = "18747073181"},
+    {Name = "Zombie", Id1 = "18747071682", Id2 = "616165109"},
+    },
+
+    idle = {
+    {Name = "Astronaut", Id1 = "891621366", Id2 = "891633237"},
+    {Name = "Adidas Community", Id1 = "122257458498464", Id2 = "102357151005774"},
+    {Name = "Bold", Id1 = "16738333868", Id2 = "16738334710"},
+    {Name = "Bubbly", Id1 = "910004836", Id2 = "910009958"},
+    {Name = "Cartoony", Id1 = "742637544", Id2 = "742638445"},
+    {Name = "Confident", Id1 = "1069977950", Id2 = "1069987858"},
+    {Name = "Cowboy", Id1 = "1014390418", Id2 = "1014398616"},
+    {Name = "Catwalk Glam", Id1 = "133806214992291", Id2 = "94970088341563"},
+    {Name = "Drooling Zombie", Id1 = "3489171152", Id2 = "3489171152"},
+    {Name = "Elder", Id1 = "10921101664", Id2 = "10921102574"},
+    {Name = "Ghost", Id1 = "616006778", Id2 = "616008087"},
+    {Name = "Borock", Id1 = "3293641938", Id2 = "3293642554"},
+    {Name = "Knight", Id1 = "657595757", Id2 = "657568135"},
+    {Name = "Levitation", Id1 = "616006778", Id2 = "616008087"},
+    {Name = "Mage", Id1 = "707742142", Id2 = "707855907"},
+    {Name = "Ninja", Id1 = "656117400", Id2 = "656118341"},
+    {Name = "NFL", Id1 = "92080889861410", Id2 = "74451233229259"},
+    {Name = "OldSchool", Id1 = "10921230744", Id2 = "10921232093"},
+    {Name = "Patrol", Id1 = "1149612882", Id2 = "1150842221"},
+    {Name = "Pirate", Id1 = "750781874", Id2 = "750782770"},
+    {Name = "Default Retarget", Id1 = "95884606664820", Id2 = "95884606664820"},
+    {Name = "Popstar", Id1 = "1212900985", Id2 = "1150842221"},
+    {Name = "Princess", Id1 = "941003647", Id2 = "941013098"},
+    {Name = "R6", Id1 = "12521158637", Id2 = "12521162526"},
+    {Name = "R15 Reanimated", Id1 = "4211217646", Id2 = "4211218409"},
+    {Name = "Robot", Id1 = "616088211", Id2 = "616089559"},
+    {Name = "Sneaky", Id1 = "1132473842", Id2 = "1132477671"},
+    {Name = "Sports (Adidas)", Id1 = "18537376492", Id2 = "18537371272"},
+    {Name = "Stylish", Id1 = "616136790", Id2 = "616138447"},
+    {Name = "Stylized Female", Id1 = "4708191566", Id2 = "4708192150"},
+    {Name = "Superhero", Id1 = "10921288909", Id2 = "10921290167"},
+    {Name = "Toy", Id1 = "782841498", Id2 = "782845736"},
+    {Name = "Vampire", Id1 = "1083445855", Id2 = "1083450166"},
+    {Name = "Werewolf", Id1 = "1083195517", Id2 = "1083214717"},
+    {Name = "Wicked (Popular)", Id1 = "118832222982049", Id2 = "76049494037641"},
+    {Name = "No Boundaries (Walmart)", Id1 = "18747067405", Id2 = "18747063918"},
+    {Name = "Zombie", Id1 = "616158929", Id2 = "616160636"},
+    
+    {Name = "MrToilet", Id1 = "4417977954", Id2 = "4417978624"},
+    {Name = "Very Long", Id1 = "18307781743", Id2 = "18307781743"},
+    {Name = "Sway", Id1 = "560832030", Id2 = "560833564"},
+    {Name = "Realistic", Id1 = "17172918855", Id2 = "17173014241"},
+    {Name = "Soldier", Id1 = "3972151362", Id2 = "3972151362"},
+    {Name = "Udzal", Id1 = "3303162274", Id2 = "3303162549"},
+    },
+}
+
+local IdleW = Window:CreateTab("Idle", 12498430130)
+IdleW:CreateSection("Idle")
+
+for i, data in ipairs(animations.idle) do
+    IdleW:CreateButton({Name = data.Name, Callback = function()
+        Idle(data.Id1, data.Id2)
+    end})
+end
+
+local WalkW = Window:CreateTab("Walk", 9525534183)
+WalkW:CreateSection("Walk")
+
+for i, data in ipairs(animations.walk) do
+    WalkW:CreateButton({Name = data.Name, Callback = function()
+        Walk(data.Id)
+    end})
+end
+
+local RunW = Window:CreateTab("Run", 10507122420)
+RunW:CreateSection("Run")
+
+for i, data in ipairs(animations.run) do
+    RunW:CreateButton({Name = data.Name, Callback = function()
+        Run(data.Id)
+    end})
+end
+
+local JumpW = Window:CreateTab("Jump", 9405928221)
+JumpW:CreateSection("Jump")
+
+for i, data in ipairs(animations.jump) do
+    JumpW:CreateButton({Name = data.Name, Callback = function()
+        Jump(data.Id)
+    end})
+end
+
+local ClimbW = Window:CreateTab("Climb", 126523740378722)
+ClimbW:CreateSection("Climb")
+
+for i, data in ipairs(animations.climb) do
+    ClimbW:CreateButton({Name = data.Name, Callback = function()
+        ClimbW(data.Id)
+    end})
+end
+
+local FallW = Window:CreateTab("Fall", 9657499712)
+FallW:CreateSection("Fall")
+
+for i, data in ipairs(animations.fall) do
+    FallW:CreateButton({Name = data.Name, Callback = function()
+        Fall(data.Id)
+    end})
+end
+
+local SwimW = Window:CreateTab("Swim", 70676106194915)
+SwimW:CreateSection("Swim")
+
+for i, data in ipairs(animations.swim) do
+    SwimW:CreateButton({Name = data.Name, Callback = function()
+        Swim(data.Id1, data.Id2)
+    end})
+end
