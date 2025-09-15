@@ -1,0 +1,94 @@
+local plr = game.Players.LocalPlayer
+
+local RunService = game:GetService("RunService")
+
+local character = plr.Character or plr.CharacterAdded:Wait()
+
+local heartbeatConnection
+
+local function NoClip()
+
+    heartbeatConnection = RunService.Heartbeat:Connect(function()
+
+        for i, v in pairs(character:GetChildren()) do
+
+            if v:IsA("BasePart") then
+
+                v.CanCollide = false
+
+            end
+
+        end
+
+    end)
+
+end
+
+local function Clip()
+
+    if heartbeatConnection then
+
+        heartbeatConnection:Disconnect()
+
+        heartbeatConnection = nil
+
+    end
+
+    for i, v in pairs(character:GetChildren()) do
+
+        if v:IsA("BasePart") then
+
+            v.CanCollide = true
+
+        end
+
+    end
+
+end
+
+local toggle = true
+
+local player = game.Players.LocalPlayer.Character.Humanoid
+
+tool = Instance.new("Tool")
+
+tool.RequiresHandle = false
+
+tool.Name = "Clip"
+
+tool.Equipped:Connect(function()
+local Tool
+    for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Tool") and v.Name == tool.Name then
+            Tool = v
+        end
+    end
+if toggle then
+
+toggle = false
+
+Tool.Name = "NoClip"
+
+task.wait()
+
+Tool.Parent = game.Players.LocalPlayer.Backpack
+
+NoClip()
+
+else
+
+toggle = true
+
+Tool.Name = "Clip"
+
+task.wait()
+
+Tool.Parent = game.Players.LocalPlayer.Backpack
+
+Clip()
+
+end
+
+end)
+
+tool.Parent = game.Players.LocalPlayer.Backpack
