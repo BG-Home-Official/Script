@@ -1,0 +1,91 @@
+local OF = {}
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local localPlayer = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local WorldToViewportPoint = camera.WorldToViewportPoint
+
+local tracers = {}
+local isEnabled = false
+local playerAddedConn = nil
+local characterConnections = {}
+
+local function createTracer(player, color)
+	if tracers[player] then return end
+
+	local tracer = Drawing.new("Line")
+	tracer.Visible = false
+	tracer.Color = color
+	tracer.Thickness = 1
+	tracer.Transparency = 1
+
+	local function update()
+		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			local pos, onScreen = WorldToViewportPoint(camera, player.Character.HumanoidRootPart.Position)
+			if onScreen then
+				tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+				tracer.To = Vector2.new(pos.X, pos.Y)
+				tracer.Visible = true
+			else
+				tracer.Visible = false
+			end
+		else
+			tracer.Visible = false
+		end
+	end
+
+	local conn = RunService.RenderStepped:Connect(update)
+
+	tracers[player] = {tracer = tracer, connection = conn}
+	characterConnections[player] = player.CharacterAdded:Connect(function()
+		task.wait(1)
+	end)
+end
+
+local function EnableTracers(enable, color)
+	if enable and not isEnabled then
+		isEnabled = true
+
+		for _, player in pairs(Players:GetPlayers()) do
+			if player ~= localPlayer then
+				createTracer(player, color)
+			end
+		end
+
+		playerAddedConn = Players.PlayerAdded:Connect(function(player)
+			if player ~= localPlayer then
+				createTracer(player, color)
+			end
+		end)
+
+	elseif not enable and isEnabled then
+		isEnabled = false
+
+		for _, data in pairs(tracers) do
+			if data.connection then data.connection:Disconnect() end
+			if data.tracer then data.tracer:Remove() end
+		end
+		tracers = {}
+
+		for player, conn in pairs(characterConnections) do
+			if conn then conn:Disconnect() end
+		end
+		characterConnections = {}
+
+		if playerAddedConn then
+			playerAddedConn:Disconnect()
+			playerAddedConn = nil
+		end
+	end
+end
+
+function OF:On(color)
+	EnableTracers(true, color)
+end
+
+function OF:Off()
+	EnableTracers(false)
+end
+
+return OF
