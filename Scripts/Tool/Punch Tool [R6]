@@ -1,0 +1,233 @@
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+
+local chr = player.Character or player.CharacterAdded:Wait()
+
+local hum = chr:WaitForChild("Humanoid")
+
+local RunService = game:GetService("RunService")
+
+local rootPart = chr:WaitForChild("HumanoidRootPart")
+
+local currentPosition = rootPart.Position
+
+local lastPosition = rootPart.Position
+
+local animateScript = game.Players.LocalPlayer.Character:WaitForChild("Animate")
+
+local idle1, idle2, idle3
+
+local walkTrack1, walkTrack2
+
+local Animation = true
+
+local walk
+
+local Num = 1
+
+local dc = true
+
+local idleAnimation1 = Instance.new("Animation")
+
+idleAnimation1.AnimationId = "rbxassetid://107456513"
+
+local idleAnimation2 = Instance.new("Animation")
+
+idleAnimation2.AnimationId = "rbxassetid://544567096"
+
+local idleAnimation3 = Instance.new("Animation")
+
+idleAnimation3.AnimationId = "rbxassetid://21633130"
+
+local walkAnimation1 = Instance.new("Animation")
+
+walkAnimation1.AnimationId = "rbxassetid://107456513"
+
+local walkAnimation2 = Instance.new("Animation")
+
+walkAnimation2.AnimationId = "rbxassetid://54456096"
+
+local id = {
+
+	"204062532",	"188854226",
+
+	"218504594",
+
+}
+
+local anim = Instance.new("Animation")
+
+anim.AnimationId = "rbxassetid://" ..id[Num]
+
+local animationTrack = hum:LoadAnimation(anim)
+
+local existingTool = player.Backpack:FindFirstChild("Tool")
+
+if existingTool then
+
+	existingTool:Destroy()
+
+end
+
+local function stopAnim()
+
+    if idle1 then idle1:Stop() end
+
+    if idle2 then idle2:Stop() end
+
+    if idle3 then idle3:Stop() end
+
+    if walkTrack1 then walkTrack1:Stop() end
+
+    if walkTrack2 then walkTrack2:Stop() end
+
+end
+
+local function Idle()
+
+    stopAnim()
+
+    idle1 = hum:LoadAnimation(idleAnimation1)
+
+    idle1:Play()
+
+    idle1.TimePosition = 3
+
+    idle1:AdjustSpeed(0)
+
+    idle2 = hum:LoadAnimation(idleAnimation2)
+
+    idle2:Play()
+
+    idle2.TimePosition = 0.5
+
+    idle2:AdjustSpeed(0)
+
+    idle3 = hum:LoadAnimation(idleAnimation3)
+
+    idle3:Play()
+
+end
+
+local function Walk()
+
+    stopAnim()
+
+    walkTrack1 = hum:LoadAnimation(walkAnimation1)
+
+    walkTrack2 = hum:LoadAnimation(walkAnimation2)
+
+    walkTrack1:Play()
+
+    walkTrack1.TimePosition = 3
+
+    walkTrack1:AdjustSpeed(0)
+
+    walkTrack2:Play()
+
+    walkTrack2.TimePosition = 0.8
+
+    walkTrack2:AdjustSpeed(0)
+
+end
+
+local tool = Instance.new("Tool")
+
+tool.RequiresHandle = false
+
+tool.Name = "Punch"
+
+tool.Parent = player.Backpack
+
+tool.Activated:Connect(function()
+
+	if dc then
+
+	    stopAnim()
+
+	    if Num == 3 then
+
+	        Num = 1
+
+	    else
+
+	        Num += 1
+
+	    end
+
+		animationTrack:Play(0, 5, 3)
+
+		anim.AnimationId = "rbxassetid://" ..id[Num]
+
+        animationTrack = hum:LoadAnimation(anim)
+
+		dc = false
+
+		if not Animation then
+
+		    Walk()
+
+		else
+
+		    Idle()
+
+		end
+
+		task.wait(0.5)
+
+		dc = true
+
+	end
+
+end)
+
+tool.Equipped:Connect(function()
+
+    Idle()
+
+    walk = RunService.Heartbeat:Connect(function()
+
+        currentPosition = rootPart.Position
+
+        if (currentPosition - lastPosition).magnitude > 0.1 then
+
+            lastPosition = currentPosition
+
+            if Animation then
+
+               Walk()
+
+               Animation = false
+
+            end
+
+        else
+
+            if not Animation then
+
+                Idle()
+
+                Animation = true
+
+            end
+
+        end
+
+    end)
+
+end)
+
+tool.Unequipped:Connect(function()
+
+    stopAnim()
+
+    Animation = true
+
+    Num = 1
+
+    walk:Disconnect()
+
+    Disconnect()
+
+end)
