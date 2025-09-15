@@ -1,0 +1,339 @@
+local UserInputService = game:GetService("UserInputService")
+
+local s = game.CoreGui:FindFirstChild("ToolsGui")
+
+local Taget = game.CoreGui:FindFirstChild("ScreenGui")
+
+if not s then
+
+	s = Instance.new("ScreenGui")	s.Name = "ToolsGui"
+
+	s.Parent = game.CoreGui
+
+end
+
+if not Taget then
+
+	Taget = Instance.new("ScreenGui")
+
+	Taget.Name = "Edit"
+
+	Taget.Parent = game.CoreGui
+
+end
+
+local Frame = Instance.new("Frame")
+
+Frame.Name = "Frame"
+
+Frame.Parent = s
+
+Frame.Position = UDim2.new(0.5, -112, 0.5, -126)
+
+Frame.Size = UDim2.new(0, 219, 0, 211)
+
+Frame.AnchorPoint = Vector2.new(0, 0)
+
+Frame.BackgroundColor3 = Color3.new(0, 0.666, 1)
+
+Frame.BackgroundTransparency = 0.1
+
+Frame.Visible = true
+
+Frame.ZIndex = 1
+
+Frame.Active = true
+
+Frame.Draggable = true
+
+local Edit = Instance.new("TextButton")
+
+Edit.Name = "Edit"
+
+Edit.Parent = Frame
+
+Edit.Position = UDim2.new(0.5, 0, 0.5, 60)
+
+Edit.Size = UDim2.new(0, 92, 0, 53)
+
+Edit.AnchorPoint = Vector2.new(0.5, 0.5)
+
+Edit.BackgroundColor3 = Color3.new(0.333, 1, 1)
+
+Edit.BackgroundTransparency = 0
+
+Edit.Visible = true
+
+Edit.ZIndex = 1
+
+Edit.Text = "Edit"
+
+Edit.TextColor3 = Color3.new(0, 0, 0)
+
+Edit.TextSize = 14
+
+Edit.Font = Enum.Font.Legacy
+
+Edit.TextScaled = false
+
+local UICorner = Instance.new("UICorner")
+
+UICorner.Parent = Edit
+
+UICorner.CornerRadius = UDim.new(0, 8)
+
+local Path = Instance.new("TextBox")
+
+Path.Name = "Path"
+
+Path.Parent = Frame
+
+Path.Position = UDim2.new(0.5, 0, 0.5, -30)
+
+Path.Size = UDim2.new(0.8, 0, 0.2, 0)
+
+Path.AnchorPoint = Vector2.new(0.5, 0.5)
+
+Path.BackgroundColor3 = Color3.new(0.333, 1, 1)
+
+Path.BackgroundTransparency = 0
+
+Path.Visible = true
+
+Path.ZIndex = 1
+
+Path.Text = ""
+
+Path.TextColor3 = Color3.new(0, 0, 0)
+
+Path.TextSize = 12
+
+Path.Font = Enum.Font.Legacy
+
+Path.TextScaled = true
+
+local UICorner_2 = Instance.new("UICorner")
+
+UICorner_2.Parent = Path
+
+UICorner_2.CornerRadius = UDim.new(0, 10)
+
+local UIStroke = Instance.new("UIStroke")
+
+UIStroke.Parent = Frame
+
+UIStroke.Color = Color3.new(0, 0, 0)
+
+UIStroke.Thickness = 3
+
+local UICorner_3 = Instance.new("UICorner")
+
+UICorner_3.Parent = Frame
+
+UICorner_3.CornerRadius = UDim.new(0, 10)
+
+local Title = Instance.new("TextLabel")
+
+Title.Name = "Title"
+
+Title.Parent = Frame
+
+Title.Position = UDim2.new(0.5, 0, 0.5, -80)
+
+Title.Size = UDim2.new(0.7, 0, 0.25, 0)
+
+Title.AnchorPoint = Vector2.new(0.5, 0.5)
+
+Title.BackgroundColor3 = Color3.new(0.639, 0.635, 0.647)
+
+Title.BackgroundTransparency = 1
+
+Title.Visible = true
+
+Title.ZIndex = 1
+
+Title.Text = "Gui Editor"
+
+Title.TextColor3 = Color3.new(0.105, 0.165, 0.208)
+
+Title.TextSize = 18
+
+Title.Font = Enum.Font.Legacy
+
+Title.TextScaled = false
+
+local Close = Instance.new("TextButton")
+
+Close.Name = "Close"
+
+Close.Parent = Frame
+
+Close.Position = UDim2.new(0.91, 0, 0, 20)
+
+Close.Size = UDim2.new(0, 40, 0, 40)
+
+Close.AnchorPoint = Vector2.new(0.5, 0.5)
+
+Close.BackgroundColor3 = Color3.new(0.639, 0.635, 0.647)
+
+Close.BackgroundTransparency = 1
+
+Close.Visible = true
+
+Close.ZIndex = 1
+
+Close.Text = "x"
+
+Close.TextColor3 = Color3.new(0.105, 0.165, 0.208)
+
+Close.TextSize = 14
+
+Close.Font = Enum.Font.Legacy
+
+Close.TextScaled = false
+
+local x = s:FindFirstChild("FX")
+
+if not x then
+
+	x = Instance.new("Frame")
+
+	x.Name = "FX"
+
+	x.Size = UDim2.new(0, 0, 0, 0)
+
+	x.BackgroundTransparency = 1
+
+	x.Parent = s
+
+	s.ZIndexBehavior = Enum.ZIndexBehavior.Global
+
+end
+
+local button = x:FindFirstChild("Scale")
+
+if not button then
+
+    button = Instance.new("TextButton")
+
+    button.BackgroundColor3 = Color3.fromRGB(133, 145, 255)
+
+    button.Position = UDim2.new(0.5, 0, 0.5, 0)
+
+    button.Size = UDim2.new(0, 45, 0, 28)
+
+    button.BackgroundTransparency = 1
+
+    button.Text = "▣"
+
+    button.TextSize = 18
+
+    button.Name = "Scale"
+
+    button.AnchorPoint = Vector2.new(0.5, 0.5)
+
+    button.Active = true
+
+    button.Parent = x
+
+    button.Draggable = true
+
+    button.ZIndex = 999
+
+end
+
+local edit
+
+local holding = false
+
+local fholding = true
+
+button.MouseButton1Down:Connect(function()
+
+	holding = true
+
+	while holding do
+
+		if edit and edit:IsA("GuiObject") then
+
+			local pos = button.Position
+
+			edit.Size = UDim2.new(0, pos.X.Offset, 0, pos.Y.Offset)
+
+		end
+
+		task.wait()
+
+	end
+
+end)
+
+button.MouseButton1Up:Connect(function()
+
+	holding = false
+
+end)
+
+task.spawn(function()
+
+	while fholding do
+
+		if edit and edit:IsA("GuiObject") then
+
+			x.Position = edit.Position
+
+          x.Parent = edit.Parent
+
+		end
+
+		task.wait()
+
+	end
+
+end)
+
+local function findGuiFromPath(path)
+
+	local success, result = pcall(function()
+
+		return loadstring("return " .. path)()
+
+	end)
+
+	if success and typeof(result) == "Instance" then
+
+		return result
+
+	end
+
+	return nil
+
+end
+
+Edit.MouseButton1Click:Connect(function()
+
+	local target = findGuiFromPath(Path.Text)
+
+	if target and target:IsA("GuiObject") then
+
+		edit = target
+
+		edit.Draggable = true
+
+		edit.Active = true
+
+       local Bpos = button.Position
+
+       local Epos = edit.Position
+
+       button.Position = UDim2.new(Epos.X.Scale, Bpos.X.Offset, Epos.Y.Scale, Bpos.Y.Offset)
+
+	end
+
+end)
+
+Close.MouseButton1Click:Connect(function()
+
+	s:Destroy()
+
+end)
