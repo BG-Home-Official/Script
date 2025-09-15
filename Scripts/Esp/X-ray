@@ -1,0 +1,55 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local Run = {}
+local MarkerName = "XRayMarker"
+local DescendantConnection = nil
+
+function ApplyXRayToPart(part)
+	if part:IsA("BasePart") and not part:FindFirstChild(MarkerName) and part.Transparency < 1 then
+		local marker = Instance.new("NumberValue")
+		marker.Name = MarkerName
+		marker.Value = part.Transparency
+		marker.Parent = part
+
+		part.Transparency = 0.5
+	end
+end
+
+function CreateESP()
+	-- Apply to existing parts
+	for _, obj in ipairs(game:GetDescendants()) do
+		ApplyXRayToPart(obj)
+	end
+
+	-- Apply to newly added parts
+	DescendantConnection = game.DescendantAdded:Connect(function(obj)
+		ApplyXRayToPart(obj)
+	end)
+end
+
+function Run:On()
+	CreateESP()
+end
+
+function Run:Off()
+	-- Restore transparency and remove markers
+	for _, obj in ipairs(game:GetDescendants()) do
+		if obj:IsA("BasePart") then
+			local marker = obj:FindFirstChild(MarkerName)
+			if marker then
+				obj.Transparency = marker.Value
+				marker:Destroy()
+			end
+		end
+	end
+
+	-- Disconnect event
+	if DescendantConnection then
+		DescendantConnection:Disconnect()
+		DescendantConnection = nil
+	end
+end
+
+return Run
