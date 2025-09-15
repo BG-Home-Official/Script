@@ -1,0 +1,449 @@
+local TextService = game:GetService("TextService")
+
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+
+screenGui.Name = "ScriptEditorGUI"
+
+screenGui.ResetOnSpawn = false
+
+local mainFrame = Instance.new("Frame", screenGui)
+
+mainFrame.Size = UDim2.new(0, 600, 0, 400)
+
+mainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+
+mainFrame.BorderSizePixel = 0
+
+mainFrame.Active = true
+
+mainFrame.Draggable = true
+
+local UICorner = Instance.new("UICorner", mainFrame)
+
+local Title = Instance.new("TextLabel", mainFrame)
+
+Title.Size = UDim2.new(0, 100, 0, 40)
+
+Title.AnchorPoint = Vector2.new(0.5, 0)
+
+Title.Position = UDim2.new(0.5, 0, 0, 0)
+
+Title.BackgroundTransparency = 1
+
+Title.Text = "Raw Link By LE_GO89"
+
+Title.TextColor3 = Color3.new(1, 1, 1)
+
+Title.Font = Enum.Font.SourceSansBold
+
+Title.TextSize = 20
+
+local Close = Instance.new("TextButton", mainFrame)
+
+Close.Size = UDim2.new(0, 25, 0, 25)
+
+Close.AnchorPoint = Vector2.new(0.5, 0)
+
+Close.Position = UDim2.new(0.965, 0, 0, 5)
+
+Close.BackgroundTransparency = 1
+
+Close.Text = "x"
+
+Close.TextColor3 = Color3.new(1, 1, 1)
+
+Close.Font = Enum.Font.SourceSansBold
+
+Close.TextSize = 25
+
+local OC = Instance.new("TextButton", mainFrame)
+
+OC.Size = UDim2.new(0, 25, 0, 25)
+
+OC.AnchorPoint = Vector2.new(0.5, 0)
+
+OC.Position = UDim2.new(0.9, 0, 0, 5)
+
+OC.BackgroundTransparency = 1
+
+OC.Text = "-"
+
+OC.TextColor3 = Color3.new(1, 1, 1)
+
+OC.Font = Enum.Font.SourceSansBold
+
+OC.TextSize = 25
+
+local scrollFrame = Instance.new("ScrollingFrame", mainFrame)
+
+scrollFrame.Size = UDim2.new(1, -20, 1, -110)
+
+scrollFrame.Position = UDim2.new(0, 10, 0, 100)
+
+scrollFrame.BackgroundTransparency = 0.1
+
+scrollFrame.BorderSizePixel = 0
+
+scrollFrame.BackgroundColor3 = Color3.fromRGB(36, 36, 36)
+
+scrollFrame.ScrollBarThickness = 6
+
+scrollFrame.ScrollingDirection = Enum.ScrollingDirection.XY
+
+scrollFrame.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
+
+scrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+local highlightLabel = Instance.new("TextButton", scrollFrame)
+
+highlightLabel.BackgroundTransparency = 1
+
+highlightLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+highlightLabel.TextYAlignment = Enum.TextYAlignment.Top
+
+highlightLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+
+highlightLabel.Font = Enum.Font.Code
+
+highlightLabel.TextSize = 16
+
+highlightLabel.RichText = true
+
+highlightLabel.TextWrapped = false
+
+highlightLabel.ClipsDescendants = false
+
+highlightLabel.ZIndex = 2
+
+highlightLabel.Size = UDim2.new(1, 0, 1, 0)
+
+highlightLabel.Text = ""
+
+local Link = Instance.new("TextBox", mainFrame)
+
+Link.Size = UDim2.new(0.8, 0, 0, 40)
+
+Link.AnchorPoint = Vector2.new(0.5, 0)
+
+Link.Position = UDim2.new(0.58, 0, 0, 50)
+
+Link.BackgroundTransparency = 0
+
+Link.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+
+Link.Text = ""
+
+Link.TextColor3 = Color3.new(1, 1, 1)
+
+Link.TextWrapped = false
+
+Link.Font = Enum.Font.SourceSansBold
+
+Link.TextScaled = true
+
+local GetLink = Instance.new("TextButton", mainFrame)
+
+GetLink.Size = UDim2.new(0, 68, 0, 40)
+
+GetLink.AnchorPoint = Vector2.new(0.5, 0)
+
+GetLink.Position = UDim2.new(0.088, 0, 0, 50)
+
+GetLink.BackgroundTransparency = 0
+
+GetLink.BackgroundColor3 = Color3.fromRGB(0, 60, 0)
+
+GetLink.Text = "Get"
+
+GetLink.TextColor3 = Color3.new(1, 1, 1)
+
+GetLink.Font = Enum.Font.SourceSansBold
+
+GetLink.TextSize = 20
+
+local editorBox = Instance.new("TextBox", mainFrame)
+
+editorBox.BackgroundTransparency = 1
+
+editorBox.Size = UDim2.new(1, -20, 1, -110)
+
+editorBox.Position = UDim2.new(0, 10, 0, 100)
+
+editorBox.TextColor3 = Color3.new(1, 1, 1)
+
+editorBox.TextXAlignment = Enum.TextXAlignment.Left
+
+editorBox.TextYAlignment = Enum.TextYAlignment.Top
+
+editorBox.Font = Enum.Font.Code
+
+editorBox.TextSize = 16
+
+editorBox.ClearTextOnFocus = false
+
+editorBox.MultiLine = true
+
+editorBox.TextWrapped = false
+
+editorBox.Text = ""
+
+editorBox.ZIndex = 1
+
+editorBox.Visible = false
+
+local Execute = Instance.new("TextButton", mainFrame)
+
+Execute.Size = UDim2.new(0, 100, 0, 40)
+
+Execute.Position = UDim2.new(1, -110, 1, -50)
+
+Execute.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+
+Execute.Text = "Execute"
+
+Execute.TextColor3 = Color3.new(1, 1, 1)
+
+Execute.Font = Enum.Font.SourceSansBold
+
+Execute.ZIndex = 10
+
+Execute.TextSize = 20
+
+local Clear = Instance.new("TextButton", mainFrame)
+
+Clear.Size = UDim2.new(0, 100, 0, 40)
+
+Clear.Position = UDim2.new(1, -220, 1, -50)
+
+Clear.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+
+Clear.Text = "Clear"
+
+Clear.TextColor3 = Color3.new(1, 1, 1)
+
+Clear.Font = Enum.Font.SourceSansBold
+
+Clear.ZIndex = 10
+
+Clear.TextSize = 20
+
+local Copy = Instance.new("TextButton", mainFrame)
+
+Copy.Size = UDim2.new(0, 100, 0, 40)
+
+Copy.Position = UDim2.new(1, -330, 1, -50)
+
+Copy.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+
+Copy.Text = "Copy"
+
+Copy.TextColor3 = Color3.new(1, 1, 1)
+
+Copy.Font = Enum.Font.SourceSansBold
+
+Copy.ZIndex = 10
+
+Copy.TextSize = 20
+
+local keywords = {
+
+	["local"] = "#B800B3", ["function"] = "#B800B3", ["end"] = "#B800B3",	["if"] = "#B800B3", ["then"] = "#B800B3", ["else"] = "#B800B3",
+
+	["for"] = "#B800B3", ["in"] = "#B800B3", ["do"] = "#B800B3",
+
+	["while"] = "#B800B3", ["return"] = "#B800B3", ["nil"] = "#B800B3",
+
+	["true"] = "#4A00FF", ["false"] = "#FF0000", ["gsub"] = "#2241FF", ["format"] = "#2241FF",
+
+	["max"] = "#2241FF", ["huge"] = "#2241FF", ["string"] = "#A2FD99", ["math"] = "#A2FD99",
+
+	["loadstring"] = "#2241FF", ["pcall"] = "#2241FF"
+
+}
+
+local function escapeRichText(str)
+
+	str = str:gsub("&", "&amp;")
+
+	str = str:gsub("<", "&lt;")
+
+	str = str:gsub(">", "&gt;")
+
+	return str
+
+end
+
+local function highlightSyntax(text)
+
+	text = escapeRichText(text)
+
+	
+
+	-- Highlight strings (text inside quotes)
+
+	text = text:gsub('(".-")', '<font color="#C4FE4A">%1</font>')
+
+	text = text:gsub("('.-')", '<font color="#C4FE4A">%1</font>')
+
+	
+
+	-- Highlight keywords with frontier pattern to match whole words only
+
+	text = text:gsub("(%f[%a_])([%a_][%w_]*)(%f[^%w_])", function(front, word, back)
+
+		local color = keywords[word]
+
+		if color then
+
+			return front .. string.format('<font color="%s">%s</font>', color, word) .. back
+
+		else
+
+			return front .. word .. back
+
+		end
+
+	end)
+
+	
+
+	-- Replace newlines for RichText display
+
+	text = text:gsub("\n", "&#13;\n")
+
+	
+
+	return text
+
+end
+
+local function updateCanvasSize()
+
+	scrollFrame.CanvasSize = UDim2.new(0, highlightLabel.TextBounds.X + 20, 0, highlightLabel.TextBounds.Y + 20)
+
+end
+
+local function updateHighlight()
+
+wait()
+
+editorBox.TextTransparency = 0
+
+	highlightLabel.Text = highlightSyntax(editorBox.Text)
+
+	updateCanvasSize()
+
+end
+
+-- Sync scrolling between editor and highlight label
+
+scrollFrame:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+
+	local offset = -scrollFrame.CanvasPosition
+
+updateCanvasSize()
+
+end)
+
+-- Update highlight on text change
+
+editorBox:GetPropertyChangedSignal("Text"):Connect(updateHighlight)
+
+editorBox.Focused:Connect(function()
+
+	highlightLabel.TextTransparency = 1
+
+updateCanvasSize()
+
+end)
+
+editorBox.FocusLost:Connect(function()
+
+	highlightLabel.TextTransparency = 0
+
+updateCanvasSize()
+
+end)
+
+Execute.MouseButton1Click:Connect(function()
+
+	local code = editorBox.Text
+
+	local f, err = loadstring(code)
+
+	if f then
+
+		local ok, runtimeErr = pcall(f)
+
+		if not ok then
+
+			warn("Runtime error:", runtimeErr)
+
+		end
+
+	else
+
+		warn("Syntax error:", err)
+
+	end
+
+end)
+
+Clear.MouseButton1Click:Connect(function()
+
+	editorBox.Text = ""
+
+	highlightLabel.Text = ""
+
+end)
+
+Copy.MouseButton1Click:Connect(function()
+
+	setclipboard(editorBox.Text)
+
+end)
+
+Close.MouseButton1Click:Connect(function()
+
+	screenGui:Destroy()
+
+end)
+
+highlightLabel.MouseButton1Click:Connect(function()
+
+    editorBox:CaptureFocus()
+
+end)
+
+local T = false
+
+OC.MouseButton1Click:Connect(function()
+
+	T = not T
+
+	Clear.Visible = not T
+
+	Execute.Visible = not T
+
+	scrollFrame.Visible = not T
+
+	mainFrame.Size = T and UDim2.new(0, 600, 0, 40) or UDim2.new(0, 600, 0, 400)
+
+	OC.Text = T and "+" or "-"
+
+end)
+
+GetLink.MouseButton1Click:Connect(function()
+
+     editorBox.Text = game:HttpGet(Link.Text)
+
+end)
+
+updateHighlight()
+
+updateCanvasSize()
