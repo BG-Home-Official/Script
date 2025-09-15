@@ -1,0 +1,105 @@
+local Players = game:GetService("Players")
+
+local RunService = game:GetService("RunService")
+
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+local camera = workspace.CurrentCamera
+
+if game.CoreGui:FindFirstChild("ShiftLock") then game.CoreGui:FindFirstChild("ShiftLock"):Destroy() end
+
+-- Toggle state
+
+local toggle = false
+
+local conn
+
+-- Create GUI
+
+local ShiftLock = Instance.new("ScreenGui")
+
+ShiftLock.Name = "ShiftLock"
+
+ShiftLock.ResetOnSpawn = false
+
+ShiftLock.Parent = game.CoreGui
+
+local ImageButton = Instance.new("ImageButton")
+
+ImageButton.Name = "ImageButton"
+
+ImageButton.Size = UDim2.new(0, 35, 0, 35)
+
+ImageButton.Position = UDim2.new(0.9, 0, 0.85, 0)
+
+ImageButton.AnchorPoint = Vector2.new(0.5, 0.5)
+
+ImageButton.BackgroundTransparency = 1
+
+ImageButton.ZIndex = 100
+
+ImageButton.Image = "rbxasset://textures/ui/mouseLock_off@2x.png"
+
+ImageButton.Parent = ShiftLock
+
+ImageButton.MouseButton1Click:Connect(function()
+
+	toggle = not toggle	local character = player.Character or player.CharacterAdded:Wait()
+
+	local humanoid = character:WaitForChild("Humanoid")
+
+	if toggle then
+
+		ImageButton.Image = "rbxasset://textures/ui/mouseLock_on@2x.png"
+
+		humanoid.CameraOffset = Vector3.new(0, 0, 0)
+
+		-- Lock mouse to center (PC only)
+
+		if not UserInputService.TouchEnabled then
+
+			UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+
+		end
+
+		conn = RunService.RenderStepped:Connect(function()
+
+			local hrp = character:FindFirstChild("HumanoidRootPart")
+
+			if hrp then
+
+				local camCF = camera.CFrame
+
+				local look = Vector3.new(camCF.LookVector.X , 0, camCF.LookVector.Z).Unit
+
+				hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + look)
+
+			end
+
+		end)
+
+	else
+
+		ImageButton.Image = "rbxasset://textures/ui/mouseLock_off@2x.png"
+
+		humanoid.CameraOffset = Vector3.new(0, 0, 0)
+
+		if not UserInputService.TouchEnabled then
+
+			UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+
+		end
+
+		if conn then
+
+			conn:Disconnect()
+
+			conn = nil
+
+		end
+
+	end
+
+end)
