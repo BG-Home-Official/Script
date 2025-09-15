@@ -1,0 +1,113 @@
+local plr = game.Players.LocalPlayer
+
+local chr = plr.Character
+
+local Camera = workspace.Camera
+
+local S = Instance.new("ScreenGui", game.CoreGui)
+
+S.Name = "Cloner"
+
+local F = Instance.new("Frame", S)
+
+F.Size = UDim2.new(0, 230, 0, 130)
+
+F.Position = UDim2.new(0, 230, 0, 100)
+
+F.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+
+F.Active = true
+
+F.Draggable = true
+
+F.BorderSizePixel = 3
+
+F.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+local T = Instance.new("TextButton", F)
+
+T.Size = UDim2.new(0, 180, 0, 50)
+
+T.Position = UDim2.new(0, 23, 0, 15)
+
+T.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+
+T.BorderSizePixel = 2
+
+T.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+T.TextScaled = true
+
+T.Font = Enum.Font.SciFi
+
+T.Text = "Cloner"
+
+local B3Fly = Instance.new("TextButton", F)
+
+B3Fly.TextScaled = true
+
+B3Fly.Font = Enum.Font.SciFi
+
+B3Fly.Size = UDim2.new(0, 48, 0, 30)
+
+B3Fly.Position = UDim2.new(0, 90, 0, 85)
+
+B3Fly.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+
+B3Fly.BorderSizePixel = 2
+
+B3Fly.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+B3Fly.Text = "Clone"
+
+B3Fly.MouseButton1Click:Connect(function()
+
+    plr.Character.Archivable = true
+
+local Clone = plr.Character:Clone()
+
+Clone.Parent = workspace
+
+Clone.Name = plr.Name .."_Clone"
+
+plr.Character = Clone
+
+local hum = plr.Character:FindFirstChild("Humanoid")
+
+Camera.CameraSubject = hum
+
+local animateScript = plr.Character:FindFirstChild("Animate")
+
+ if animateScript then
+
+    animateScript.Disabled = true
+
+    animateScript.Disabled = false
+
+end
+
+end)
+
+local B3Close = Instance.new("TextButton", F)
+
+B3Close.Font = Enum.Font.ArimoBold
+
+B3Close.Size = UDim2.new(0, 48, 0, 30)
+
+B3Close.Position = UDim2.new(0, 190, 0, -5)
+
+B3Close.Text = "X"
+
+B3Close.TextSize = 15
+
+B3Close.BackgroundTransparency = 1
+
+B3Close.MouseButton1Click:Connect(function()
+
+    S:Destroy()
+
+    plr.Character = chr
+
+    Camera.CameraSubject = chr.Humanoid
+
+end)
