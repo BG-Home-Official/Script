@@ -1,0 +1,113 @@
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "PartPosition"
+gui.ResetOnSpawn = false
+gui.Parent = game:GetService("CoreGui")
+
+-- Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 230, 0, 130)
+frame.Position = UDim2.new(0, 230, 0, 100)
+frame.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+-- Path display button
+local display = Instance.new("TextButton")
+display.Size = UDim2.new(0, 180, 0, 50)
+display.Position = UDim2.new(0, 23, 0, 15)
+display.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+display.BorderSizePixel = 2
+display.TextScaled = true
+display.Font = Enum.Font.SciFi
+display.Text = ""
+display.Parent = frame
+
+-- Enable/Disable button
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 70, 0, 30)
+toggleBtn.Position = UDim2.new(0, 80, 0, 85)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+toggleBtn.Text = "Disable"
+toggleBtn.Font = Enum.Font.SciFi
+toggleBtn.TextScaled = true
+toggleBtn.Parent = frame
+
+-- Close button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 48, 0, 30)
+closeBtn.Position = UDim2.new(0, 190, 0, -5)
+closeBtn.Text = "X"
+closeBtn.Font = Enum.Font.ArimoBold
+closeBtn.TextSize = 15
+closeBtn.BackgroundTransparency = 1
+closeBtn.Parent = frame
+
+-- Highlight (reuse single instance)
+local highlight = Instance.new("Highlight")
+highlight.FillColor = Color3.fromRGB(200, 200, 0)
+highlight.FillTransparency = 0.5
+highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+highlight.OutlineTransparency = 0
+highlight.Enabled = false
+highlight.Parent = game:GetService("CoreGui")
+
+local selecting = false
+local lastTarget
+
+-- Toggle button
+toggleBtn.MouseButton1Click:Connect(function()
+    selecting = not selecting
+    toggleBtn.Text = selecting and "Enable" or "Disable"
+    if not selecting then
+        highlight.Enabled = false
+    end
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+    highlight:Destroy()
+end)
+
+mouse.Button1Down:Connect(function()
+    if not selecting then return end
+    local target = mouse.Target
+    if not target then return end
+
+    lastTarget = target
+    highlight.Adornee = target
+    highlight.Enabled = true
+    display.Text = tostring(target.Position)
+end)
+
+local holding, holdStart
+display.MouseButton1Down:Connect(function()
+    holding = true
+    holdStart = tick()
+    while holding do
+        task.wait(0.1)
+        if tick() - holdStart >= 1 then
+            local success = pcall(function()
+                setclipboard(display.Text)
+            end)
+            if success then
+                local oldText = display.Text
+                display.Text = "Copied!"
+                task.wait(0.6)
+                display.Text = oldText
+            else
+                display.Text = "Failed"
+                task.wait(0.6)
+                display.Text = ""
+            end
+            break
+        end
+    end
+end)
+
+display.MouseButton1Up:Connect(function()
+    holding = false
+end) 
