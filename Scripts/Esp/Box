@@ -1,0 +1,153 @@
+local Library = {}
+
+local settings = {
+   defaultcolor = Color3.fromRGB(255, 0, 0),
+   teamcheck = false,
+   teamcolor = false
+}
+
+local runService = game:GetService("RunService")
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+local newVector2, newDrawing = Vector2.new, Drawing.new
+local tan, rad = math.tan, math.rad
+
+local function round(...) 
+    local a = {} 
+    for i, v in next, table.pack(...) do 
+        a[i] = math.round(v) 
+    end 
+    return unpack(a) 
+end
+
+local function wtvp(...) 
+    local a, b = camera:WorldToViewportPoint(...) 
+    return newVector2(a.X, a.Y), b, a.Z 
+end
+
+local espCache = {}
+local characterConnections = {}
+local playerAddedConnection = nil
+local isEnabled = false
+
+local function createEsp(player, color)
+    if espCache[player] then return end
+
+    local drawings = {}
+    drawings.box = newDrawing("Square")
+    drawings.box.Thickness = 1
+    drawings.box.Filled = false
+    drawings.box.Color = color
+    drawings.box.Visible = false
+    drawings.box.ZIndex = 2
+
+    drawings.boxoutline = newDrawing("Square")
+    drawings.boxoutline.Thickness = 3
+    drawings.boxoutline.Filled = false
+    drawings.boxoutline.Color = color
+    drawings.boxoutline.Visible = false
+    drawings.boxoutline.ZIndex = 1
+
+    espCache[player] = drawings
+end
+
+local function removeEsp(player)
+    if espCache[player] then
+        for _, drawing in pairs(espCache[player]) do
+            drawing:Remove()
+        end
+        espCache[player] = nil
+    end
+
+    if characterConnections[player] then
+        characterConnections[player]:Disconnect()
+        characterConnections[player] = nil
+    end
+end
+
+local function updateEsp(player, esp)
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local cframe = character:GetPivot()
+        local position, visible, depth = wtvp(cframe.Position)
+
+        esp.box.Visible = visible
+        esp.boxoutline.Visible = visible
+
+        if visible then
+            local scaleFactor = 1 / (depth * tan(rad(camera.FieldOfView / 2)) * 2) * 1000
+            local width, height = round(4 * scaleFactor, 5 * scaleFactor)
+            local x, y = round(position.X, position.Y)
+
+            esp.box.Size = newVector2(width, height)
+            esp.box.Position = newVector2(x - width / 2, y - height / 2)
+            esp.box.Color = settings.teamcolor and player.TeamColor.Color or settings.defaultcolor
+
+            esp.boxoutline.Size = esp.box.Size
+            esp.boxoutline.Position = esp.box.Position
+        end
+    else
+        esp.box.Visible = false
+        esp.boxoutline.Visible = false
+    end
+end
+
+function Library:On(color)
+    if isEnabled then return end
+    isEnabled = true
+
+    if color then settings.defaultcolor = color end
+
+    for _, player in pairs(players:GetPlayers()) do
+        if player ~= localPlayer then
+            createEsp(player, settings.defaultcolor)
+
+            characterConnections[player] = player.CharacterAdded:Connect(function()
+                task.wait(1)
+                createEsp(player, settings.defaultcolor)
+            end)
+        end
+    end
+
+    playerAddedConnection = players.PlayerAdded:Connect(function(player)
+        if player ~= localPlayer then
+            createEsp(player, settings.defaultcolor)
+
+            characterConnections[player] = player.CharacterAdded:Connect(function()
+                task.wait(1)
+                createEsp(player, settings.defaultcolor)
+            end)
+        end
+    end)
+end
+
+runService:BindToRenderStep("esp", Enum.RenderPriority.Camera.Value, function()
+    if not isEnabled then return end
+
+    for player, drawings in pairs(espCache) do
+        if settings.teamcheck and player.Team == localPlayer.Team then
+            drawings.box.Visible = false
+            drawings.boxoutline.Visible = false
+        else
+            updateEsp(player, drawings)
+        end
+    end
+end)
+
+function Library:Off()
+    if not isEnabled then return end
+    isEnabled = false
+
+    for player, _ in pairs(espCache) do
+        removeEsp(player)
+    end
+
+    if playerAddedConnection then
+        playerAddedConnection:Disconnect()
+        playerAddedConnection = nil
+    end
+end
+
+return Library
