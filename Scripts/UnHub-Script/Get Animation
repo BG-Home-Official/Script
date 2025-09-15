@@ -1,0 +1,355 @@
+local Players = game:GetService("Players")
+
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+local character = player.Character or player.CharacterAdded:Wait()
+
+local humanoid = character:WaitForChild("Humanoid")
+
+local animator = humanoid:FindFirstChildOfClass("Animator")
+
+local run = nil
+
+local auto = false
+
+local data = {}
+
+local list = 1
+
+local S = Instance.new("ScreenGui")
+
+S.Name = "AnimationId"
+
+S.ResetOnSpawn = false
+
+S.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+
+frame.Name = "MainFrame"
+
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+
+frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+
+frame.Size = UDim2.new(0, 200, 0, 330)
+
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+
+frame.BorderSizePixel = 0
+
+frame.Parent = S
+
+frame.Draggable = true
+
+frame.Active = true
+
+local title = Instance.new("TextLabel")
+
+title.Name = "Title"
+
+title.AnchorPoint = Vector2.new(0.5, 0.5)
+
+title.Position = UDim2.new(0.5, 0, 0.05, 0)
+
+title.Size = UDim2.new(0, 50, 0, 50)
+
+title.TextColor3 = Color3.new(1, 1, 1)
+
+title.TextSize = 12
+
+title.Text = "Get Animation"
+
+title.BackgroundTransparency = 1
+
+title.Parent = frame
+
+local scrollingframe = Instance.new("ScrollingFrame")
+
+scrollingframe.Size = UDim2.new(0.9, 0, 0, 200)
+
+scrollingframe.Position = UDim2.new(0.05, 0, 0.1, 0)
+
+scrollingframe.CanvasSize = UDim2.new(0, 0, 1.2, 0)
+
+scrollingframe.ScrollBarThickness = 0
+
+scrollingframe.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+
+scrollingframe.BorderSizePixel = 0
+
+scrollingframe.Parent = frame
+
+local layout = Instance.new("UIListLayout")
+
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+layout.Padding = UDim.new(0, 5)
+
+layout.Parent = scrollingframe
+
+local buttons = {}
+
+for i = 1, 10 do
+
+	local btn = Instance.new("TextButton")	btn.Name = "Button" .. i
+
+	btn.Text = ""
+
+	btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+	btn.TextScaled = true
+
+	btn.Size = UDim2.new(1, 0, 0, 30)
+
+	btn.Parent = scrollingframe
+
+	local isPlaying = false
+
+	local playingTrack = nil
+
+	btn.MouseButton1Click:Connect(function()
+
+		if btn.Text == "" then return end
+
+		local player = Players.LocalPlayer
+
+		local character = player.Character or player.CharacterAdded:Wait()
+
+		local humanoid = character:WaitForChild("Humanoid")
+
+		local animator = humanoid:FindFirstChildOfClass("Animator")
+
+		isPlaying = not isPlaying
+
+		if isPlaying then
+
+			local anim = Instance.new("Animation")
+
+			anim.AnimationId = btn.Text
+
+			btn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+
+			btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+			playingTrack = humanoid:LoadAnimation(anim)
+
+			playingTrack:Play()
+
+		else
+
+			btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+			if playingTrack then
+
+				playingTrack:Stop()
+
+				playingTrack = nil
+
+			end
+
+		end
+
+	end)
+
+	table.insert(buttons, btn)
+
+	local holdTime = 1
+
+	local holding = false
+
+	local startTime
+
+	
+
+	btn.MouseButton1Down:Connect(function()
+
+	    startTime = tick()
+
+	    holding = true
+
+	
+
+	    task.delay(holdTime, function()
+
+	        if holding and tick() - startTime >= holdTime then
+
+	        	setclipboard(btn.Text)
+
+	        end
+
+	    end)
+
+	end)
+
+	
+
+	btn.MouseButton1Up:Connect(function()
+
+	    holding = false
+
+	end)
+
+end
+
+local getBtn = Instance.new("TextButton")
+
+getBtn.Name = "Get"
+
+getBtn.Text = "Get"
+
+getBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+
+getBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+getBtn.TextSize = 10
+
+getBtn.Size = UDim2.new(1, 0, 0, 30)
+
+getBtn.Position = UDim2.new(0, 0, 1, -35)
+
+getBtn.Parent = frame
+
+getBtn.MouseButton1Click:Connect(function()
+
+	local player = Players.LocalPlayer
+
+	local character = player.Character or player.CharacterAdded:Wait()
+
+	local humanoid = character:WaitForChild("Humanoid")
+
+	local animator = humanoid:FindFirstChildOfClass("Animator")
+
+	for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+
+		local id = track.Animation.AnimationId
+
+		if not table.find(data, id) and buttons[list] then
+
+			data[list] = id
+
+			buttons[list].Text = id
+
+			list = list >= 10 and 1 or list + 1
+
+		end
+
+	end
+
+end)
+
+local agetBtn = Instance.new("TextButton")
+
+agetBtn.Name = "Auto Get"
+
+agetBtn.Text = "Auto Get"
+
+agetBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+agetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+agetBtn.TextSize = 10
+
+agetBtn.Size = UDim2.new(1, 0, 0, 30)
+
+agetBtn.Position = UDim2.new(0, 0, 1, -75)
+
+agetBtn.Parent = frame
+
+agetBtn.MouseButton1Click:Connect(function()
+
+	auto = not auto
+
+	local player = Players.LocalPlayer
+
+	local character = player.Character or player.CharacterAdded:Wait()
+
+	local humanoid = character:WaitForChild("Humanoid")
+
+	local animator = humanoid:FindFirstChildOfClass("Animator")
+
+	if auto then
+
+		agetBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+
+		run = RunService.RenderStepped:Connect(function()
+
+			for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+
+				local id = track.Animation.AnimationId
+
+				if not table.find(data, id) and buttons[list] then
+
+					data[list] = id
+
+					buttons[list].Text = id
+
+					list = list >= 10 and 1 or list + 1
+
+				end
+
+			end
+
+		end)
+
+	else
+
+		if run then
+
+			run:Disconnect()
+
+			run = nil
+
+			agetBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+		end
+
+	end
+
+end)
+
+local x = Instance.new("TextButton")
+
+x.Name = "x"
+
+x.Text = "x"
+
+x.BackgroundTransparency = 1
+
+x.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+x.TextSize = 15
+
+x.Size = UDim2.new(0, 30, 0, 30)
+
+x.Position = UDim2.new(0.85, 0, 0, -5)
+
+x.Parent = frame
+
+x.MouseButton1Click:Connect(function()
+
+	S:Destroy()
+
+    if run then
+
+		run:Disconnect()
+
+		run = nil
+
+	end
+
+    if playingTrack then
+
+		playingTrack:Stop()
+
+		playingTrack = nil
+
+	end
+
+end)
