@@ -1,0 +1,113 @@
+local spinning = false
+local spinSpeed = 1
+local function Spin()
+   local plr = game.Players.LocalPlayer
+   local humanoidRootPart = plr.Character:WaitForChild("HumanoidRootPart")
+	while spinning do
+		if humanoidRootPart then
+			humanoidRootPart.CFrame *= CFrame.Angles(0, math.rad(spinSpeed), 0)
+		end
+		task.wait(1/60)
+	end
+end
+
+local S = Instance.new("ScreenGui")
+S.Parent = game.CoreGui
+S.Name = "Spin"
+
+local F = Instance.new("Frame")
+F.Parent = S
+F.Size = UDim2.new(0, 230, 0, 130)
+F.Position = UDim2.new(0, 230, 0, 100)
+F.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+F.Active = true
+F.Draggable = true
+F.BorderSizePixel = 3
+F.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+local T = Instance.new("TextButton")
+T.Parent = F
+T.Size = UDim2.new(0, 180, 0, 50)
+T.Position = UDim2.new(0, 23, 0, 15)
+T.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+T.BorderSizePixel = 2
+T.BorderColor3 = Color3.fromRGB(0, 0, 0)
+T.TextScaled = true
+T.Font = Enum.Font.SciFi
+T.Text = spinSpeed
+
+local B = Instance.new("TextButton")
+B.Parent = F
+B.Size = UDim2.new(0, 48, 0, 30)
+B.Position = UDim2.new(0, 23, 0, 85)
+B.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+B.BorderSizePixel = 2
+B.BorderColor3 = Color3.fromRGB(0, 0, 0)
+B.TextScaled = true
+B.Text = "+"
+B.Font = Enum.Font.SciFi
+B.MouseButton1Click:Connect(function()
+    spinSpeed = spinSpeed + 1
+    T.Text = spinSpeed
+    if spinning then
+    	spinning = false
+       task.wait(0.1)
+    	spinning = true
+    	Spin()
+    end
+end)
+
+local B2 = Instance.new("TextButton")
+B2.Parent = F
+B2.TextScaled = true
+B2.Font = Enum.Font.SciFi
+B2.Size = UDim2.new(0, 48, 0, 30)
+B2.Position = UDim2.new(0, 155, 0, 85)
+B2.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+B2.BorderSizePixel = 2
+B2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+B2.Text = "-"
+B2.MouseButton1Click:Connect(function()
+if spinSpeed > 1 then
+    spinSpeed = spinSpeed - 1
+    T.Text = spinSpeed
+end
+    if spinning then
+    	spinning = false
+       task.wait(0.1)
+    	spinning = true
+    	Spin()
+    end
+end)
+
+local B3Fly = Instance.new("TextButton")
+B3Fly.Parent = F
+B3Fly.TextScaled = true
+B3Fly.Font = Enum.Font.SciFi
+B3Fly.Size = UDim2.new(0, 48, 0, 30)
+B3Fly.Position = UDim2.new(0, 90, 0, 85)
+B3Fly.BackgroundColor3 = Color3.fromRGB(255, 200, 255)
+B3Fly.BorderSizePixel = 2
+B3Fly.BorderColor3 = Color3.fromRGB(0, 0, 0)
+B3Fly.Text = "Spin"
+B3Fly.MouseButton1Click:Connect(function()
+if spinning then
+   spinning = false
+else
+   spinning = true
+   Spin()
+end
+end)
+
+local B3Close = Instance.new("TextButton")
+B3Close.Parent = F
+B3Close.Font = Enum.Font.ArimoBold
+B3Close.Size = UDim2.new(0, 48, 0, 30)
+B3Close.Position = UDim2.new(0, 190, 0, -5)
+B3Close.Text = "X"
+B3Close.TextSize = 15
+B3Close.BackgroundTransparency = 1
+B3Close.MouseButton1Click:Connect(function()
+    S:Destroy()
+    spinning = false
+end)
