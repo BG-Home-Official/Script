@@ -1,0 +1,83 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local EspName = "H"
+
+local CharacterConnections = {}
+local NewPlayers = {}
+local connection
+local PlayerAddedConnection = nil
+local Run = {}
+
+function CreateEspHighlight(player, Color)
+	if not player.Character then return end
+	if not player.Character:FindFirstChild(EspName) then
+		local highlight = Instance.new("Highlight")
+        highlight.Adornee = player.Character
+        highlight.FillColor = Color
+        highlight.FillTransparency = 0.5
+        highlight.OutlineColor = Color
+        highlight.OutlineTransparency = 0
+        highlight.Parent = player.Character
+        highlight.Name = "H"
+    end
+end
+
+function Run:On(Color)
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer then
+			CreateEspHighlight(player, Color)
+
+			if CharacterConnections[player] then
+				CharacterConnections[player]:Disconnect()
+			end
+
+			CharacterConnections[player] = player.CharacterAdded:Connect(function()
+				task.wait(1)
+				CreateEspHighlight(player, Color)
+			end)
+		end
+	end
+
+	PlayerAddedConnection = Players.PlayerAdded:Connect(function(plr)
+		NewPlayers[plr] = plr.CharacterAdded:Connect(function()
+			task.wait(1)
+			CreateEspHighlight(plr, Color)
+		end)
+	end)
+end
+
+function Run:Off()
+	for _, player in pairs(Players:GetPlayers()) do
+		local character = player.Character
+		if character then
+			local esp = character:FindFirstChild(EspName)
+			if esp then
+				esp:Destroy()
+			end
+		end
+
+		if CharacterConnections[player] then
+			CharacterConnections[player]:Disconnect()
+			CharacterConnections[player] = nil
+		end
+	end
+
+	for plr, conn in pairs(NewPlayers) do
+		if conn then
+			conn:Disconnect()
+		end
+		NewPlayers[plr] = nil
+	end
+
+	if PlayerAddedConnection then
+		PlayerAddedConnection:Disconnect()
+		PlayerAddedConnection = nil
+	end
+	if connection then
+		connection:Disconnect()
+		connection = nil
+	end
+end
+
+return Run
