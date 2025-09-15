@@ -1,0 +1,573 @@
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Rayfield%20Library'))()
+
+local Window = Rayfield:CreateWindow({
+
+   Name = "UnHub: Emote | by LE_GO89",
+   
+   FileName = "UnHub: Emote",
+
+   Icon = 0,
+
+   LoadingTitle = "UnHub",
+
+   LoadingSubtitle = "by LE_GO89",
+
+   Theme = "Default",
+
+   ToggleUIKeybind = "H",
+
+   ConfigurationSaving = {
+
+      Enabled = true,
+
+      FolderName = nil,
+
+      FileName = ""
+
+   },
+
+   Discord = {
+
+      Enabled = false,
+
+      Invite = "",
+
+      RememberJoins = true
+
+   },
+
+   KeySystem = false
+
+})
+
+local player = game.Players.LocalPlayer
+
+local animator
+
+local animTrack
+
+local id
+
+local speed = 1
+
+local isPlaying = false
+
+local RunService = game:GetService("RunService")
+
+local tracks = {}
+
+local connections = {}
+
+local function cleanupAnimations()
+
+    for i, track in pairs(tracks) do
+
+        if track and track.IsPlaying then
+
+            track:Stop()
+
+        end
+
+        tracks[i] = nil
+
+        if connections[i] then
+
+            connections[i]:Disconnect()
+
+            connections[i] = nil
+
+        end
+
+    end
+
+end
+
+local AllToggles = {}
+
+local function SetAllTogglesFalse(except)
+
+    for _, toggle in pairs(AllToggles) do
+
+        if toggle ~= except then
+
+            toggle:Set(false)
+
+        end
+
+    end
+
+end
+
+local function PlayA(i, speed, data)
+
+    if not tracks[i] then
+
+        local anim = Instance.new("Animation")
+
+        anim.AnimationId = "rbxassetid://" .. data.id
+
+        tracks[i] = player.Character.Humanoid:LoadAnimation(anim)
+
+    end
+
+    if data.loop then
+
+        connections[i] = RunService.Heartbeat:Connect(function()
+
+            if tracks[i] and not tracks[i].IsPlaying then
+
+                tracks[i]:Play(unpack(data.track))
+
+                wait()
+
+                for i, track in pairs(tracks) do
+
+                    if track and track.IsPlaying then
+
+                        track:AdjustSpeed(speed)
+
+                    end
+
+                end
+
+            end
+
+        end)
+
+    end
+
+    if data.Time then
+
+        if tracks[i] then
+
+            tracks[i]:Play(unpack(data.track))
+
+            tracks[i].TimePosition = data.Time
+
+        else
+
+            local anim = Instance.new("Animation")
+
+            anim.AnimationId = "rbxassetid://" .. data.id
+
+            tracks[i] = player.Character.Humanoid:LoadAnimation(anim)
+
+        end
+
+    else
+
+        if tracks[i] then
+
+            tracks[i]:Play(unpack(data.track))
+
+            wait()
+
+            for i, track in pairs(tracks) do
+
+                if track and track.IsPlaying then
+
+                    track:AdjustSpeed(speed)
+
+                end
+
+            end
+
+        else
+
+            local anim = Instance.new("Animation")
+
+            anim.AnimationId = "rbxassetid://" .. data.id
+
+            tracks[i] = player.Character.Humanoid:LoadAnimation(anim)
+
+        end
+
+    end
+
+end
+
+local animationData = {
+
+	R15 = {			{name = "[Fe] Crazy Slash", id = "674871189", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Open", id = "582855105", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Spinner", id = "754658275", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Arms Out", id = "582384156", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Float Slash", id = "717879555", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Weird Zombie", id = "708553116", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Down Slash", id = "746398327", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Pull", id = "675025795", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Circle Arm", id = "698251653", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Bend", id = "696096087", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Rotate Slash", id = "675025570", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Fling Arms", id = "754656200", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Baby Queen - Face Frame", id = "14352340648", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Bored", id = "10713992055", track = {0.1, 1, 1}},
+
+		{name = "[Fe] High-Wave", id = "10714362852", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Baby-Queen-Strut", id = "14352362059", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Curtsy", id = "10714061912", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Greatest", id = "10714349037", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Secret-Handshake-Dance", id = "71243990877913", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Jawny-Stomp", id = "16392075853", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Cuco-Levitate", id = "15698404340", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Baby-Queen-Bouncy-Twirl", id = "14352343065", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Godlike", id = "10714347256", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Sleep", id = "10714360343", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Olivia-Rodrigo-Head-Bop", id = "15517864808", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Haha", id = "10714350889", loop = true, track = {0.1, 1, 1}},
+
+		{name = "[Fe] Happy", id = "10714352626", track = {0.1, 1, 1}},
+
+		{name = "[Fe] HIPMOTION-Amaarae", id = "16572740012", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Yungblud-Happier-Jump", id = "15609995579", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Shy", id = "10714369325", track = {0.1, 1, 1}},
+
+		{name = "[Fe] ylAlo-Yoga-Pose-Lotus-Position", id = "12507085924", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Cower", id = "4940563117", track = {0.1, 1, 1}},
+
+		{name = "[Fe] d4vd-Backflip", id = "15693621070", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Air Guitar", id = "15505454268", track = {0.1, 1, 1}},
+
+		{name = "[Fe] Jumping Wave", id = "10714378156", track = {0.1, 1, 1}},
+
+	},
+
+	R6 = {
+
+	   {name = "[Fe] Throwing Head", id = "35154961", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Floating Head", id = "121572214", track = {0.1, 1, 1}},
+
+        {name = "[Fe] Crouch", id = "182724289", track = {0.1, 1, 1}},
+
+        {name = "[Fe] Crouch2", id = "287325678", track = {1, 2, 1}},
+
+        {name = "[Fe] Floor Crawl", id = "282574440", track = {0.1, 1, 1}},
+
+        {name = "[Fe] Dino Walk", id = "204328711", track = {0.1, 1, 1}},
+
+        {name = "[Fe] Jumping Jacks", id = "429681631", track = {0.1, 1, 1}},
+
+        {name = "[Fe] Loop Head", id = "35154961", loop = true, track = {0.5, 1, 1e6}},
+
+        {name = "[Fe] Hero Jump", id = "184574340", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Faint", id = "181526230", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Super Faint", id = "181525546", loop = true, track = {0.1, 0.5, 40}},
+
+        {name = "[Fe] Floor Faint", id = "181525546", loop = true, track = {0.1, 1, 2}},
+
+        {name = "[Fe] Levitate", id = "313762630", track = {0.1, 1, 1}},
+
+        {name = "[Fe] Dab", id = "183412246", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Spinner", id = "188632011", loop = true, track = {0.1, 1, 2}},
+
+        {name = "[Fe] Float Sit", id = "179224234", track = {0.1, 1, 1}},
+
+        {name = "[Fe] Moving Dance", id = "429703734", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Weird Move", id = "215384594", track = {0.1, 1, 2}},
+
+        {name = "[Fe] Clone Illusion", id = "215384594", track = {0.5, 1, 1e7}},
+
+        {name = "[Fe] Spin Dance", id = "429730430", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Moon Dance", id = "45834924", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Full Punch", id = "204062532", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Spin Dance 2", id = "186934910", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Bow Down", id = "204292303", loop = true, track = {0.1, 1, 3}},
+
+        {name = "[Fe] Sword Slam", id = "204295235", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Loop Slam", id = "204295235", loop = true, track = {0.1, 1, 1e4}},
+
+        {name = "[Fe] Mega Insane", id = "184574340", loop = true, track = {0.1, 0.5, 40}},
+
+        {name = "[Fe] Super Punch", id = "126753849", loop = true, track = {0.1, 1, 3}},
+
+        {name = "[Fe] Full Swing", id = "218504594", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Arm Turbine", id = "259438880", track = {0.1, 1, 1e3}},
+
+        {name = "[Fe] Barrel Roll", id = "136801964", loop = true, track = {0.1, 1, 1}},
+
+        {name = "[Fe] Scared", id = "180612465", loop = true, track = {0.7, 2, 0}, Time = 2},
+
+        {name = "[Fe] Insane", id = "33796059", track = {0.1, 1, 1e8}},
+
+        {name = "[Fe] Arm Detach", id = "33169583", loop = true, track = {0.1, 1, 1e6}},
+
+        {name = "[Fe] Sword Slice", id = "35978879", track = {0.1, 1, 1}},
+
+        {name = "[Fe] Insane Arms", id = "27432691", loop = true, track = {0.1, 1, 1e4}},
+
+        {name = "[Fe] Dance1", id = "182435998", track = {1, 20, 1}},
+
+        {name = "[Fe] Dance2", id = "182491277", track = {1, 5, 1}},
+
+        {name = "[Fe] Dance3", id = "182491423", track = {1, 5, 1}},
+
+        {name = "[Fe] Laugh", id = "129423131", loop = true, track = {1, 20, 1}},
+
+        {name = "[Fe] Cheer", id = "129423030", loop = true, track = {1, 20, 1}},
+
+        {name = "[Fe] Point", id = "128853357", loop = true, track = {1, 20, 1}},
+
+        {name = "[Fe] T", id = "188242481", track = {1, 2, 1}},
+
+        {name = "[Fe] Arms Up", id = "187951261", track = {1, 2, 1}},
+
+        {name = "[Fe] Backpack Head", id = "68339848", loop = true, track = {1, 2, 1}},
+
+        {name = "[Fe] Driving", id = "168138731", track = {1, 2, 1}},
+
+        {name = "[Fe] Bang", id = "148840371", track = {1, 2, 1}},
+
+        {name = "[Fe] Right Head Position", id = "88016955", track = {1, 2, 1}},
+
+        {name = "[Fe] Flexing", id = "248263260", track = {1, 2, 1}},
+
+	},
+
+}
+
+local R6 = Window:CreateTab("R6", 111159927879774)
+
+R6:CreateSection("R6")
+
+R6:CreateButton({Name = "Stop All Animation", Callback = function()
+
+    cleanupAnimations()
+
+end})
+
+for i, data in ipairs(animationData.R6) do
+
+    local toggle
+
+    toggle = R6:CreateToggle({Name = data.name, CurrentValue = false, Flag = "Toggle1", Callback = function(state)
+
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+        if not humanoid then return end
+
+        cleanupAnimations()
+
+        if state then
+
+            SetAllTogglesFalse(toggle)
+
+            PlayA(i, speed, data)
+
+        else
+
+            if tracks[i] then
+
+                tracks[i]:Stop()
+
+            end
+
+            if connections[i] then
+
+                connections[i]:Disconnect()
+
+                connections[i] = nil
+
+            end
+
+        end
+
+    end})
+
+    table.insert(AllToggles, toggle)
+
+end
+
+local R15 = Window:CreateTab("R15", 111159927879774)
+
+R15:CreateSection("R15")
+
+R15:CreateButton({Name = "Stop All Animation", Callback = function()
+
+    cleanupAnimations()
+
+end})
+
+for i, data in ipairs(animationData.R15) do
+
+    local toggle
+
+    toggle = R15:CreateToggle({Name = data.name, CurrentValue = false, Flag = "Toggle1", Callback = function(state)
+
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+        if not humanoid then return end
+
+        cleanupAnimations()
+
+        if not tracks[i] then
+
+            local anim = Instance.new("Animation")
+
+            anim.AnimationId = "rbxassetid://" .. data.id
+
+            tracks[i] = humanoid:LoadAnimation(anim)
+
+        end
+
+        if state then
+
+            SetAllTogglesFalse(toggle)
+
+            PlayA(i, speed, data)
+
+        else
+
+            if tracks[i] then
+
+                tracks[i]:Stop()
+
+            end
+
+            if connections[i] then
+
+                connections[i]:Disconnect()
+
+                connections[i] = nil
+
+            end
+
+        end
+
+    end})
+
+    table.insert(AllToggles, toggle)
+
+end
+
+local Setting = Window:CreateTab("Setting", 11713339600)
+
+Setting:CreateSection("Setting")
+
+Setting:CreateButton({Name = "Stop All Animation", Callback = function()
+
+    cleanupAnimations()
+
+end})
+
+Setting:CreateInput({Name = "Load Animation", CurrentValue = "Value", PlaceholderText = "", RemoveTextAfterFocusLost = true, Callback = function(txt)
+
+    if string.find(txt, "http://www.roblox.com") then
+
+        id = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
+
+        print(id)
+
+    elseif string.find(txt, "rbxassetid://") then
+
+    	id = txt
+
+    	print(id)
+
+    else
+
+        id = "rbxassetid://" .. txt
+
+        print(id)
+
+    end
+
+end})
+
+Setting:CreateToggle({Name = "Play", CurrentValue = true, Flag = "Toggle1", Callback = function(state)
+
+    if state and not isPlaying then
+
+        isPlaying = true
+
+        local success, result = pcall(function()
+
+            local animation = Instance.new("Animation")
+
+            animation.AnimationId = id
+
+            return animator:LoadAnimation(animation)
+
+        end)
+
+        if success then
+
+            animTrack = result
+
+            animTrack:Play()
+
+        else
+
+            warn("Animation failed to load:", result)
+
+            isPlaying = false
+
+        end
+
+    elseif not state and isPlaying and animTrack then
+
+        animTrack:Stop()
+
+        isPlaying = false
+
+    end
+
+end})
+
+Setting:CreateInput({Name = "Speed", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(txt)
+
+    speed = tostring(txt)
+
+    for i, track in pairs(tracks) do
+
+        if track and track.IsPlaying then
+
+            track:AdjustSpeed(speed)
+
+        end
+
+    end
+
+end})
