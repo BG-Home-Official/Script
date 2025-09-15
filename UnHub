@@ -1592,11 +1592,11 @@ GetInfo:CreateButton({Name = "Search", Callback = function()
             IsOnlineInfo:Set("IsOnline: true")
             if CheckIfOnline(TextInSearch) == 2 then
                 IsOnlineInfo:Set("IsOnline: true")
-                IsPlayingzInfo:Set("IsPlaying: true")
+                IsPlayingInfo:Set("IsPlaying: true")
             end
         else
             IsOnlineInfo:Set("IsOnline: false")
-            IsPlayingzInfo:Set("IsPlaying: false")
+            IsPlayingInfo:Set("IsPlaying: false")
         end
         FriendCountInfo:Set("Friend: " ..friendCount.count)
         FollowingCountInfo:Set("Following: " ..followingCount.count)
@@ -1801,3 +1801,4 @@ task.spawn(function()
 end)
 
 loadstring(game:HttpGet("https://pastefy.app/XUwaJ6e7/raw"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Noob1"))()
