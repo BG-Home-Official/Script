@@ -3,6 +3,7 @@ local player = game.Players.LocalPlayer
 local OldWalkSpeed = player.Character.Humanoid.WalkSpeed
 local OldJumpPower = player.Character.Humanoid.JumpPower
 local TeleportService = game:GetService("TeleportService")
+local API_URL = "https://ai-bot-2-wj02.onrender.com/generate"
 local HttpService = game:GetService("HttpService")
 local placeId = game.PlaceId
 local currentServerId = game.JobId
@@ -12,6 +13,7 @@ local OldGravity = workspace.Gravity
 local RunService = game:GetService("RunService")
 local hrp = player.Character.HumanoidRootPart
 local mouse = player:GetMouse()
+local AiChat
 local RunScript
 local startTime = time()
 local AutoRejoin = false
@@ -75,6 +77,32 @@ local function SetNoCollision(player, Value)
                 part.CanCollide = Value
             end
         end
+    end
+end
+
+local requestFunc = (syn and syn.request) or (http and http.request)
+if not requestFunc then
+    error("No HTTP request function found. Are you using a supported executor?")
+end
+
+local function sendMessageToAI(message)
+    local body = game:GetService("HttpService"):JSONEncode({ message = message })
+    
+    local response = requestFunc({
+        Url = API_URL,
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = body
+    })
+    
+    if response.Success then
+        local data = game:GetService("HttpService"):JSONDecode(response.Body)
+        return data.output
+    else
+        warn("Failed to send message to AI:", response.StatusCode, response.Body)
+        return nil
     end
 end
 
@@ -1620,6 +1648,78 @@ FollowingCountInfo = GetInfo:CreateSection("Following: nil")
 IsBannedInfo = GetInfo:CreateSection("IsBanned: nil")
 IsVerifiedInfo = GetInfo:CreateSection("IsVerified: nil")
 Description = GetInfo:CreateSection("Description: nil")
+
+local IsDone = true
+local model = ""
+local AllMessage = {}
+
+local function ClearAiChat()
+    for i, v in pairs(AllMessage) do
+        v:GetDestroy()
+    end
+    AllMessage = {}
+end
+
+local function chatAi(txt)
+    IsDone = false
+    local Send = AiChat:CreateParagraph({Title = "AI: ", Content = "Loading..."})
+    local Message = sendMessageToAI(txt ..model)
+    table.insert(AllMessage, Send)
+    for i = 1, #Message do
+        Send:Set({Title = "AI", Content = string.sub(Message, 1, i)})
+        task.wait()
+    end
+    
+    IsDone = true
+end
+
+AiChat = Window:CreateChatTab("AI ChatBot", 11707615313, false, "Ask anything", {Callback = function()
+    if AiChat:GetText() == "" or not IsDone then return end
+    local txt = AiChat:GetText()
+    local Send = AiChat:CreateParagraph({Title = player.DisplayName ..": ", Content = txt})
+    table.insert(AllMessage, Send)
+    AiChat:SetText("")
+    chatAi(txt)
+end})
+
+local AISetting = Window:CreateTab("AI Setting", 11713339600)
+AISetting:CreateSection("AI Setting")
+
+AISetting:CreateButton({Name = "New Chat", Callback = function()
+    ClearAiChat()
+end})
+
+local AIModel = {
+    Ai_Normal = "",
+    Ai_Girlfriend = " Response like my girlfriend",
+    Ai_Shygirl = ", Response like a shy girl Only show the response",
+    Ai_Nerd = ", Response like a Nerd Only show the response",
+    Ai_Waifu = ", Response like Waifu Only show the response",
+    Ai_Brainrot = ", Response like a Brainrot Only show the response",
+    Ai_Roast = ", Response Roast me and make your text short and Only show the response",
+    Ai_Furry = ", Response like furry Only show the response",
+}
+
+AISetting:CreateDropdown({Name = "AI Type", Options = {"Normal", "Shy Girl", "Girlfriend", "Nerd", "Waifu", "Brainrot", "Roast", "Furry"}, CurrentOption = {}, MultipleOptions = false, Flag = "Dropdown1", Callback = function(name)
+    if name == "Normal" then
+        model = AIModel.Ai_Normal
+    elseif name == "Girlfriend" then
+        model = AIModel.Ai_Girlfriend
+    elseif name == "Shy Girl" then
+        model = AIModel.Ai_Shygirl
+    elseif name == "Nerd" then
+        model = AIModel.Ai_Nerd
+    elseif name == "Waifu" then
+        model = AIModel.Ai_Waifu
+    elseif name == "Brainrot" then
+        model = AIModel.Ai_Brainrot
+    elseif name == "Roast" then
+        model = AIModel.Ai_Roast
+    elseif name == "Furry" then
+        model = AIModel.Ai_Furry
+    end
+    ClearAiChat()
+end})
 
 local lastPos = hrp.Position
 
