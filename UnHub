@@ -240,29 +240,6 @@ local function sendMessage(message, history, system)
     return decoded.reply, decoded.history
 end
 
-local ST = Instance.new("ScreenGui")
-local T = Instance.new("TextButton")
-local Corner = Instance.new("UICorner")
-ST.Name = "Toggle UnHub"
-ST.Parent = Rayfield:GetParent().Parent
-ST.ResetOnSpawn = false
-Corner.Name = "Corner"
-Corner.Parent = T
-T.Name = "T"
-T.Parent = ST
-T.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-T.Position = UDim2.new(0, 30, 0.08, 0)
-T.Size = UDim2.new(0, 70, 0, 28)
-T.Font = Enum.Font.SourceSans
-T.Text = "UnHub"
-T.TextColor3 = Color3.fromRGB(248, 248, 248)
-T.TextSize = 20
-T.Active = true
-T.Draggable = true
-T.MouseButton1Click:connect(function()
-    Rayfield:SetEnable(not Rayfield:GetEnable())
-end)
-
 local function sendMessageToDc(message, name, img)
     local body = {
         message = message,
@@ -466,6 +443,30 @@ local function getFullPath(obj)
         return filler(table.concat(parts, "."))
     end
 end
+
+task.spawn(function()
+local ST = Instance.new("ScreenGui")
+local T = Instance.new("TextButton")
+local Corner = Instance.new("UICorner")
+ST.Name = "Toggle UnHub"
+ST.Parent = Rayfield:GetParent().Parent
+ST.ResetOnSpawn = false
+Corner.Name = "Corner"
+Corner.Parent = T
+T.Name = "T"
+T.Parent = ST
+T.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+T.Position = UDim2.new(0, 30, 0.08, 0)
+T.Size = UDim2.new(0, 70, 0, 28)
+T.Font = Enum.Font.SourceSans
+T.Text = "UnHub"
+T.TextColor3 = Color3.fromRGB(248, 248, 248)
+T.TextSize = 20
+T.Active = true
+T.Draggable = true
+T.MouseButton1Click:connect(function()
+    Rayfield:SetEnable(not Rayfield:GetEnable())
+end)
 
 local Window = Rayfield:CreateWindow({
    Name = "UnHub | by LE_GO89",
@@ -755,58 +756,62 @@ task.spawn(function()
     end
 end)
 
-local UnHub = Window:CreateTab("UnHub Script", 86591853167234)
-UnHub:CreateSection("UnHub Script")
+task.spawn(function()
+    local UnHub = Window:CreateTab("UnHub Script", 86591853167234)
+    UnHub:CreateSection("UnHub Script")
+    
+    local U = {
+        {N = "UnHub: Fe", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Fe"},
+        {N = "UnHub: Audio", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Audio"},
+        {N = "UnHub: Custom animation", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Custom%20animation"},
+        {N = "UnHub: Emote", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Emote"},
+        {N = "Position", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Position"},
+        {N = "Calculator", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Calculator"},
+        {N = "Fly: Hero", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Fly%3A%20Hero"},
+        {N = "Fly: Normal", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Fly%3A%20Normal"},
+        {N = "Fly: Soul", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Fly%3A%20Soul"},
+        {N = "FreeCam", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/FreeCam"},
+        {N = "Spin", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Spin"},
+        {N = "NoClip", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/NoClip"},
+        {N = "Swim", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Swim"},
+        {N = "Invisible", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Invisible"},
+        {N = "Part Path", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Part%20Path"},
+        {N = "Part Position", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Part%20Position"},
+        {N = "Bang", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Bang"},
+        {N = "Get Banged", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Get%20Banged"},
+        {N = "Shift Lock", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Shift%20Lock"},
+        {N = "Gui Edior", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Gui%20Edior"},
+        {N = "Executor", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Executor"},
+        {N = "Raw Link", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Raw%20Link"},
+        {N = "Get Animation", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Get%20Animation"},
+        {N = "Cloner", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Cloner"},
+    }
+    
+    for i, u in pairs(U) do
+        UnHub:CreateButton({Name = u.N, Callback = function()
+            loadstring(game:HttpGet(u.U))()
+        end})
+    end
+end)
 
-local U = {
-    {N = "UnHub: Fe", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Fe"},
-    {N = "UnHub: Audio", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Audio"},
-    {N = "UnHub: Custom animation", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Custom%20animation"},
-    {N = "UnHub: Emote", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/UnHub%3A%20Emote"},
-    {N = "Position", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Position"},
-    {N = "Calculator", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Calculator"},
-    {N = "Fly: Hero", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Fly%3A%20Hero"},
-    {N = "Fly: Normal", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Fly%3A%20Normal"},
-    {N = "Fly: Soul", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Fly%3A%20Soul"},
-    {N = "FreeCam", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/FreeCam"},
-    {N = "Spin", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Spin"},
-    {N = "NoClip", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/NoClip"},
-    {N = "Swim", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Swim"},
-    {N = "Invisible", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Invisible"},
-    {N = "Part Path", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Part%20Path"},
-    {N = "Part Position", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Part%20Position"},
-    {N = "Bang", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Bang"},
-    {N = "Get Banged", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Get%20Banged"},
-    {N = "Shift Lock", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Shift%20Lock"},
-    {N = "Gui Edior", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Gui%20Edior"},
-    {N = "Executor", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Executor"},
-    {N = "Raw Link", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Raw%20Link"},
-    {N = "Get Animation", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Get%20Animation"},
-    {N = "Cloner", U = "https://raw.githubusercontent.com/BG-Home-Official/Script/refs/heads/main/Scripts/UnHub-Script/Cloner"},
-}
-
-for i, u in pairs(U) do
-    UnHub:CreateButton({Name = u.N, Callback = function()
-        loadstring(game:HttpGet(u.U))()
-    end})
-end
-
-local Dev = Window:CreateTab("Dev Script", 86591853167234)
-Dev:CreateSection("Dev Script")
-
-local D = {
-    {N = "SimpleSpy", U = "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"},
-    {N = "Keyboard", U = "https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/keyboard"},
-    {N = "Dex V2", U = "https://cdn.wearedevs.net/scripts/Dex%20Explorer.txt"},
-    {N = "Dex V3", U = "https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua"},
-    {N = "Dex V4", U = "https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"},
-}
-
-for i, d in pairs(D) do
-    Dev:CreateButton({Name = d.N, Callback = function()
-        loadstring(game:HttpGet(d.U))()
-    end})
-end
+task.spawn(function()
+    local Dev = Window:CreateTab("Dev Script", 86591853167234)
+    Dev:CreateSection("Dev Script")
+    
+    local D = {
+        {N = "SimpleSpy", U = "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"},
+        {N = "Keyboard", U = "https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/keyboard"},
+        {N = "Dex V2", U = "https://cdn.wearedevs.net/scripts/Dex%20Explorer.txt"},
+        {N = "Dex V3", U = "https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua"},
+        {N = "Dex V4", U = "https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"},
+    }
+    
+    for i, d in pairs(D) do
+        Dev:CreateButton({Name = d.N, Callback = function()
+            loadstring(game:HttpGet(d.U))()
+        end})
+    end
+end)
 
 local Aimbot = Window:CreateTab("Aimbot", 11162755592)
 Aimbot:CreateSection("Aimbot")
@@ -2499,6 +2504,8 @@ task.spawn(function()
     	end
     end
 end)
+end)
+
 
 loadstring(game:HttpGet("https://pastefy.app/XUwaJ6e7/raw"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Noob1"))()
