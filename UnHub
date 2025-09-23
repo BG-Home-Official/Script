@@ -35,28 +35,6 @@ local EHL = Color3.new(0, 0, 1)
 local EHH = Color3.new(0, 1, 0)
 local EHT = Color3.new(1, 1, 1)
 
-local ST = Instance.new("ScreenGui")
-local T = Instance.new("TextButton")
-local Corner = Instance.new("UICorner")
-ST.Name = "Toggle UnHub"
-ST.Parent = Rayfield:GetParent().Parent
-ST.ResetOnSpawn = false
-Corner.Name = "Corner"
-Corner.Parent = T
-T.Name = "T"
-T.Parent = ST
-T.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-T.Position = UDim2.new(0, 30, 0.08, 0)
-T.Size = UDim2.new(0, 70, 0, 28)
-T.Font = Enum.Font.SourceSans
-T.Text = "UnHub"
-T.TextColor3 = Color3.fromRGB(248, 248, 248)
-T.TextSize = 20
-T.Active = true
-T.Draggable = true
-T.MouseButton1Click:connect(function()
-    Rayfield:SetEnable(not Rayfield:GetEnable())
-end)
 local follower, following, friend
 pcall(function()
     api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
@@ -261,6 +239,29 @@ local function sendMessage(message, history, system)
     local decoded = game:GetService("HttpService"):JSONDecode(response.Body)
     return decoded.reply, decoded.history
 end
+
+local ST = Instance.new("ScreenGui")
+local T = Instance.new("TextButton")
+local Corner = Instance.new("UICorner")
+ST.Name = "Toggle UnHub"
+ST.Parent = Rayfield:GetParent().Parent
+ST.ResetOnSpawn = false
+Corner.Name = "Corner"
+Corner.Parent = T
+T.Name = "T"
+T.Parent = ST
+T.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+T.Position = UDim2.new(0, 30, 0.08, 0)
+T.Size = UDim2.new(0, 70, 0, 28)
+T.Font = Enum.Font.SourceSans
+T.Text = "UnHub"
+T.TextColor3 = Color3.fromRGB(248, 248, 248)
+T.TextSize = 20
+T.Active = true
+T.Draggable = true
+T.MouseButton1Click:connect(function()
+    Rayfield:SetEnable(not Rayfield:GetEnable())
+end)
 
 local function sendMessageToDc(message, name, img)
     local body = {
