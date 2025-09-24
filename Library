@@ -3355,6 +3355,196 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			return ToggleSettings
 		end
+		
+		function Tab:CreateImageToggle(ToggleSettings)
+			local ToggleValue = {}
+
+			local Toggle = Elements.Template.Toggle:Clone()
+			Toggle.Name = ToggleSettings.Name
+			Toggle.Title.Text = ToggleSettings.Name
+			Toggle.Visible = true
+			Toggle.Parent = TabPage
+
+			Toggle.BackgroundTransparency = 1
+			Toggle.UIStroke.Transparency = 1
+			Toggle.Title.TextTransparency = 1
+			Toggle.Switch.BackgroundColor3 = SelectedTheme.ToggleBackground
+			
+			Toggle.Title.Size = UDim2(0, 340, 0, 14)
+			Toggle.Title.Position = UDim2(0, 60, 0.5, 0)
+			
+			local ImageLabel = Instance.new("ImageLabel")
+		    ImageLabel.Name = "ImageLabel"
+		    ImageLabel.Parent = Toggle
+		    ImageLabel.Position = UDim2.new(0, 0, 0.5, 0)
+		    ImageLabel.Size = UDim2.new(0, 50, 1, 0)
+		    ImageLabel.ScaleType = Enum.ScaleType.Fit
+		    ImageLabel.AnchorPoint = Vector2.new(0, 0.5)
+		    ImageLabel.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+		    ImageLabel.BackgroundTransparency = 1
+		    ImageLabel.Image = tostring(ToggleSettings.Img)
+		
+		    local UICorner2 = Instance.new("UICorner")
+		    UICorner2.CornerRadius = UDim.new(0, 9)
+		    UICorner2.Parent = ImageLabel
+
+			if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+				Toggle.Switch.Shadow.Visible = false
+			end
+
+			TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
+			TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
+			TweenService:Create(Toggle.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
+
+			if ToggleSettings.CurrentValue == true then
+				Toggle.Switch.Indicator.Position = UDim2.new(1, -20, 0.5, 0)
+				Toggle.Switch.Indicator.UIStroke.Color = SelectedTheme.ToggleEnabledStroke
+				Toggle.Switch.Indicator.BackgroundColor3 = SelectedTheme.ToggleEnabled
+				Toggle.Switch.UIStroke.Color = SelectedTheme.ToggleEnabledOuterStroke
+			else
+				Toggle.Switch.Indicator.Position = UDim2.new(1, -40, 0.5, 0)
+				Toggle.Switch.Indicator.UIStroke.Color = SelectedTheme.ToggleDisabledStroke
+				Toggle.Switch.Indicator.BackgroundColor3 = SelectedTheme.ToggleDisabled
+				Toggle.Switch.UIStroke.Color = SelectedTheme.ToggleDisabledOuterStroke
+			end
+
+			Toggle.MouseEnter:Connect(function()
+				TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackgroundHover}):Play()
+			end)
+
+			Toggle.MouseLeave:Connect(function()
+				TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
+			end)
+
+			Toggle.Interact.MouseButton1Click:Connect(function()
+				if ToggleSettings.CurrentValue == true then
+					ToggleSettings.CurrentValue = false
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackgroundHover}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(1, -40, 0.5, 0)}):Play()
+					TweenService:Create(Toggle.Switch.Indicator.UIStroke, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Color = SelectedTheme.ToggleDisabledStroke}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundColor3 = SelectedTheme.ToggleDisabled}):Play()
+					TweenService:Create(Toggle.Switch.UIStroke, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Color = SelectedTheme.ToggleDisabledOuterStroke}):Play()
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()	
+				else
+					ToggleSettings.CurrentValue = true
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackgroundHover}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(1, -20, 0.5, 0)}):Play()
+					TweenService:Create(Toggle.Switch.Indicator.UIStroke, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Color = SelectedTheme.ToggleEnabledStroke}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundColor3 = SelectedTheme.ToggleEnabled}):Play()
+					TweenService:Create(Toggle.Switch.UIStroke, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Color = SelectedTheme.ToggleEnabledOuterStroke}):Play()
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()		
+				end
+
+				local Success, Response = pcall(function()
+					if debugX then warn('Running toggle \''..ToggleSettings.Name..'\' (Interact)') end
+
+					ToggleSettings.Callback(ToggleSettings.CurrentValue)
+				end)
+
+				if not Success then
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+					Toggle.Title.Text = "Callback Error"
+					print("Rayfield | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					warn('Check docs.sirius.menu for help with Rayfield specific development.')
+					task.wait(0.5)
+					Toggle.Title.Text = ToggleSettings.Name
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
+				end
+
+				if not ToggleSettings.Ext then
+					SaveConfiguration()
+				end
+			end)
+			function ToggleSettings:Get()
+				return ToggleSettings.CurrentValue
+			end
+			function ToggleSettings:Set(NewToggleValue)
+				if NewToggleValue == true then
+					ToggleSettings.CurrentValue = true
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackgroundHover}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(1, -20, 0.5, 0)}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0,12,0,12)}):Play()
+					TweenService:Create(Toggle.Switch.Indicator.UIStroke, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Color = SelectedTheme.ToggleEnabledStroke}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundColor3 = SelectedTheme.ToggleEnabled}):Play()
+					TweenService:Create(Toggle.Switch.UIStroke, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Color = SelectedTheme.ToggleEnabledOuterStroke}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0,17,0,17)}):Play()	
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()	
+				else
+					ToggleSettings.CurrentValue = false
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackgroundHover}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(1, -40, 0.5, 0)}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0,12,0,12)}):Play()
+					TweenService:Create(Toggle.Switch.Indicator.UIStroke, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Color = SelectedTheme.ToggleDisabledStroke}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundColor3 = SelectedTheme.ToggleDisabled}):Play()
+					TweenService:Create(Toggle.Switch.UIStroke, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Color = SelectedTheme.ToggleDisabledOuterStroke}):Play()
+					TweenService:Create(Toggle.Switch.Indicator, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0,17,0,17)}):Play()
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()	
+				end
+
+				local Success, Response = pcall(function()
+					if debugX then warn('Running toggle \''..ToggleSettings.Name..'\' (:Set)') end
+
+					ToggleSettings.Callback(ToggleSettings.CurrentValue)
+				end)
+
+				if not Success then
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+					Toggle.Title.Text = "Callback Error"
+					print("Rayfield | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					warn('Check docs.sirius.menu for help with Rayfield specific development.')
+					task.wait(0.5)
+					Toggle.Title.Text = ToggleSettings.Name
+					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
+					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
+				end
+
+				if not ToggleSettings.Ext then
+					SaveConfiguration()
+				end
+			end
+
+			if not ToggleSettings.Ext then
+				if Settings.ConfigurationSaving then
+					if Settings.ConfigurationSaving.Enabled and ToggleSettings.Flag then
+						RayfieldLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
+					end
+				end
+			end
+
+
+			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
+				Toggle.Switch.BackgroundColor3 = SelectedTheme.ToggleBackground
+
+				if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+					Toggle.Switch.Shadow.Visible = false
+				end
+
+				task.wait()
+
+				if not ToggleSettings.CurrentValue then
+					Toggle.Switch.Indicator.UIStroke.Color = SelectedTheme.ToggleDisabledStroke
+					Toggle.Switch.Indicator.BackgroundColor3 = SelectedTheme.ToggleDisabled
+					Toggle.Switch.UIStroke.Color = SelectedTheme.ToggleDisabledOuterStroke
+				else
+					Toggle.Switch.Indicator.UIStroke.Color = SelectedTheme.ToggleEnabledStroke
+					Toggle.Switch.Indicator.BackgroundColor3 = SelectedTheme.ToggleEnabled
+					Toggle.Switch.UIStroke.Color = SelectedTheme.ToggleEnabledOuterStroke
+				end
+			end)
+
+			return ToggleSettings
+		end
 
 		-- Slider
 		function Tab:CreateSlider(SliderSettings)
