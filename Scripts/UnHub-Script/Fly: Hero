@@ -1,4 +1,3 @@
-
 local tpHero, flyingHero, flyHero = false, false, false
 local TweenService = game:GetService("TweenService")  
 local speedsHero = 5
