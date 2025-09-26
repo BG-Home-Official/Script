@@ -1,13 +1,15 @@
+
 local tpHero, flyingHero, flyHero = false, false, false
+local TweenService = game:GetService("TweenService")  
 local speedsHero = 5
 local notMoving = false
 local loadanim
 local heartbeatConnection = nil
 local flyMoveConn = nil
+local IsNoFlyFast = false
 local plr = game.Players.LocalPlayer
 local Camera = game.Workspace.Camera
 local R6
-local test = 0
 local anim
 
 local function PlayAnim(id, time, speed)
@@ -22,7 +24,7 @@ local function PlayAnim(id, time, speed)
         local anim = Instance.new("Animation")
         anim.AnimationId = "rbxassetid://" .. id
         loadanim = hum:LoadAnimation(anim)
-        loadanim:Play()
+        loadanim:Play(2, 5, 10)
         loadanim.TimePosition = time
         loadanim:AdjustSpeed(speed)
         loadanim.Stopped:Connect(function()
@@ -48,16 +50,16 @@ function FlyHero()
     
 	task.spawn(function()
 		while flyHero do
-			flyBV.Velocity = Vector3.new(0, 2, 0)
-			task.wait(1)
-			flyBV.Velocity = Vector3.new(0, -2, 0)
-			task.wait(1)
+			flyBV.Velocity = Vector3.new(0, 1, 0)
+			task.wait(2)
+			flyBV.Velocity = Vector3.new(0, -1, 0)
+			task.wait(2)
 		end
 	end)
 
     local bg = Instance.new("BodyGyro", Torso)
-    bg.P = 9999
-    bg.MaxTorque = Vector3.new(509, 509, 509)
+    bg.P = speedsHero > 3 and 9999 or 9999999
+    bg.MaxTorque = Vector3.new(5e9, 5e9, 5e9)
     bg.CFrame = Torso.CFrame
     
     chr.Animate.Disabled = true
@@ -69,24 +71,31 @@ function FlyHero()
         		local moving = hum.MoveDirection.Magnitude > 0
         		if moving and notMoving then
         			notMoving = false
-for _, track in pairs(hum:GetPlayingAnimationTracks()) do
-        track:Stop()
-    end
-wait()
-        			PlayAnim(90872539, 1, 0)
-        			local bg = Torso:FindFirstChildOfClass("BodyGyro")
-        			if bg then bg:Destroy() end
-        			local TweenService = game:GetService("TweenService")  
-                	TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 110}):Play()  
+        			if speedsHero > 3 then
+        				IsNoFlyFast = false
+						for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+						        track:Stop()
+						    end
+						wait()
+	        			PlayAnim(90872539, 1, 0)
+	        			local bg = Torso:FindFirstChildOfClass("BodyGyro")
+	        			if bg then bg:Destroy() end
+	                	TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 110}):Play() 
+	                else
+	                	local bg = Torso:FindFirstChildOfClass("BodyGyro")
+	                	bg.P = 9999999
+	                	IsNoFlyFast = true
+	                end
         		elseif not moving and not notMoving then
         			notMoving = true
-for _, track in pairs(hum:GetPlayingAnimationTracks()) do
-        track:Stop()
-    end
-wait()
+					for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+					        track:Stop()
+					    end
+					wait()
         			PlayAnim(429730430, 4.95, 0)
-        			local TweenService = game:GetService("TweenService")  
-                	TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 70}):Play()  
+                	TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 70}):Play()
+                	local bg = Torso:FindFirstChildOfClass("BodyGyro")
+	                bg.P = 9999
         		end
         	end
         end)
@@ -97,24 +106,31 @@ wait()
         		local moving = hum.MoveDirection.Magnitude > 0
         		if moving and notMoving then
         			notMoving = false
-for _, track in pairs(hum:GetPlayingAnimationTracks()) do
-        track:Stop()
-    end
-wait()
-        			PlayAnim(10714177846, 4.65, 0)
-        			local bg = Torso:FindFirstChildOfClass("BodyGyro")
-        			if bg then bg:Destroy() end
-        			local TweenService = game:GetService("TweenService")  
-                	TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 110}):Play()  
+        			if speedsHero > 3 then
+        				IsNoFlyFast = false
+						for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+						        track:Stop()
+						    end
+						wait()
+	        			PlayAnim(10714177846, 4.65, 0)
+	        			local bg = Torso:FindFirstChildOfClass("BodyGyro")
+	        			if bg then bg:Destroy() end
+	                	TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 110}):Play()
+	                else
+	                	local bg = Torso:FindFirstChildOfClass("BodyGyro")
+	                	bg.P = 9999999
+	                	IsNoFlyFast = true
+                	end
         		elseif not moving and not notMoving then
         			notMoving = true
-for _, track in pairs(hum:GetPlayingAnimationTracks()) do
-        track:Stop()
-    end
-wait()
+					for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+					        track:Stop()
+					    end
+					wait()
         			PlayAnim(10714347256, 4.65, 0)
-        			local TweenService = game:GetService("TweenService")  
-                	TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 70}):Play()  
+                	TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 70}):Play()
+                	local bg = Torso:FindFirstChildOfClass("BodyGyro")
+	                bg.P = 9999
         		end
         	end
         end)
@@ -139,7 +155,7 @@ wait()
     hum:ChangeState(Enum.HumanoidStateType.Swimming)
     
     heartbeatConnection = game:GetService("RunService").Heartbeat:Connect(function()
-        if notMoving and flyingHero then
+        if (notMoving and flyingHero) or (speedsHero < 4 and flyingHero) then
             local Torso = chr:FindFirstChild("UpperTorso") or chr:FindFirstChild("Torso")
             if not Torso then return end
             local currentBG = Torso:FindFirstChildOfClass("BodyGyro")
@@ -206,6 +222,7 @@ end
 
 function updata()
     local chr = plr.Character
+    local Torso = chr:FindFirstChild("UpperTorso") or chr:FindFirstChild("Torso")
     local hum = chr:FindFirstChildWhichIsA("Humanoid")
     if flyMoveConn then
         flyMoveConn:Disconnect()
@@ -217,6 +234,41 @@ function updata()
             chr:TranslateBy(hum.MoveDirection * speedsHero * 0.3)
         end
     end)
+    if not notMoving  then
+    	if speedsHero > 3 and IsNoFlyFast then
+    		IsNoFlyFast = false
+			for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+				if track.Animation.AnimationId ~= "rbxassetid://90872539" or track.Animation.AnimationId ~= "rbxassetid://10714177846" then
+					track:Stop()
+				end
+			end
+			wait()
+			if hum.RigType == Enum.HumanoidRigType.R6 then
+				PlayAnim(90872539, 1, 0)
+			else
+				PlayAnim(10714177846, 4.65, 0)
+			end
+	        local bg = Torso:FindFirstChildOfClass("BodyGyro")
+	        if bg then bg:Destroy() end
+	        TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 110}):Play()
+    	elseif speedsHero < 4 and not IsNoFlyFast then
+    		IsNoFlyFast = true
+    		for _, track in pairs(hum:GetPlayingAnimationTracks()) do
+				if track.Animation.AnimationId ~= "rbxassetid://429730430" or track.Animation.AnimationId ~= "rbxassetid://10714347256" then
+					track:Stop()
+				end
+			end
+			wait()
+			if hum.RigType == Enum.HumanoidRigType.R6 then
+				PlayAnim(429730430, 4.95, 0)
+			else
+				PlayAnim(10714347256, 4.65, 0)
+			end
+            TweenService:Create(Camera, TweenInfo.new(0.5), {FieldOfView = 70}):Play()
+        	local bg = Torso:FindFirstChildOfClass("BodyGyro")
+	        bg.P = 9999999
+    	end
+    end
 end
 
 plr.Character:WaitForChild("Humanoid").Died:Connect(function()
