@@ -24,7 +24,6 @@ local AutoRejoin = false
 local Players = game:GetService("Players")
 local frameCount, timeElapsed, lastUpdate = 0, 0, 0
 local WalkSpeedSlider, JumpPowerSlider, Gravity1Slider, Gravity2Slider
-local api = {}
 local TurnOff = true
 local Playlist = {}
 local FOVRadius = 100
@@ -34,11 +33,8 @@ local AllBool = false
 local FlingTarget = ""
 local EspToggles = {}
 local EspRawScript = {}
-local EHB = Color3.new(1, 0, 0)
-local EHL = Color3.new(0, 0, 1)
-local EHH = Color3.new(0, 1, 0)
-local EHT = Color3.new(1, 1, 1)
-local follower, following, friend
+local EHB, EHL, EHH, EHT = Color3.new(1, 0, 0), Color3.new(0, 0, 1), Color3.new(0, 1, 0), Color3.new(1, 1, 1)
+local follower, following, friend, api
 local data
 local Track
 local ToggleR15 = {}
@@ -62,22 +58,6 @@ local EnableFpsCap = false
 local X = nil
 local FPSLimit = 60
 local clock = 8
-
-task.spawn(function()
-    pcall(function()
-        api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
-    end)
-    pcall(function()
-        follower = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followers/count'))
-    end)
-    pcall(function()
-        following = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followings/count'))
-    end)
-    pcall(function()
-        friend = game.HttpService:JSONDecode(game:HttpGet('https://friends.roblox.com/v1/users/' ..player.UserId ..'/friends/count'))
-    end)
-    data = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/7yd7/sniper-Emote/refs/heads/test/EmoteSniper.json")).data
-end)
 
 local function EnabledFps()
 	table.clear(Stuff)
@@ -198,30 +178,30 @@ local Window = Rayfield:CreateWindow({
 
 local Main = Window:CreateTab("Main", 125058207637011)
 local fps = Main:CreateSection("FPS: 0")
+local Ping = Main:CreateSection("Ping: 0")
 local Username = Main:CreateSection("Username: " .. player.Name)
 local Mouse2D = Main:CreateSection("Mouse 2D: X: 0 Y: 0")
 local Mouse3D = Main:CreateSection("Mouse 3D: X: 0 Y: 0 Z: 0")
 local PartPath = Main:CreateSection("Part Path: nil")
-local Friend = Main:CreateSection("Friend: " ..(friend and friend.count or "nil"))
-local Follower = Main:CreateSection("Follower: " .. (follower and follower.count or "nil"))
-local Following = Main:CreateSection("Following: " ..(following and following.count or "nil"))
+local Friend = Main:CreateSection("Friend: nil")
+local Follower = Main:CreateSection("Follower: nil")
+local Following = Main:CreateSection("Following: nil")
 local Name = Main:CreateSection("Display Name: " .. player.DisplayName)
 local UserId = Main:CreateSection("UserId: " .. player.UserId)
 local Age = Main:CreateSection("Account Age: " .. player.AccountAge)
-Main:CreateSection("GameID: " .. game.PlaceId)
 local PlayerInGame = Main:CreateSection("Players : 0")
 pcall(function()
 	Main:CreateSection("Game: " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name)
 end)
+Main:CreateSection("GameID: " .. game.PlaceId)
 Main:CreateSection("ServerID: " .. game.JobId)
-Main:CreateSection("IP: " .. (api.ip or "Unknown"))
-Main:CreateSection("Country: " .. (api.country or "Unknown") .. " " .. (api.country_code or ""))
+local IP = Main:CreateSection("IP: nil")
+local Country = Main:CreateSection("Country: nil")
 local position = Main:CreateSection("X: 0 Y: Z: 0")
 local health = Main:CreateSection("Health: 0")
 local GameTime = Main:CreateSection("Time: 0")
 local Speed = Main:CreateSection("Speed: 0/s")
-local RR = Main:CreateSection("nil")
-local Ping = Main:CreateSection("Ping: 0")
+local RR = Main:CreateSection("Type: nil")
 
 pcall(function()
 	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
@@ -230,6 +210,46 @@ pcall(function()
 	else
 		RR:Set("Type: R6")
 	end
+end)
+
+task.spawn(function()
+    pcall(function()
+        api = game.HttpService:JSONDecode(game:HttpGet('https://ipwho.is/'))
+        if api then
+            IP:Set("IP: " ..api.ip)
+            Country:Set("Country: " ..api.country .." " ..api.country_code)
+        else
+            IP:Set("IP: nil")
+            Country:Set("Country: nil")
+        end
+    end)
+    pcall(function()
+        follower = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followers/count'))
+        if follower then
+            Follower:Set("Follower: " ..follower.count)
+        else
+            Follower:Set("Follower: nil")
+        end
+    end)
+    pcall(function()
+        following = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..player.UserId ..'/followings/count'))
+        if following then
+            Following:Set("Following: " ..following.count)
+        else
+            Following:Set("Following: nil")
+        end
+    end)
+    pcall(function()
+        friend = game.HttpService:JSONDecode(game:HttpGet('https://friends.roblox.com/v1/users/' ..player.UserId ..'/friends/count'))
+        if friend then
+            Friend:Set("Friend: " ..friend.count)
+        else
+            Friend:Set("Friend: nil")
+        end
+    end)
+    pcall(function()
+        data = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/7yd7/sniper-Emote/refs/heads/test/EmoteSniper.json")).data
+    end)
 end)
 
 local Client = Window:CreateTab("Client", 2242016188)
@@ -299,7 +319,7 @@ Gravity1Slider = Client:CreateSlider({Name = "Gravity", Range = {-1000, 1000}, I
     end
 end})
 
-Client:CreateSection("Game")
+Client:CreateSection("Game Setting")
 
 Client:CreateToggle({Name = "Anti Afk Bypass", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     local vu = game:GetService("VirtualUser")
@@ -361,11 +381,11 @@ Client:CreateToggle({Name = "Anti Kick", CurrentValue = false, Flag = "Toggle1",
     RunAntiKick = Value
 end})
 
-Client:CreateToggle({Name = "Anti Kick", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+Client:CreateToggle({Name = "Anti Ban", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     RunAntiBan = Value
 end})
 
-Client:CreateButton({Name = "Fps Booster", Callback = function()
+Client:CreateButton({Name = "FPS Booster", Callback = function()
     EnabledFps()
 end})
 
@@ -425,17 +445,30 @@ Client:CreateToggle({Name = "White Screen", CurrentValue = false, Flag = "Toggle
     end
 end})
 
-Client:CreateSlider({Name = "Fps Cap", Range = {1, 240}, Increment = 1, Suffix = "Fps", CurrentValue = 60, Flag = "Slider1", Callback = function(Value)
+Client:CreateSlider({Name = "FPS Cap", Range = {1, 240}, Increment = 1, Suffix = "Fps", CurrentValue = 60, Flag = "Slider1", Callback = function(Value)
     FPSLimit = Value
 end})
 
-Client:CreateToggle({Name = "Enable Fps Cap", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+Client:CreateToggle({Name = "Enable FPS Cap", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     EnableFpsCap = Value
+end})
+
+Client:CreateButton({Name = "Console", Callback = function()
+    game.StarterGui:SetCore("DevConsoleVisible", true)
+end})
+
+Client:CreateToggle({Name = "Day & Night", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
+    local lighting = game.Lighting
+    if Value then
+        lighting.TimeOfDay = 0
+    else
+        lighting.TimeOfDay = 12
+    end
 end})
 
 Client:CreateSection("Position Player")
 
-local TargetTp = Client:CreateLabel("Player: nil", 4483362458, Color3.fromRGB(255, 255, 255), false)
+local TargetTp = Client:CreateLabel("Player: nil", 0, Color3.fromRGB(255, 255, 255), true)
 Client:CreateInput({Name = "Teleport", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
     local txt = tostring(Text):lower()
     local localPlayer = game.Players.LocalPlayer
@@ -447,7 +480,7 @@ Client:CreateInput({Name = "Teleport", CurrentValue = "", PlaceholderText = "Pla
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= localPlayer then
             if string.find(player.Name:lower(), txt) then
-                TargetTp:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                TargetTp:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 TpToPlayerTarget = player
                 if targetHRP then
@@ -459,13 +492,13 @@ Client:CreateInput({Name = "Teleport", CurrentValue = "", PlaceholderText = "Pla
     end
 end})
 
-local TargetFollow = Client:CreateLabel("Player: nil", 4483362458, Color3.fromRGB(255, 255, 255), false)
+local TargetFollow = Client:CreateLabel("Player: nil", 0, Color3.fromRGB(255, 255, 255), true)
 Client:CreateInput({Name = "Follow", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(Text)
     local txt = tostring(Text):lower()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= localPlayer then
             if string.find(player.Name:lower(), txt) then
-                TargetFollow:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                TargetFollow:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if targetHRP then
                     WalkToPlayerTarget = player
@@ -475,13 +508,13 @@ Client:CreateInput({Name = "Follow", CurrentValue = "", PlaceholderText = "Playe
     end
 end})
 
-local TargetSp = Client:CreateLabel("Player: nil", 4483362458, Color3.fromRGB(255, 255, 255), false)
+local TargetSp = Client:CreateLabel("Player: nil", 0, Color3.fromRGB(255, 255, 255), true)
 Client:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "Player Name", RemoveTextAfterFocusLost = true, Callback = function(txt)
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= game.Players.LocalPlayer then
             local found = string.find(player.Name:lower(), txt)
             if found then
-                TargetSp:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                TargetSp:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 local cam = workspace.CurrentCamera
                 if player.Character and player.Character:FindFirstChild("Humanoid") then
                     cam.CameraSubject = player.Character.Humanoid
@@ -492,7 +525,7 @@ Client:CreateInput({Name = "Spectator", CurrentValue = "", PlaceholderText = "Pl
     end
 end})
 
-local TargetPosition = Client:CreateLabel("X: nil Y: nil Z: nil", 4483362458, Color3.fromRGB(255, 255, 255), false)
+local TargetPosition = Client:CreateLabel("X: nil Y: nil Z: nil", 0, Color3.fromRGB(255, 255, 255), true)
 Client:CreateInput({Name = "Teleport To Position", CurrentValue = "", PlaceholderText = "Position", RemoveTextAfterFocusLost = true, Callback = function(txt)
     local delimiter = string.find(txt, ",") and "," or " "
     local coords = string.split(txt, delimiter)
@@ -502,7 +535,7 @@ Client:CreateInput({Name = "Teleport To Position", CurrentValue = "", Placeholde
     local x = tonumber(coords[1])
     local y = tonumber(coords[2])
     local z = tonumber(coords[3])
-    TargetPosition:Set("X: " ..x .." Y: " ..y .." Z: " ..z, 4483362458, Color3.fromRGB(255, 255, 255), false)
+    TargetPosition:Set("X: " ..x .." Y: " ..y .." Z: " ..z, 0, Color3.fromRGB(255, 255, 255), true)
     if not x or not y or not z then
         return
     end
@@ -528,7 +561,7 @@ local TP = Client:CreateDropdown({
 
         for _, player in pairs(Players:GetPlayers()) do
             if player.Name:lower():find(name:lower()) then
-                TargetTp:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                TargetTp:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 TpToPlayerTarget = player
                 local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if targetHRP then
@@ -549,7 +582,7 @@ local WT = Client:CreateDropdown({
     Callback = function(name)
         for _, player in pairs(Players:GetPlayers()) do
             if player.Name:lower():find(name:lower()) then
-                TargetFollow:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                TargetFollow:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 local targetHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if targetHRP then
                     WalkToPlayerTarget = player
@@ -570,7 +603,7 @@ local SP = Client:CreateDropdown({
         for _, player in pairs(Players:GetPlayers()) do
             if player.Name:lower():find(name:lower()) then
                 local cam = workspace.CurrentCamera
-                TargetSp:Set("Player: " ..player.Name, 4483362458, Color3.fromRGB(255, 255, 255), false)
+                TargetSp:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 if player.Character and player.Character:FindFirstChild("Humanoid") then
                     cam.CameraSubject = player.Character.Humanoid
                     break
@@ -729,21 +762,6 @@ Client:CreateSlider({Name = "Blur", Range = {0, 100}, Increment = 1, Suffix = "S
         Blur.Size = 0
     end
     Blur.Size = Value
-end})
-
-Client:CreateSection("Game")
-
-Client:CreateButton({Name = "Console", Callback = function()
-    game.StarterGui:SetCore("DevConsoleVisible", true)
-end})
-
-Client:CreateToggle({Name = "Day & Night", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
-    local lighting = game.Lighting
-    if Value then
-        lighting.TimeOfDay = 0
-    else
-        lighting.TimeOfDay = 12
-    end
 end})
 
 Client:CreateSection("Animations & Sounds")
@@ -1407,47 +1425,53 @@ Search:CreateInput({
         Items.Buttons = {}
 
         local HttpService = game:GetService("HttpService")
-        local success, result = pcall(function()
-            return HttpService:JSONDecode(
-                game:HttpGet("https://scriptblox.com/api/script/search?q=" .. Text .. "&max=100&page=1")
-            )
-        end)
+        local page = 1
+        local keepFetching = true
 
-        if success and result and result.result and result.result.scripts then
-            for _, scriptData in ipairs(result.result.scripts) do
-                local scriptName = scriptData.title or "Unknown Script"
-                local scriptGameName = (scriptData.game and scriptData.game.name) or "Unknown Game"
-                local scriptGameId = (scriptData.game and scriptData.game.gameId) or 0
-                local scriptSlug = scriptData.slug
+        while keepFetching do
+            local success, result = pcall(function()
+                return HttpService:JSONDecode(
+                    game:HttpGet("https://scriptblox.com/api/script/search?q=" .. Text .. "&max=100&page=" .. page)
+                )
+            end)
 
-                local Image
-                if scriptGameId == 7436755782 then
-                    Image = string.format("rbxthumb://type=GameIcon&id=%d&w=512&h=512", scriptGameId)
-                else
-                    Image = "rbxthumb://type=GameThumbnail&id="..scriptGameId.."&w=256&h=144"
-                end
-                local Section = Search:CreateSection(scriptGameName)
+            if success and result and result.result and result.result.scripts and #result.result.scripts > 0 then
+                for _, scriptData in ipairs(result.result.scripts) do
+                    local scriptName = scriptData.title or "Unknown Script"
+                    local scriptGameName = (scriptData.game and scriptData.game.name) or "Unknown Game"
+                    local scriptGameId = (scriptData.game and scriptData.game.gameId) or 0
+                    local scriptSlug = scriptData.slug
 
-                local ButtonValue = Search:CreateImageButton({
-                    Name = scriptName,
-                    Img = Image,
-                    Callback = function()
-                        local ok, rawCode = pcall(function()
-                            return game:HttpGet("https://scriptblox.com/raw/" .. scriptSlug)
-                        end)
-                        if ok and rawCode then
-                            loadstring(rawCode)()
-                        else
-                            warn("Failed to load script: " .. scriptName)
-                        end
+                    local Image
+                    if scriptGameId == 7436755782 then
+                        Image = string.format("rbxthumb://type=GameIcon&id=%d&w=512&h=512", scriptGameId)
+                    else
+                        Image = "rbxthumb://type=GameThumbnail&id="..scriptGameId.."&w=256&h=144"
                     end
-                })
 
-                table.insert(Items.Sections, Section)
-                table.insert(Items.Buttons, ButtonValue)
+                    local Section = Search:CreateSection(scriptGameName)
+                    local ButtonValue = Search:CreateImageButton({
+                        Name = scriptName,
+                        Img = Image,
+                        Callback = function()
+                            local ok, rawCode = pcall(function()
+                                return game:HttpGet("https://scriptblox.com/raw/" .. scriptSlug)
+                            end)
+                            if ok and rawCode then
+                                loadstring(rawCode)()
+                            else
+                                warn("Failed to load script: " .. scriptName)
+                            end
+                        end
+                    })
+
+                    table.insert(Items.Sections, Section)
+                    table.insert(Items.Buttons, ButtonValue)
+                end
+                page = page + 1
+            else
+                keepFetching = false
             end
-        else
-            warn("Failed to fetch scripts or invalid response.")
         end
     end
 })
@@ -1540,11 +1564,10 @@ local FollowingCountInfo
 local IsBannedInfo
 local LastDeviceInfo
 local Description
-
 local TextInSearch = 0
 
 GetInfo:CreateInput({Name = "Search", CurrentValue = "", PlaceholderText = "Put Username or UserId", RemoveTextAfterFocusLost = true, Callback = function(txt)
-    if txt == 0 then
+    if txt == "0" then
         Rayfield:Notify({
             Title = "⚠️ Warn!",
             Content = "Failed to get player",
@@ -1604,24 +1627,29 @@ GetInfo:CreateButton({Name = "Search", Callback = function()
         local friendCount = {}
         pcall(function()
             api = game.HttpService:JSONDecode(game:HttpGet('https://users.roblox.com/v1/users/'..TextInSearch))
+            if api then
+                IsBannedInfo:Set("IsBanned: "..tostring(api.isBanned) or nil)
+                IsVerifiedInfo:Set("IsVerified: "..tostring(api.hasVerifiedBadge) or nil)
+                Description:Set("Description: " ..api.description or nil)
+                local accountCreatedTime = DateTime.fromIsoDate(api.created).UnixTimestamp
+                local currentTime = DateTime.now().UnixTimestamp
+                local accountAgeDays = (currentTime - accountCreatedTime) / 86400
+                local date = os.date("*t", os.time() - (math.floor(accountAgeDays + 1) * 24 * 60 * 60))
+                AccountAgeInfo:Set("AccountAge: " ..math.floor(accountAgeDays + 1))
+                AccountCreationDateInfo:Set("Account Creation Date: " ..string.format("%04d/%02d/%02d", date.year, date.month, date.day))
+                DisplayNameInfo:Set("DisplayName: " ..api.displayName)
+            else
+                IsBannedInfo:Set("IsBanned: nil")
+                IsVerifiedInfo:Set("IsVerified: nil")
+                Description:Set("Description: nil")
+                AccountAgeInfo:Set("AccountAge: nil")
+                AccountCreationDateInfo:Set("Account Creation Date: nil")
+                DisplayNameInfo:Set("DisplayName: nil")
+            end
         end)
-        pcall(function()
-            followerCount = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..TextInSearch ..'/followers/count'))
-        end)
-        pcall(function()
-            followingCount = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..TextInSearch ..'/followings/count'))
-        end)
-        pcall(function()
-            friendCount = game.HttpService:JSONDecode(game:HttpGet('https://friends.roblox.com/v1/users/' ..TextInSearch ..'/friends/count'))
-        end)
-        local accountCreatedTime = DateTime.fromIsoDate(api.created).UnixTimestamp
-        local currentTime = DateTime.now().UnixTimestamp
-        local accountAgeDays = (currentTime - accountCreatedTime) / 86400
-        local date = os.date("*t", os.time() - (math.floor(accountAgeDays + 1) * 24 * 60 * 60))
         local requestFunction = (syn and syn.request) or (http and http.request)
         local function CheckIfOnline(UserId)
-            local ProxyURL = "roproxy.com"
-            local URL = "https://presence." .. ProxyURL .. "/v1/presence/users"
+            local URL = "https://presence.roproxy.com/v1/presence/users"
             local Body = HttpService:JSONEncode({userIds = {UserId}})
             local response = requestFunction({Url = URL, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = Body})
             if response.StatusCode ~= 200 then return false end
@@ -1631,11 +1659,9 @@ GetInfo:CreateButton({Name = "Search", Callback = function()
         end
         UsernameInfo:Set("Username: "..name)
         UserIdInfo:Set("UserId: " ..TextInSearch)
-        DisplayNameInfo:Set("DisplayName: " ..api.displayName)
-        AccountAgeInfo:Set("AccountAge: " ..math.floor(accountAgeDays + 1))
-        AccountCreationDateInfo:Set("Account Creation Date: " ..string.format("%04d/%02d/%02d", date.year, date.month, date.day))
         if CheckIfOnline(TextInSearch) > 0 then
             IsOnlineInfo:Set("IsOnline: true")
+            IsPlayingInfo:Set("IsPlaying: false")
             if CheckIfOnline(TextInSearch) == 2 then
                 IsOnlineInfo:Set("IsOnline: true")
                 IsPlayingInfo:Set("IsPlaying: true")
@@ -1644,12 +1670,32 @@ GetInfo:CreateButton({Name = "Search", Callback = function()
             IsOnlineInfo:Set("IsOnline: false")
             IsPlayingInfo:Set("IsPlaying: false")
         end
-        FriendCountInfo:Set("Friend: " ..friendCount.count)
-        FollowingCountInfo:Set("Following: " ..followingCount.count)
-        FollowerCountInfo:Set("Follower: " ..followerCount.count or nil)
-        IsBannedInfo:Set("IsBanned: "..tostring(api.isBanned))
-        IsVerifiedInfo:Set("IsVerified: "..tostring(api.hasVerifiedBadge))
-        Description:Set("Description: " ..api.description)
+        task.spawn(function()
+            pcall(function()
+                followerCount = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..TextInSearch ..'/followers/count'))
+                if followerCount then
+                    FollowerCountInfo:Set("Follower: " ..followerCount.count or nil)
+                else
+                    FollowerCountInfo:Set("Follower: nil")
+                end
+            end)
+            pcall(function()
+                followingCount = game.HttpService:JSONDecode(game:HttpGet('https://friends.roproxy.com/v1/users/' ..TextInSearch ..'/followings/count'))
+                if followingCount then
+                    FollowingCountInfo:Set("Following: " ..followingCount.count or nil)
+                else
+                    FollowingCountInfo:Set("Following: nil")
+                end
+            end)
+            pcall(function()
+                friendCount = game.HttpService:JSONDecode(game:HttpGet('https://friends.roblox.com/v1/users/' ..TextInSearch ..'/friends/count'))
+                if friendCount then
+                    FriendCountInfo:Set("Friend: " ..friendCount.count or nil)
+                else
+                    FriendCountInfo:Set("Friend: nil")
+                end
+            end)
+        end)
     end
 end})
 
@@ -1827,7 +1873,7 @@ local function SkidFling(TargetPlayer)
     end
 end
 
-local ShowFlingPlayer = Fling:CreateSection("Player: nil")
+local ShowFlingPlayer = Fling:CreateLabel("Player: nil", 0, Color3.fromRGB(255, 255, 255), true)
 local RunningFling = false
 local FlingAll = nil
 local TouchFlingT = nil
@@ -1913,7 +1959,7 @@ Fling:CreateInput({Name = "Target", CurrentValue = "", PlaceholderText = "Userna
         if player.Name:lower():find(txt:lower()) then
             if player ~= game.Players.LocalPlayer then
                 FlingTarget = player
-                ShowFlingPlayer:Set("Player: " ..player.Name)
+                ShowFlingPlayer:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 FlingAll:Set(false)
                 TouchFlingT:Set(false)
                 if RunningFling then
@@ -1939,7 +1985,7 @@ local DropFling = Fling:CreateDropdown({Name = "Target", Options = Playlist, Cur
         if player.Name == name then
             if player ~= game.Players.LocalPlayer then
                 FlingTarget = player
-                ShowFlingPlayer:Set("Player: " ..player.Name)
+                ShowFlingPlayer:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 FlingAll:Set(false)
                 TouchFlingT:Set(false)
                 if RunningFling then
@@ -2199,7 +2245,7 @@ AIChatBot:CreateToggle({Name = "Running", CurrentValue = false, Flag = "Toggle1"
     end
 end})
 
-local PlayerShow = AIChatBot:CreateSection("Player: nil")
+local PlayerShow = AIChatBot:CreateLabel("Player: nil", 0, Color3.fromRGB(255, 255, 255), true)
 local AIChatAll = nil
 
 AIChatBot:CreateInput({Name = "Target", CurrentValue = "", PlaceholderText = "Username", RemoveTextAfterFocusLost = true, Callback = function(txt)
@@ -2207,7 +2253,7 @@ AIChatBot:CreateInput({Name = "Target", CurrentValue = "", PlaceholderText = "Us
         if player.Name:lower():find(txt:lower()) then
             if player ~= game.Players.LocalPlayer then
                 TargetPlayerAiChat = player
-                PlayerShow:Set("Player: " ..player.Name)
+                PlayerShow:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 if Running then
                     UpdataChat()
                 end
@@ -2231,7 +2277,7 @@ local DropAIChatBot = AIChatBot:CreateDropdown({Name = "Target", Options = Playl
         if player.Name == name then
             if player ~= game.Players.LocalPlayer then
                 TargetPlayerAiChat = player
-                PlayerShow:Set("Player: " ..player.Name)
+                PlayerShow:Set("Player: " ..player.Name, 0, Color3.fromRGB(255, 255, 255), true)
                 if Running then
                     UpdataChat()
                 end
@@ -2263,10 +2309,12 @@ AIChatBot:CreateButton({
 
 AIChatAll = AIChatBot:CreateToggle({Name = "All Players", CurrentValue = false, Flag = "Toggle1", Callback = function(Value)
     IsAllPlayers = Value
-    TargetPlayerAiChat = Value and nil
-    PlayerShow:Set("Players: All")
-    if Running then
-        UpdataChat()
+    if Value then
+        TargetPlayerAiChat = Value and nil
+        PlayerShow:Set("Player: All", 0, Color3.fromRGB(255, 255, 255), true)
+        if Running then
+            UpdataChat()
+        end
     end
 end})
 
@@ -2582,6 +2630,12 @@ task.spawn(function()
                 end
                 if RunAntiKick then
                     RunAntiKick = false
+                end
+                if ac1 then
+                    hookmetamethod(game, "__namecall", ac1)
+                end
+                if X then
+                    hookmetamethod(game, "__namecall", X)
                 end
             end
             break
