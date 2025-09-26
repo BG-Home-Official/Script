@@ -108,9 +108,7 @@ function FlyHero()
 
             end
 
-            local camCF = workspace.Camera.CFrame
-
-            currentBG.CFrame = camCF
+            currentBG.CFrame = Camera.CFrame
 
         end
 
